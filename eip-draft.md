@@ -344,7 +344,7 @@ Common interface metadata (ERC-20, ERC-721, etc.) can be defined once and includ
 
 Includes support two formats:
 
-- **`interface:` prefix** -- references a named interface file in the `interfaces/` subdirectory relative to the `$schema` URL (e.g. `"interface:erc721"` resolves to `interfaces/erc721.json` next to the schema file). These files contain only `groups`, `functions`, and `events`.
+- **`interface:` prefix** -- references a named interface file in the `interfaces/` subdirectory relative to the `$schema` URL (e.g. `"interface:erc721"` resolves to `interfaces/erc721.json` next to the schema file). These files contain `groups`, `functions`, `events`, `errors`, and `messages`.
 - **URL** -- fetches the metadata file from the given URL. The resolved file can live anywhere and follows the same structure.
 
 Multiple includes merge left-to-right. Contract-specific metadata is then applied on top.
@@ -354,7 +354,7 @@ Multiple includes merge left-to-right. Contract-specific metadata is then applie
 The merge is _shallow per top-level key within each section_. When a contract defines a function that also exists in an included interface, the contract's entire function object replaces the interface's. There is no deep merge of `params`, `returns`, or other nested fields. This means if you override a function, you MUST re-declare everything you want to keep (params, returns, types, etc.).
 
 ```
-# Merge order for includes: ["erc20", "erc721"]
+# Merge order for includes: ["interface:erc20", "interface:erc721"]
 1. Start with empty {}
 2. Merge erc20.json    -> { functions: { transfer: {from erc20}, approve: {from erc20} } }
 3. Merge erc721.json   -> { functions: { transfer: {from erc721}, approve: {from erc721}, ownerOf: {from erc721} } }

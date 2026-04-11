@@ -5,6 +5,7 @@ import { join, basename } from 'path'
 
 interface ContractData {
   address?: string
+  includes?: string[]
   groups?: Record<string, unknown>
   functions?: Record<string, FunctionEntry>
   events?: Record<string, unknown>
@@ -150,6 +151,18 @@ function semanticChecks(data: ContractData, path: string): string[] {
     for (const key of Object.keys(data.errors)) {
       if (!SELECTOR_4BYTE.test(key) && !SIGNATURE_RE.test(key) && /[^a-zA-Z0-9_]/.test(key)) {
         warnings.push(`errors key "${key}" is not a valid name, signature, or 4-byte selector`)
+      }
+    }
+  }
+
+  // Check includes references
+  if (data.includes) {
+    for (const ref of data.includes) {
+      if (ref.startsWith('interface:')) {
+        const name = ref.slice('interface:'.length)
+        if (!existsSync(join('schema', 'interfaces', `${name}.json`))) {
+          warnings.push(`includes references unknown interface "${ref}"`)
+        }
       }
     }
   }

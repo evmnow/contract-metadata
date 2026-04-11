@@ -25,7 +25,7 @@
     "includes": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Interface identifiers to include (e.g. \"erc20\", \"erc721\"). Included metadata is merged with contract-specific metadata taking priority."
+      "description": "Interface identifiers to include (e.g. \"interface:erc20\", \"interface:erc721\"). Included metadata is merged with contract-specific metadata taking priority."
     },
     "meta": {
       "$ref": "#/$defs/DocumentMeta",

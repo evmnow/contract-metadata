@@ -2,22 +2,25 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/1001-digital/contract-metadata/schema/interface.schema.json",
   "title": "Contract Metadata Interface",
-  "description": "Reusable metadata for standard interfaces (ERC-20, ERC-721, etc.). Provides groups, functions, events, and messages that can be included by contract metadata files via the includes field.",
+  "description": "Reusable metadata for standard interfaces (ERC-20, ERC-721, etc.). Provides groups, actions, events, and messages that can be included by contract metadata files via the includes field.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
     "groups": {
       "type": "object",
-      "description": "Named groups for organizing functions in the UI.",
+      "description": "Named groups for organizing actions in the UI.",
       "additionalProperties": {
         "$ref": "contract-metadata.schema.json#/$defs/Group"
       }
     },
-    "functions": {
+    "actions": {
       "type": "object",
-      "description": "Per-function metadata. Keys can be a bare ABI name, a full Solidity signature for overloads, or a 4-byte selector for unverified contracts.",
+      "description": "User-facing actions, keyed by free-form identifier. Each action references an ABI function via its `function` field. Multiple actions may target the same function to provide UX variants.",
+      "propertyNames": {
+        "pattern": "^[a-zA-Z_][a-zA-Z0-9_-]*$"
+      },
       "additionalProperties": {
-        "$ref": "contract-metadata.schema.json#/$defs/FunctionMeta"
+        "$ref": "contract-metadata.schema.json#/$defs/ActionMeta"
       }
     },
     "events": {

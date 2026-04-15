@@ -12,7 +12,9 @@ created: 2026-04-01
 
 ## Abstract
 
-This EIP defines a JSON metadata format that enriches smart contracts with human-readable context at every level: contract descriptions, function titles and warnings, semantic type annotations for parameters, input guidance, and event/error enrichment. It layers on top of the ABI and NatSpec without replacing either, giving wallets, explorers, and dApps the information they need to present contract interactions in terms users can understand.
+This EIP defines a JSON metadata format that enriches smart contracts with human-readable context at every level: contract descriptions, user-facing actions with titles and warnings, semantic type annotations for parameters, input guidance, and event/error enrichment. It layers on top of the ABI and NatSpec without replacing either, giving wallets, explorers, and dApps the information they need to present contract interactions in terms users can understand.
+
+Actions are decoupled from the ABI: a single ABI function MAY back multiple actions (e.g. `approve`, `approve-max`, and `revoke` all calling the same `approve(address,uint256)` with different preset or hidden parameters), allowing metadata publishers to express common user intents as distinct first-class UI entries.
 
 ## Motivation
 
@@ -39,7 +41,7 @@ A metadata file describes a single deployed contract:
   "description": "10,000 unique collectible pixel art characters on Ethereum.",
   "image": "ipfs://QmTNgv3jx2HHfBjQX9RnKtxj2xv2xQDtbDXoRi5rJ3a46",
   "groups": { ... },
-  "functions": { ... },
+  "actions": { ... },
   "events": { ... },
   "errors": { ... }
 }
@@ -83,8 +85,8 @@ The following fields provide context about the contract itself. The fields `name
 
 | Field       | Type     | Required | Description                                                              |
 | ----------- | -------- | -------- | ------------------------------------------------------------------------ |
-| `groups`    | `object` | OPTIONAL | Named groups for organizing functions                                    |
-| `functions` | `object` | OPTIONAL | Per-function metadata, keyed by name, signature, or 4-byte selector      |
+| `groups`    | `object` | OPTIONAL | Named groups for organizing actions                                      |
+| `actions`   | `object` | OPTIONAL | User-facing actions, keyed by free-form identifier                       |
 | `events`    | `object` | OPTIONAL | Per-event metadata, keyed by name, signature, or 32-byte topic hash      |
 | `errors`    | `object` | OPTIONAL | Per-error metadata, keyed by name, signature, or 4-byte selector         |
 | `messages`  | `object` | OPTIONAL | EIP-712 typed message metadata, keyed by primary type name               |
@@ -119,9 +121,11 @@ The following fields provide context about the contract itself. The fields `name
 }
 ```
 
-### Function, Event, and Error Keys
+### Action, Event, and Error Keys
 
-Functions, events, and errors are keyed by one of three formats:
+Actions are keyed by a free-form identifier matching `^[a-zA-Z_][a-zA-Z0-9_-]*$`. The identifier is not constrained to ABI names -- it is the UI-facing label used for routing, cross-references, and variant distinction (e.g. `approve`, `approve-max`, `revoke`).
+
+Each action MUST declare a `function` field that references the ABI function it invokes. The `function` value is keyed by one of three formats:
 
 | Format            | When to use                  | Example                                             |
 | ----------------- | ---------------------------- | --------------------------------------------------- |
@@ -131,17 +135,17 @@ Functions, events, and errors are keyed by one of three formats:
 
 **Bare name** is the default for verified contracts without overloaded functions. When a contract has multiple functions with the same name but different parameter types (overloads), the full Solidity-style signature MUST be used to disambiguate. For unverified contracts where no ABI is available, the 4-byte function selector (the first 4 bytes of `keccak256(signature)`) SHOULD be used.
 
-The same formats apply to events and errors. For events, the selector is the full 32-byte topic hash (`0x` + 64 hex chars). For errors, it is the 4-byte selector like functions.
+Events and errors are keyed directly by one of the same three formats (not via an intermediate identifier). For events, the selector is the full 32-byte topic hash (`0x` + 64 hex chars). For errors, it is the 4-byte selector like functions.
 
 Consumers SHOULD match by name first, then fall back to signature or selector lookup.
 
-### Function Metadata
+### Action Metadata
 
-Each function entry MAY include the following fields:
+Each action entry MAY include the following fields. When the action's `function` field is omitted, the action's id (its key in the `actions` object) is used as the reference — so non-variant actions whose id matches the underlying ABI function name can omit the `function` field entirely.
 
 ```json
 {
-  "functions": {
+  "actions": {
     "offerPunkForSaleToAddress": {
       "title": "List Punk for Sale (Private)",
       "description": "List a punk for sale to a specific address only, at a minimum price.",
@@ -173,16 +177,78 @@ Each function entry MAY include the following fields:
 }
 ```
 
-- `order` (integer): Display order within the function's group. Lower numbers appear first. Functions without an `order` are sorted after ordered ones.
-- `title` (string): Human-readable title for the function.
-- `description` (string): Longer explanation of what the function does.
+- `function` (string, OPTIONAL): The ABI function this action invokes. Accepts a bare name, full signature, or 4-byte selector. When omitted, the action's id is used as the reference — so `"approve": { ... }` is equivalent to `"approve": { "function": "approve", ... }`. Variants whose id differs from the underlying function (e.g. `"revoke": { "function": "approve", ... }`) MUST set this field.
+- `order` (integer): Display order within the action's group. Lower numbers appear first. Actions without an `order` are sorted after ordered ones.
+- `title` (string): Human-readable title for the action.
+- `description` (string): Longer explanation of what the action does.
 - `group` (string): Key referencing a named group in the `groups` object.
 - `warning` (string): Cautionary text displayed to the user.
 - `featured` (boolean): If `true`, highlights this as a primary action.
-- `hidden` (boolean): If `true`, suppresses the function from the default UI.
+- `hidden` (boolean): If `true`, suppresses the action from the default UI. Also used to suppress an ABI-synthesized default when only authored variants should render.
 - `intent` (string): Human-readable sentence template rendered with formatted parameter values.
-- `related` (array of strings): Keys of related functions.
+- `related` (array of strings): Action identifiers of related actions.
 - `params` (object): Per-parameter metadata, keyed by ABI parameter name.
+
+#### Variant Actions
+
+Multiple actions MAY target the same ABI function with different presets. This is how common user intents like "Revoke Approval" or "Approve Unlimited" become first-class UI entries:
+
+```json
+{
+  "actions": {
+    "approve": {
+      "function": "approve",
+      "title": "Approve",
+      "params": {
+        "spender": { "label": "spender", "type": "address" },
+        "amount": { "label": "amount" }
+      }
+    },
+    "revoke": {
+      "function": "approve",
+      "title": "Revoke Approval",
+      "intent": "Revoke approval for {spender}",
+      "params": {
+        "spender": { "label": "spender", "type": "address" },
+        "amount": {
+          "autofill": { "type": "constant", "value": "0" },
+          "hidden": true
+        }
+      }
+    },
+    "approve-max": {
+      "function": "approve",
+      "title": "Approve Unlimited",
+      "params": {
+        "spender": { "label": "spender", "type": "address" },
+        "amount": {
+          "autofill": { "type": "constant", "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935" },
+          "hidden": true
+        }
+      }
+    }
+  }
+}
+```
+
+Consumers SHOULD render each action as a distinct UI entry. When a calldata is decoded and multiple actions could match (same selector, some with preset params), consumers SHOULD prefer the most specific match (the variant with the most locked parameters matching the decoded args).
+
+#### ABI-Synthesized Default Actions
+
+Consumers with access to the ABI SHOULD synthesize a default action for every function the ABI declares that has no authored action. The synthesized default uses the function name as its identifier (or a name-plus-types slug for overloaded functions) and carries no metadata beyond what is derivable from the ABI.
+
+An authored action with identifier equal to the synthesized default's identifier replaces the default. An authored action with a different identifier is a variant -- the default still renders unless the authored action sets `hidden: true` on the canonical identifier.
+
+#### Parameter Input Flags
+
+Parameters in an action MAY set two input-side flags that control how the input is rendered:
+
+| Field      | Meaning                                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------- |
+| `hidden`   | Do not render an input; inject the `autofill` value at call time. REQUIRES `autofill`.                |
+| `disabled` | Render the input but make it non-editable; display the autofilled value. REQUIRES `autofill`.         |
+
+`hidden: true` and `disabled: true` are mutually exclusive. The input-side `hidden` is distinct from the display-side `type: "hidden"` semantic type -- one controls whether an input is rendered for writes, the other controls whether a value is rendered in read contexts.
 
 ### Semantic Types
 
@@ -262,7 +328,7 @@ A parameter MAY combine `type` and `autofill`:
 
 ### Groups
 
-Functions MAY be organized into named groups. Each group MUST have a `label` and SHOULD have an `order` for display sorting:
+Actions MAY be organized into named groups. Each group MUST have a `label` and SHOULD have an `order` for display sorting:
 
 ```json
 {
@@ -274,16 +340,17 @@ Functions MAY be organized into named groups. Each group MUST have a `label` and
 }
 ```
 
-Individual functions, events, errors, and messages MAY also have an `order` field to control display order within their group (or among ungrouped items). Lower numbers appear first. Items without an `order` are sorted after ordered ones.
+Individual actions, events, errors, and messages MAY also have an `order` field to control display order within their group (or among ungrouped items). Lower numbers appear first. Items without an `order` are sorted after ordered ones.
 
 ### Intent Templates
 
-Functions MAY include an `intent` template -- a human-readable sentence rendered with formatted parameter values:
+Actions MAY include an `intent` template -- a human-readable sentence rendered with formatted parameter values:
 
 ```json
 {
-  "functions": {
+  "actions": {
     "composite": {
+      "function": "composite",
       "title": "Composite",
       "intent": "Composite Check #{tokenId} with #{burnId}",
       "params": {
@@ -335,7 +402,7 @@ Common interface metadata (ERC-20, ERC-721, etc.) can be defined once and includ
   "chainId": 1,
   "address": "0x036721e5a769cc48b3189efbb9cce4471e8a48b1",
   "name": "Checks Originals",
-  "functions": {
+  "actions": {
     "mint": { "...": "..." },
     "composite": { "...": "..." }
   }
@@ -344,21 +411,21 @@ Common interface metadata (ERC-20, ERC-721, etc.) can be defined once and includ
 
 Includes support two formats:
 
-- **`interface:` prefix** -- references a named interface file in the `interfaces/` subdirectory relative to the `$schema` URL (e.g. `"interface:erc721"` resolves to `interfaces/erc721.json` next to the schema file). These files contain `groups`, `functions`, `events`, `errors`, and `messages`.
+- **`interface:` prefix** -- references a named interface file in the `interfaces/` subdirectory relative to the `$schema` URL (e.g. `"interface:erc721"` resolves to `interfaces/erc721.json` next to the schema file). These files contain `groups`, `actions`, `events`, `errors`, and `messages`. Interface files MAY ship curated variant actions (e.g. ERC-20 ships `revoke`, `approve-max`, `my-balance`, `my-allowance` alongside the base actions).
 - **URL** -- fetches the metadata file from the given URL. The resolved file can live anywhere and follows the same structure.
 
 Multiple includes merge left-to-right. Contract-specific metadata is then applied on top.
 
 #### Merge Semantics
 
-The merge is _shallow per top-level key within each section_. When a contract defines a function that also exists in an included interface, the contract's entire function object replaces the interface's. There is no deep merge of `params`, `returns`, or other nested fields. This means if you override a function, you MUST re-declare everything you want to keep (params, returns, types, etc.).
+The merge is _shallow per top-level key within each section_. When a contract defines an action that also exists in an included interface, the contract's entire action object replaces the interface's. There is no deep merge of `params`, `returns`, or other nested fields. This means if you override an action, you MUST re-declare everything you want to keep (params, returns, types, etc.).
 
 ```
 # Merge order for includes: ["interface:erc20", "interface:erc721"]
 1. Start with empty {}
-2. Merge erc20.json    -> { functions: { transfer: {from erc20}, approve: {from erc20} } }
-3. Merge erc721.json   -> { functions: { transfer: {from erc721}, approve: {from erc721}, ownerOf: {from erc721} } }
-4. Merge contract file  -> { functions: { transfer: {from contract}, approve: {from erc721}, ownerOf: {from erc721}, mint: {from contract} } }
+2. Merge erc20.json    -> { actions: { transfer: {from erc20}, approve: {from erc20}, revoke: {from erc20} } }
+3. Merge erc721.json   -> { actions: { transfer: {from erc721}, approve: {from erc721}, revoke: {from erc721}, ownerOf: {from erc721} } }
+4. Merge contract file -> { actions: { transfer: {from contract}, approve: {from erc721}, revoke: {from erc721}, ownerOf: {from erc721}, mint: {from contract} } }
 ```
 
 ### EIP-712 Message Metadata
@@ -385,16 +452,17 @@ Off-chain signing flows (Permit, Seaport orders, etc.) MAY be described with the
 }
 ```
 
-Messages are keyed by EIP-712 primary type name and MUST be defined on the contract that verifies them. Each message supports the same enrichment as functions: `title`, `description`, `warning`, `intent`, and `fields` with the same parameter metadata (label, description, type).
+Messages are keyed by EIP-712 primary type name and MUST be defined on the contract that verifies them. Each message supports the same enrichment as actions: `title`, `description`, `warning`, `intent`, and `fields` with the same parameter metadata (label, description, type).
 
 ### Extensions
 
-Publishers MAY use custom extension objects on the root document, functions, events, errors, messages, and parameters. Extension names MUST start with an `_` character followed by a letter. Consumers that do not understand a given extension MUST ignore it.
+Publishers MAY use custom extension objects on the root document, actions, events, errors, messages, and parameters. Extension names MUST start with an `_` character followed by a letter. Consumers that do not understand a given extension MUST ignore it.
 
 ```json
 {
-  "functions": {
+  "actions": {
     "colors": {
+      "function": "colors",
       "title": "Check Colors",
       "description": "Get the colors of a given Check.",
       "params": {
@@ -429,11 +497,15 @@ Labels help humans but not machines. A label "Price" on a `uint256` still doesn'
 
 ### Why shallow merge for includes?
 
-Deep merging creates ambiguity about which nested fields take precedence and makes it difficult to reason about the final result. Shallow merge per function key is predictable: if you override a function, you own the entire definition. This mirrors how interface implementation works in most programming languages.
+Deep merging creates ambiguity about which nested fields take precedence and makes it difficult to reason about the final result. Shallow merge per action key is predictable: if you override an action, you own the entire definition. This mirrors how interface implementation works in most programming languages.
 
 ### Why three key formats (name, signature, selector)?
 
 Bare names are the common case and the most readable. Signatures are needed for overloaded functions. Selectors are needed for unverified contracts where no ABI is available. Supporting all three covers the full spectrum of real-world contracts.
+
+### Why decouple actions from ABI functions?
+
+Keying metadata directly by ABI name creates a 1:1 coupling that cannot express common user intents. "Revoke Approval" is conceptually distinct from "Approve" in the user's mental model, but both compile down to the same `approve(address,uint256)` call with different arguments. Decoupling actions from ABI functions lets publishers express these intents as first-class UI entries with their own title, warning, intent template, and locked parameter values -- while still resolving to the correct ABI function at call time. It also unlocks calldata-to-action matching for transaction previews.
 
 ## Backwards Compatibility
 

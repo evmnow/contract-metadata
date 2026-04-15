@@ -35,7 +35,7 @@
     "compositing": { "label": "Compositing", "order": 3 },
     "info": { "label": "Token Info", "order": 4 }
   },
-  "functions": {
+  "actions": {
     "mint": {
       "title": "Mint Original",
       "description": "Mint Checks Originals by burning the corresponding Edition tokens. Each Original is created fully onchain with the same token ID as the burned Edition. This is the only way new Originals enter existence.",

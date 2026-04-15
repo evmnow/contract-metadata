@@ -31,7 +31,7 @@
     "marketplace": { "label": "Marketplace", "order": 2 },
     "admin": { "label": "Admin", "order": 3 }
   },
-  "functions": {
+  "actions": {
     "name": {
       "order": 0,
       "title": "Name",

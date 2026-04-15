@@ -33,7 +33,7 @@
     "info": { "label": "Info", "order": 3 },
     "admin": { "label": "Admin", "order": 4 }
   },
-  "functions": {
+  "actions": {
     "available": {
       "title": "Check Availability",
       "description": "Check whether a .eth name is available for registration. Returns false if the name is currently registered or in its 90-day grace period.",

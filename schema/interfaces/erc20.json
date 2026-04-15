@@ -1,8 +1,11 @@
 {
   "groups": {
-    "erc20": { "label": "ERC-20", "order": 99 }
+    "erc20": {
+      "label": "ERC-20",
+      "order": 99
+    }
   },
-  "functions": {
+  "actions": {
     "name": {
       "title": "Token Name",
       "description": "The name of the token.",
@@ -33,7 +36,25 @@
       "stateMutability": "view",
       "group": "erc20",
       "params": {
-        "_0": { "label": "holder", "type": "address" }
+        "_0": {
+          "label": "holder",
+          "type": "address"
+        }
+      }
+    },
+    "my-balance": {
+      "function": "balanceOf",
+      "title": "My Balance",
+      "description": "Check your own token balance.",
+      "stateMutability": "view",
+      "group": "erc20",
+      "params": {
+        "_0": {
+          "label": "holder",
+          "type": "address",
+          "autofill": "connected-address",
+          "hidden": true
+        }
       }
     },
     "allowance": {
@@ -42,8 +63,33 @@
       "stateMutability": "view",
       "group": "erc20",
       "params": {
-        "_0": { "label": "owner", "type": "address" },
-        "_1": { "label": "spender", "type": "address" }
+        "_0": {
+          "label": "owner",
+          "type": "address"
+        },
+        "_1": {
+          "label": "spender",
+          "type": "address"
+        }
+      }
+    },
+    "my-allowance": {
+      "function": "allowance",
+      "title": "My Allowance",
+      "description": "Check how much of your own balance you've approved a spender to transfer.",
+      "stateMutability": "view",
+      "group": "erc20",
+      "params": {
+        "_0": {
+          "label": "owner",
+          "type": "address",
+          "autofill": "connected-address",
+          "hidden": true
+        },
+        "_1": {
+          "label": "spender",
+          "type": "address"
+        }
       }
     },
     "approve": {
@@ -53,10 +99,72 @@
       "intent": "Approve {_0} to spend {_1} tokens",
       "warning": "Approving unlimited amounts is common but carries risk if the spender contract is compromised.",
       "params": {
-        "_0": { "label": "spender", "type": "address" },
-        "_1": { "label": "amount" }
+        "_0": {
+          "label": "spender",
+          "type": "address"
+        },
+        "_1": {
+          "label": "amount"
+        }
       },
-      "related": ["allowance", "transferFrom"]
+      "related": [
+        "allowance",
+        "transferFrom",
+        "revoke",
+        "approve-max"
+      ]
+    },
+    "approve-max": {
+      "function": "approve",
+      "title": "Approve Unlimited",
+      "description": "Grant unlimited approval to a spender. Convenient but carries risk if the spender contract is ever compromised.",
+      "group": "erc20",
+      "intent": "Approve {_0} to spend unlimited tokens",
+      "warning": "Unlimited approvals let the spender transfer any amount of your tokens at any time.",
+      "params": {
+        "_0": {
+          "label": "spender",
+          "type": "address"
+        },
+        "_1": {
+          "label": "amount",
+          "autofill": {
+            "type": "constant",
+            "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+          },
+          "hidden": true
+        }
+      },
+      "related": [
+        "approve",
+        "revoke",
+        "my-allowance"
+      ]
+    },
+    "revoke": {
+      "function": "approve",
+      "title": "Revoke Approval",
+      "description": "Revoke a previously granted approval by setting its allowance to zero.",
+      "group": "erc20",
+      "intent": "Revoke approval for {_0}",
+      "params": {
+        "_0": {
+          "label": "spender",
+          "type": "address"
+        },
+        "_1": {
+          "label": "amount",
+          "autofill": {
+            "type": "constant",
+            "value": "0"
+          },
+          "hidden": true
+        }
+      },
+      "related": [
+        "approve",
+        "my-allowance"
+      ]
     },
     "transfer": {
       "title": "Transfer",
@@ -64,21 +172,40 @@
       "group": "erc20",
       "intent": "Transfer {_1} tokens to {_0}",
       "params": {
-        "_0": { "label": "recipient", "type": "address" },
-        "_1": { "label": "amount" }
+        "_0": {
+          "label": "recipient",
+          "type": "address"
+        },
+        "_1": {
+          "label": "amount"
+        }
       },
-      "related": ["balanceOf"]
+      "related": [
+        "balanceOf",
+        "my-balance"
+      ]
     },
     "transferFrom": {
       "title": "Transfer From",
       "description": "Transfer tokens from one address to another, using a previously set allowance.",
       "group": "erc20",
       "params": {
-        "_0": { "label": "from", "type": "address" },
-        "_1": { "label": "to", "type": "address" },
-        "_2": { "label": "amount" }
+        "_0": {
+          "label": "from",
+          "type": "address"
+        },
+        "_1": {
+          "label": "to",
+          "type": "address"
+        },
+        "_2": {
+          "label": "amount"
+        }
       },
-      "related": ["approve", "allowance"]
+      "related": [
+        "approve",
+        "allowance"
+      ]
     }
   },
   "messages": {
@@ -88,11 +215,29 @@
       "warning": "This grants token spending permission. Verify the spender address and amount carefully. Phishing sites commonly request Permit signatures to drain wallets.",
       "intent": "Permit {spender} to spend {value} of your tokens until {deadline}",
       "fields": {
-        "owner": { "label": "owner", "description": "The token holder granting the approval", "type": "address" },
-        "spender": { "label": "spender", "description": "The address being approved to spend tokens", "type": "address" },
-        "value": { "label": "amount", "description": "Maximum amount the spender can transfer" },
-        "nonce": { "label": "nonce", "description": "Sequential nonce preventing signature replay" },
-        "deadline": { "label": "deadline", "description": "Unix timestamp after which the permit expires", "type": "timestamp" }
+        "owner": {
+          "label": "owner",
+          "description": "The token holder granting the approval",
+          "type": "address"
+        },
+        "spender": {
+          "label": "spender",
+          "description": "The address being approved to spend tokens",
+          "type": "address"
+        },
+        "value": {
+          "label": "amount",
+          "description": "Maximum amount the spender can transfer"
+        },
+        "nonce": {
+          "label": "nonce",
+          "description": "Sequential nonce preventing signature replay"
+        },
+        "deadline": {
+          "label": "deadline",
+          "description": "Unix timestamp after which the permit expires",
+          "type": "timestamp"
+        }
       }
     }
   },
@@ -100,17 +245,29 @@
     "Transfer": {
       "description": "Emitted when tokens are transferred.",
       "params": {
-        "from": { "label": "from" },
-        "to": { "label": "to" },
-        "value": { "label": "amount" }
+        "from": {
+          "label": "from"
+        },
+        "to": {
+          "label": "to"
+        },
+        "value": {
+          "label": "amount"
+        }
       }
     },
     "Approval": {
       "description": "Emitted when an approval is set.",
       "params": {
-        "owner": { "label": "owner" },
-        "spender": { "label": "spender" },
-        "value": { "label": "amount" }
+        "owner": {
+          "label": "owner"
+        },
+        "spender": {
+          "label": "spender"
+        },
+        "value": {
+          "label": "amount"
+        }
       }
     }
   }

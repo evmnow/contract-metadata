@@ -1,6 +1,6 @@
 # `_component` Extension
 
-Register a custom UI component on any extensible metadata object (functions, events, errors, messages, parameters, or contract metadata).
+Register a custom UI component on any extensible metadata object (actions, events, errors, messages, parameters, or contract metadata).
 
 ## Shape
 
@@ -32,7 +32,7 @@ When no configuration is needed, use the string form:
 
 ```json
 {
-  "functions": {
+  "actions": {
     "composite": {
       "title": "Composite",
       "description": "Burn two Checks of the same tier to create one of the next tier.",
@@ -48,7 +48,7 @@ A content prover component that verifies a hash stored onchain against a known s
 
 ```json
 {
-  "functions": {
+  "actions": {
     "imageHash": {
       "title": "Image Hash",
       "description": "SHA-256 hash of the composite image containing all 10,000 punks.",
@@ -74,7 +74,7 @@ A content prover component that verifies a hash stored onchain against a known s
 
 ```json
 {
-  "functions": {
+  "actions": {
     "setColor": {
       "title": "Set Color",
       "params": {

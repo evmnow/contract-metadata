@@ -36,7 +36,7 @@
     "info": { "label": "Info", "order": 2 },
     "admin": { "label": "Admin", "order": 3 }
   },
-  "functions": {
+  "actions": {
     "support": {
       "title": "Support",
       "description": "Subscribe or extend a subscription at a given tier. Pays in ETH (converted from USD via Chainlink). Third parties can gift or extend subscriptions, but only the recipient or owner can change tiers. Excess ETH is refunded.",

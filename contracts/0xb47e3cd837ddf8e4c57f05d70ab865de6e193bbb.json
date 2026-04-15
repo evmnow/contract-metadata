@@ -35,7 +35,7 @@
     "marketplace": { "label": "Marketplace", "order": 3 },
     "genesis": { "label": "Original Assignment", "order": 4 }
   },
-  "functions": {
+  "actions": {
     "name": {
       "order": 0,
       "title": "Name",

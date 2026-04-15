@@ -26,7 +26,7 @@
   "groups": {
     "wrap": { "label": "Wrap / Unwrap", "order": 1 }
   },
-  "functions": {
+  "actions": {
     "deposit": {
       "title": "Wrap ETH",
       "description": "Wrap ETH into WETH. Send ETH with this transaction to receive the same amount in WETH.",

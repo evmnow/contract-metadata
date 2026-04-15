@@ -2,7 +2,7 @@
 
 Human-readable context for smart contracts.
 
-Contract Metadata is a JSON standard that layers human-readable context on top of onchain data. It enriches smart contracts at every level -- contract descriptions, function titles and warnings, semantic type annotations, input guidance, and event/error enrichment -- giving wallets, explorers, and dApps the information they need to present contract interactions in terms users understand.
+Contract Metadata is a JSON standard that layers human-readable context on top of onchain data. It enriches smart contracts at every level -- contract descriptions, action titles and warnings, semantic type annotations, input guidance, and event/error enrichment -- giving wallets, explorers, and dApps the information they need to present contract interactions in terms users understand.
 
 **[Read the full specification](./eip-draft.md)**
 
@@ -19,7 +19,7 @@ offerPunkForSaleToAddress(uint256, uint256, address)
   "$schema": "https://1001-digital.github.io/contract-metadata/v1/schema.json",
   "chainId": 1,
   "address": "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
-  "functions": {
+  "actions": {
     "offerPunkForSaleToAddress": {
       "title": "List Punk for Sale (Private)",
       "description": "List a punk for sale to a specific address only.",
@@ -34,6 +34,8 @@ offerPunkForSaleToAddress(uint256, uint256, address)
   }
 }
 ```
+
+Actions decouple the user-facing UX surface from the ABI. One ABI function can back multiple actions (variants). For example, a single `approve` function can surface as `approve` (normal), `approve-max` (unlimited, amount locked), and `revoke` (amount locked to 0) — each with its own title, intent, and warning.
 
 ## Repository Structure
 

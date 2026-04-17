@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/1001-digital/contract-metadata/schema/interface.schema.json",
   "title": "Contract Metadata Interface",
-  "description": "Reusable metadata for standard interfaces (ERC-20, ERC-721, etc.). Provides groups, functions, events, and messages that can be included by contract metadata files via the includes field.",
+  "description": "Reusable metadata for standard interfaces (ERC-20, ERC-721, etc.). Provides groups, functions, events, messages, and forward-compatible ERC-7730-style metadata that can be included by contract metadata files via the includes field.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -15,7 +15,7 @@
     },
     "functions": {
       "type": "object",
-      "description": "Per-function metadata. Keys can be a bare ABI name, a full Solidity signature for overloads, or a 4-byte selector for unverified contracts.",
+      "description": "Per-function metadata. Keys SHOULD be canonical named ABI fragments for ERC-7730 compatibility. Contract-specific overrides of included interface entries must use the same key form to replace them under shallow merge semantics.",
       "additionalProperties": {
         "$ref": "contract-metadata.schema.json#/$defs/FunctionMeta"
       }
@@ -36,10 +36,29 @@
     },
     "messages": {
       "type": "object",
-      "description": "EIP-712 typed message metadata, keyed by primary type name.",
+      "description": "EIP-712 typed message metadata, keyed by primary type name, canonical type signature, or another stable message identifier.",
       "additionalProperties": {
         "$ref": "contract-metadata.schema.json#/$defs/MessageMeta"
       }
+    },
+    "deployments": {
+      "type": "array",
+      "description": "Known deployments that the interface metadata applies to.",
+      "items": {
+        "$ref": "contract-metadata.schema.json#/$defs/Deployment"
+      }
+    },
+    "metadata": {
+      "$ref": "contract-metadata.schema.json#/$defs/Metadata",
+      "description": "Grouped descriptive metadata for the interface."
+    },
+    "display": {
+      "$ref": "contract-metadata.schema.json#/$defs/Display",
+      "description": "Reusable clear-signing display metadata for the interface."
+    },
+    "eip712": {
+      "$ref": "contract-metadata.schema.json#/$defs/EIP712Context",
+      "description": "Default EIP-712 typed-data context for the interface."
     }
   }
 }

@@ -2,7 +2,9 @@
   "$schema": "https://1001-digital.github.io/contract-metadata/v1/schema.json",
   "chainId": 1,
   "address": "0x036721e5a769cc48b3189efbb9cce4471e8a48b1",
-  "includes": ["interface:erc721"],
+  "includes": [
+    "interface:erc721"
+  ],
   "meta": {
     "version": 1,
     "lastUpdated": "2026-04-05T00:00:00Z",
@@ -17,23 +19,47 @@
     "Onchain SVG rendering depends on contract storage — future hard forks could theoretically affect rendering"
   ],
   "category": "nft",
-  "tags": ["nft", "generative-art", "onchain", "burn-mechanic", "svg"],
+  "tags": [
+    "nft",
+    "generative-art",
+    "onchain",
+    "burn-mechanic",
+    "svg"
+  ],
   "links": [
     {
       "label": "Etherscan",
       "url": "https://etherscan.io/address/0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1"
     },
-    { "label": "Website", "url": "https://checks.art" },
-    { "label": "Jack Butcher", "url": "https://www.jack.art/checks-originals" }
+    {
+      "label": "Website",
+      "url": "https://checks.art"
+    },
+    {
+      "label": "Jack Butcher",
+      "url": "https://www.jack.art/checks-originals"
+    }
   ],
   "theme": {
     "accent": "#E84AA9"
   },
   "groups": {
-    "minting": { "label": "Minting", "order": 1 },
-    "art": { "label": "Artwork", "order": 2 },
-    "compositing": { "label": "Compositing", "order": 3 },
-    "info": { "label": "Token Info", "order": 4 }
+    "minting": {
+      "label": "Minting",
+      "order": 1
+    },
+    "art": {
+      "label": "Artwork",
+      "order": 2
+    },
+    "compositing": {
+      "label": "Compositing",
+      "order": 3
+    },
+    "info": {
+      "label": "Token Info",
+      "order": 4
+    }
   },
   "functions": {
     "mint": {
@@ -50,7 +76,21 @@
           "description": "Address to receive the Originals",
           "type": "address"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "tokenIds",
+          "label": "edition token IDs",
+          "description": "The Edition token IDs to mint",
+          "format": "raw"
+        },
+        {
+          "path": "recipient",
+          "label": "recipient",
+          "description": "Address to receive the Originals",
+          "format": "addressName"
+        }
+      ]
     },
     "getCheck": {
       "title": "Get Check",
@@ -65,8 +105,26 @@
         }
       },
       "examples": [
-        { "label": "Look up Check #1", "params": { "tokenId": "1" } },
-        { "label": "Look up Check #8000", "params": { "tokenId": "8000" } }
+        {
+          "label": "Look up Check #1",
+          "params": {
+            "tokenId": "1"
+          }
+        },
+        {
+          "label": "Look up Check #8000",
+          "params": {
+            "tokenId": "8000"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "token ID",
+          "description": "The Check token ID (matches the original edition number)",
+          "format": "tokenId"
+        }
       ]
     },
     "svg": {
@@ -75,9 +133,22 @@
       "stateMutability": "view",
       "group": "art",
       "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
+        "tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
       },
-      "related": ["colors", "tokenURI"]
+      "related": [
+        "colors",
+        "tokenURI"
+      ],
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "token ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "colors": {
       "title": "Colors",
@@ -85,24 +156,49 @@
       "stateMutability": "view",
       "group": "art",
       "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
+        "tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
       },
-      "related": ["svg", "getCheck"]
+      "related": [
+        "svg",
+        "getCheck"
+      ],
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "token ID",
+          "format": "tokenId"
+        }
+      ]
     },
-    "tokenURI": {
+    "tokenURI(uint256 tokenId)": {
       "title": "Token URI",
       "description": "Returns the full onchain metadata and base64-encoded SVG for a Check. No external hosting or IPFS dependency.",
       "stateMutability": "view",
       "group": "art",
       "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
+        "tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
       },
-      "related": ["svg"]
+      "related": [
+        "svg"
+      ],
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "token ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "composite": {
       "title": "Composite",
       "description": "Burn two Checks of the same tier to create one Check of the next tier (e.g. two 80-checks become one 40-check). The kept token ID carries forward.",
-      "intent": "Composite Check #{tokenId} with #{burnId}",
+      "intent": "Composite",
       "group": "compositing",
       "warning": "Permanently burns one token. The burn cannot be reversed.",
       "_component": "checks-composite-preview",
@@ -122,7 +218,32 @@
           "description": "By default, the kept token's colors carry into the composite. Enable swap to use the burned token's colors instead — the kept token ID survives, but it looks like the burned one"
         }
       },
-      "related": ["simulateComposite", "compositeMany", "getCheck"]
+      "related": [
+        "simulateComposite",
+        "compositeMany",
+        "getCheck"
+      ],
+      "interpolatedIntent": "Composite Check #{tokenId} with #{burnId}",
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "keep token ID",
+          "description": "The token ID to keep (carries forward)",
+          "format": "tokenId"
+        },
+        {
+          "path": "burnId",
+          "label": "burn token ID",
+          "description": "The token ID to burn",
+          "format": "tokenId"
+        },
+        {
+          "path": "swap",
+          "label": "swap visual",
+          "description": "By default, the kept token's colors carry into the composite. Enable swap to use the burned token's colors instead — the kept token ID survives, but it looks like the burned one",
+          "format": "raw"
+        }
+      ]
     },
     "compositeMany": {
       "title": "Composite Many",
@@ -139,19 +260,57 @@
           "description": "The token IDs to burn (matched by index with keep IDs)"
         }
       },
-      "related": ["composite"]
+      "related": [
+        "composite"
+      ],
+      "fields": [
+        {
+          "path": "tokenIds",
+          "label": "keep token IDs",
+          "description": "The token IDs to keep",
+          "format": "raw"
+        },
+        {
+          "path": "burnIds",
+          "label": "burn token IDs",
+          "description": "The token IDs to burn (matched by index with keep IDs)",
+          "format": "raw"
+        }
+      ]
     },
     "simulateComposite": {
       "title": "Simulate Composite",
       "description": "Preview what a composite would produce without executing it. Returns the resulting Check data.",
-      "intent": "Preview composite of #{tokenId} with #{burnId}",
+      "intent": "Simulate Composite",
       "stateMutability": "view",
       "group": "compositing",
       "params": {
-        "tokenId": { "label": "keep token ID", "type": "token-id" },
-        "burnId": { "label": "burn token ID", "type": "token-id" }
+        "tokenId": {
+          "label": "keep token ID",
+          "type": "token-id"
+        },
+        "burnId": {
+          "label": "burn token ID",
+          "type": "token-id"
+        }
       },
-      "related": ["simulateCompositeSVG", "composite"]
+      "related": [
+        "simulateCompositeSVG",
+        "composite"
+      ],
+      "interpolatedIntent": "Preview composite of #{tokenId} with #{burnId}",
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "keep token ID",
+          "format": "tokenId"
+        },
+        {
+          "path": "burnId",
+          "label": "burn token ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "simulateCompositeSVG": {
       "title": "Simulate Composite SVG",
@@ -159,10 +318,31 @@
       "stateMutability": "view",
       "group": "compositing",
       "params": {
-        "tokenId": { "label": "keep token ID", "type": "token-id" },
-        "burnId": { "label": "burn token ID", "type": "token-id" }
+        "tokenId": {
+          "label": "keep token ID",
+          "type": "token-id"
+        },
+        "burnId": {
+          "label": "burn token ID",
+          "type": "token-id"
+        }
       },
-      "related": ["simulateComposite", "composite"]
+      "related": [
+        "simulateComposite",
+        "composite"
+      ],
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "keep token ID",
+          "format": "tokenId"
+        },
+        {
+          "path": "burnId",
+          "label": "burn token ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "infinity": {
       "title": "Infinity (Black Check)",
@@ -176,12 +356,23 @@
           "description": "64 single-check token IDs to burn"
         }
       },
-      "related": ["composite", "getCheck"]
+      "related": [
+        "composite",
+        "getCheck"
+      ],
+      "fields": [
+        {
+          "path": "tokenIds",
+          "label": "token IDs",
+          "description": "64 single-check token IDs to burn",
+          "format": "raw"
+        }
+      ]
     },
     "inItForTheArt": {
       "title": "Sacrifice",
       "description": "Sacrifice one Check to transfer its visual identity to another. Burns the sacrificed token and overwrites the receiving token's visual genome.",
-      "intent": "Sacrifice Check #{burnId} to transfer its visual to #{tokenId}",
+      "intent": "Sacrifice",
       "group": "compositing",
       "warning": "Permanently burns the sacrificed token.",
       "params": {
@@ -196,7 +387,24 @@
           "type": "token-id"
         }
       },
-      "related": ["inItForTheArts"]
+      "related": [
+        "inItForTheArts"
+      ],
+      "interpolatedIntent": "Sacrifice Check #{burnId} to transfer its visual to #{tokenId}",
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "receiving token ID",
+          "description": "The token that receives the visual",
+          "format": "tokenId"
+        },
+        {
+          "path": "burnId",
+          "label": "sacrificed token ID",
+          "description": "The token to burn (its visual transfers to the receiver)",
+          "format": "tokenId"
+        }
+      ]
     },
     "inItForTheArts": {
       "title": "Sacrifice Many",
@@ -204,20 +412,49 @@
       "group": "compositing",
       "warning": "Permanently burns the sacrificed tokens.",
       "params": {
-        "tokenIds": { "label": "receiving token IDs" },
-        "burnIds": { "label": "sacrificed token IDs" }
+        "tokenIds": {
+          "label": "receiving token IDs"
+        },
+        "burnIds": {
+          "label": "sacrificed token IDs"
+        }
       },
-      "related": ["inItForTheArt"]
+      "related": [
+        "inItForTheArt"
+      ],
+      "fields": [
+        {
+          "path": "tokenIds",
+          "label": "receiving token IDs",
+          "format": "raw"
+        },
+        {
+          "path": "burnIds",
+          "label": "sacrificed token IDs",
+          "format": "raw"
+        }
+      ]
     },
     "burn": {
       "title": "Burn",
       "description": "Permanently burn a Check. The token is destroyed and removed from supply.",
-      "intent": "Burn Check #{tokenId}",
+      "intent": "Burn",
       "group": "compositing",
       "warning": "Irreversible — the token is permanently destroyed.",
       "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      }
+        "tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
+      },
+      "interpolatedIntent": "Burn Check #{tokenId}",
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "token ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "resolveEpochIfNecessary": {
       "title": "Resolve Epoch",
@@ -229,7 +466,9 @@
       "description": "Returns the current epoch index.",
       "stateMutability": "view",
       "group": "info",
-      "related": ["getEpochData"]
+      "related": [
+        "getEpochData"
+      ]
     },
     "getEpochData": {
       "title": "Epoch Data",
@@ -237,21 +476,32 @@
       "stateMutability": "view",
       "group": "info",
       "params": {
-        "index": { "label": "epoch index" }
+        "index": {
+          "label": "epoch index"
+        }
       },
-      "related": ["getEpoch"]
+      "related": [
+        "getEpoch"
+      ],
+      "fields": [
+        {
+          "path": "index",
+          "label": "epoch index",
+          "format": "raw"
+        }
+      ]
     },
-    "totalSupply": {
+    "totalSupply()": {
       "title": "Total Supply",
       "description": "Current number of Checks Originals in existence (minted minus burned).",
       "stateMutability": "view",
       "group": "info"
     },
-    "name": {
+    "name()": {
       "description": "The name of the contract (Checks).",
       "group": "info"
     },
-    "symbol": {
+    "symbol()": {
       "description": "The token symbol (CHECKS).",
       "group": "info"
     }
@@ -260,36 +510,62 @@
     "Composite": {
       "description": "Emitted when two Checks are composited, burning one and producing a piece with fewer checks (e.g. 80 → 40).",
       "params": {
-        "tokenId": { "label": "kept token ID", "type": "token-id" },
-        "burnId": { "label": "burned token ID", "type": "token-id" },
-        "divisor": { "label": "new divisor" }
+        "tokenId": {
+          "label": "kept token ID",
+          "type": "token-id"
+        },
+        "burnId": {
+          "label": "burned token ID",
+          "type": "token-id"
+        },
+        "divisor": {
+          "label": "new divisor"
+        }
       }
     },
     "Sacrifice": {
       "description": "Emitted when a Check is sacrificed to transfer its visual identity to another.",
       "params": {
-        "burnId": { "label": "sacrificed token ID", "type": "token-id" },
-        "tokenId": { "label": "receiving token ID", "type": "token-id" }
+        "burnId": {
+          "label": "sacrificed token ID",
+          "type": "token-id"
+        },
+        "tokenId": {
+          "label": "receiving token ID",
+          "type": "token-id"
+        }
       }
     },
     "Infinity": {
       "description": "Emitted when 64 single-check tokens are burned to create a Black Check.",
       "params": {
-        "blackCheckId": { "label": "Black Check token ID", "type": "token-id" },
-        "tokenIds": { "label": "burned token IDs" }
+        "blackCheckId": {
+          "label": "Black Check token ID",
+          "type": "token-id"
+        },
+        "tokenIds": {
+          "label": "burned token IDs"
+        }
       }
     },
     "NewEpoch": {
       "description": "Emitted when a new epoch is created for the commit-reveal randomness scheme.",
       "params": {
-        "epoch": { "label": "epoch index" },
-        "revealBlock": { "label": "reveal block" }
+        "epoch": {
+          "label": "epoch index"
+        },
+        "revealBlock": {
+          "label": "reveal block"
+        }
       }
     },
     "MetadataUpdate": {
       "description": "Emitted when a token's metadata changes (e.g. after compositing).",
       "params": {
-        "_tokenId": { "label": "token ID", "type": "token-id" }
+        "_tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
       }
     }
   }

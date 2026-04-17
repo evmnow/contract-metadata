@@ -2,7 +2,9 @@
   "$schema": "https://1001-digital.github.io/contract-metadata/v1/schema.json",
   "chainId": 1,
   "address": "0xedcbf19024e928c9d903fcf4785e42ad7c271193",
-  "includes": ["interface:erc721"],
+  "includes": [
+    "interface:erc721"
+  ],
   "meta": {
     "version": 1,
     "lastUpdated": "2026-04-03T00:00:00Z",
@@ -19,28 +21,49 @@
     "Excess ETH is refunded to msg.sender — ensure your wallet can receive ETH refunds"
   ],
   "category": "utility",
-  "tags": ["subscription", "patronage", "nft", "onchain-svg", "membership"],
+  "tags": [
+    "subscription",
+    "patronage",
+    "nft",
+    "onchain-svg",
+    "membership"
+  ],
   "links": [
     {
       "label": "Etherscan",
       "url": "https://etherscan.io/address/0xeDCBf19024e928c9D903fCf4785e42AD7C271193"
     },
-    { "label": "EVM.NOW", "url": "https://evm.now" },
-    { "label": "GitHub", "url": "https://github.com/1001-digital/support" }
+    {
+      "label": "EVM.NOW",
+      "url": "https://evm.now"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/1001-digital/support"
+    }
   ],
   "theme": {
     "accent": "#484848"
   },
   "groups": {
-    "subscription": { "label": "Subscription", "order": 1 },
-    "info": { "label": "Info", "order": 2 },
-    "admin": { "label": "Admin", "order": 3 }
+    "subscription": {
+      "label": "Subscription",
+      "order": 1
+    },
+    "info": {
+      "label": "Info",
+      "order": 2
+    },
+    "admin": {
+      "label": "Admin",
+      "order": 3
+    }
   },
   "functions": {
     "support": {
       "title": "Support",
       "description": "Subscribe or extend a subscription at a given tier. Pays in ETH (converted from USD via Chainlink). Third parties can gift or extend subscriptions, but only the recipient or owner can change tiers. Excess ETH is refunded.",
-      "intent": "Support {recipient} at tier {tier} for {duration} months",
+      "intent": "Support",
       "group": "subscription",
       "featured": true,
       "warning": "Sends ETH. The Partner tier (3) is blocked for direct purchase. Excess ETH is refunded to your address.",
@@ -69,7 +92,40 @@
           "type": "duration"
         }
       },
-      "related": ["estimate", "isActive", "currentTier"]
+      "related": [
+        "estimate",
+        "isActive",
+        "currentTier"
+      ],
+      "interpolatedIntent": "Support {recipient} at tier {tier} for {duration} months",
+      "fields": [
+        {
+          "path": "recipient",
+          "label": "recipient",
+          "description": "Address to receive the subscription",
+          "format": "addressName"
+        },
+        {
+          "path": "tier",
+          "label": "tier",
+          "description": "Subscription tier: 0 = Supporter ($10/mo), 1 = Gold ($69/mo), 2 = Platinum ($250/mo), 3 = Partner ($1,000/mo, grant-only)",
+          "format": "enum",
+          "params": {
+            "values": {
+              "0": "Supporter",
+              "1": "Gold",
+              "2": "Platinum",
+              "3": "Partner (grant-only)"
+            }
+          }
+        },
+        {
+          "path": "duration",
+          "label": "months",
+          "description": "Number of months to subscribe (12+ months for 20% discount)",
+          "format": "duration"
+        }
+      ]
     },
     "estimate": {
       "title": "Estimate Cost",
@@ -81,7 +137,11 @@
           "label": "tier",
           "type": {
             "type": "enum",
-            "values": { "0": "Supporter", "1": "Gold", "2": "Platinum" }
+            "values": {
+              "0": "Supporter",
+              "1": "Gold",
+              "2": "Platinum"
+            }
           }
         },
         "duration": {
@@ -96,7 +156,10 @@
         }
       },
       "returns": {
-        "ethCost": { "label": "ETH cost", "type": "eth" },
+        "ethCost": {
+          "label": "ETH cost",
+          "type": "eth"
+        },
         "adjustedDuration": {
           "label": "adjusted duration",
           "description": "Duration after any hook adjustments"
@@ -120,7 +183,36 @@
           }
         }
       ],
-      "related": ["support", "tierPrices"]
+      "related": [
+        "support",
+        "tierPrices"
+      ],
+      "fields": [
+        {
+          "path": "tier",
+          "label": "tier",
+          "format": "enum",
+          "params": {
+            "values": {
+              "0": "Supporter",
+              "1": "Gold",
+              "2": "Platinum"
+            }
+          }
+        },
+        {
+          "path": "duration",
+          "label": "months",
+          "description": "Number of months",
+          "format": "duration"
+        },
+        {
+          "path": "supporter",
+          "label": "supporter",
+          "description": "Address to check (affects cost if upgrading/downgrading)",
+          "format": "addressName"
+        }
+      ]
     },
     "grant": {
       "title": "Grant Subscription",
@@ -154,7 +246,45 @@
           "type": "timestamp"
         }
       },
-      "related": ["support"]
+      "related": [
+        "support"
+      ],
+      "fields": [
+        {
+          "path": "recipient",
+          "label": "recipient",
+          "description": "Address to receive the subscription",
+          "format": "addressName"
+        },
+        {
+          "path": "tier",
+          "label": "tier",
+          "format": "enum",
+          "params": {
+            "values": {
+              "0": "Supporter",
+              "1": "Gold",
+              "2": "Platinum",
+              "3": "Partner"
+            }
+          }
+        },
+        {
+          "path": "duration",
+          "label": "months",
+          "description": "Number of months to grant",
+          "format": "raw"
+        },
+        {
+          "path": "startAt",
+          "label": "start time",
+          "description": "Custom start timestamp (0 to start immediately)",
+          "format": "date",
+          "params": {
+            "encoding": "timestamp"
+          }
+        }
+      ]
     },
     "isActive": {
       "title": "Is Active",
@@ -167,7 +297,17 @@
           "type": "address"
         }
       },
-      "related": ["subscription", "currentTier"]
+      "related": [
+        "subscription",
+        "currentTier"
+      ],
+      "fields": [
+        {
+          "path": "supporter",
+          "label": "supporter",
+          "format": "addressName"
+        }
+      ]
     },
     "subscription": {
       "title": "Subscription ID",
@@ -181,9 +321,23 @@
         }
       },
       "returns": {
-        "_0": { "label": "subscription ID", "type": "token-id" }
+        "_0": {
+          "label": "subscription ID",
+          "type": "token-id"
+        }
       },
-      "related": ["subscriptions", "isActive", "currentTier"]
+      "related": [
+        "subscriptions",
+        "isActive",
+        "currentTier"
+      ],
+      "fields": [
+        {
+          "path": "_0",
+          "label": "supporter",
+          "format": "addressName"
+        }
+      ]
     },
     "subscriptions": {
       "title": "Subscription Data",
@@ -197,11 +351,31 @@
         }
       },
       "returns": {
-        "createdAt": { "label": "created", "type": "timestamp" },
-        "startedAt": { "label": "current period start", "type": "timestamp" },
-        "expiresAt": { "label": "expires", "type": "timestamp" }
+        "createdAt": {
+          "label": "created",
+          "type": "timestamp"
+        },
+        "startedAt": {
+          "label": "current period start",
+          "type": "timestamp"
+        },
+        "expiresAt": {
+          "label": "expires",
+          "type": "timestamp"
+        }
       },
-      "related": ["subscription", "currentTier", "tierPeriods"]
+      "related": [
+        "subscription",
+        "currentTier",
+        "tierPeriods"
+      ],
+      "fields": [
+        {
+          "path": "_0",
+          "label": "subscription ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "currentTier": {
       "title": "Current Tier",
@@ -227,9 +401,21 @@
             }
           }
         },
-        "_1": { "label": "active" }
+        "_1": {
+          "label": "active"
+        }
       },
-      "related": ["subscription", "isActive"]
+      "related": [
+        "subscription",
+        "isActive"
+      ],
+      "fields": [
+        {
+          "path": "subscriptionId",
+          "label": "subscription ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "tierPeriods": {
       "title": "Tier History",
@@ -242,7 +428,17 @@
           "type": "token-id"
         }
       },
-      "related": ["currentTier", "subscriptions"]
+      "related": [
+        "currentTier",
+        "subscriptions"
+      ],
+      "fields": [
+        {
+          "path": "subscriptionId",
+          "label": "subscription ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "tierPrices": {
       "title": "Tier Price",
@@ -262,7 +458,22 @@
             }
           }
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "_0",
+          "label": "tier",
+          "format": "enum",
+          "params": {
+            "values": {
+              "0": "Supporter",
+              "1": "Gold",
+              "2": "Platinum",
+              "3": "Partner"
+            }
+          }
+        }
+      ]
     },
     "totalTiers": {
       "title": "Total Tiers",
@@ -270,21 +481,34 @@
       "stateMutability": "view",
       "group": "info"
     },
-    "totalSupply": {
+    "totalSupply()": {
       "title": "Total Subscriptions",
       "description": "Total number of subscriptions ever created (each represented as an NFT).",
       "stateMutability": "view",
       "group": "info"
     },
-    "tokenURI": {
+    "tokenURI(uint256 tokenId)": {
       "title": "Token Metadata",
       "description": "Returns the fully onchain metadata and SVG artwork for a subscription NFT. The card shows the supporter's address, tier badge, dates, and status.",
       "stateMutability": "view",
       "group": "info",
       "params": {
-        "tokenId": { "label": "subscription ID", "type": "token-id" }
+        "tokenId": {
+          "label": "subscription ID",
+          "type": "token-id"
+        }
       },
-      "related": ["subscriptions", "currentTier"]
+      "related": [
+        "subscriptions",
+        "currentTier"
+      ],
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "subscription ID",
+          "format": "tokenId"
+        }
+      ]
     },
     "hook": {
       "title": "Hook Contract",
@@ -292,7 +516,10 @@
       "stateMutability": "view",
       "group": "info",
       "returns": {
-        "_0": { "label": "hook address", "type": "address" }
+        "_0": {
+          "label": "hook address",
+          "type": "address"
+        }
       }
     },
     "renderer": {
@@ -301,7 +528,10 @@
       "stateMutability": "view",
       "group": "info",
       "returns": {
-        "_0": { "label": "renderer address", "type": "address" }
+        "_0": {
+          "label": "renderer address",
+          "type": "address"
+        }
       }
     },
     "logo": {
@@ -331,7 +561,28 @@
           "label": "price (USD, 8 decimals)",
           "description": "Monthly price in USD with 8 decimal places (e.g. 1000000000 = $10)"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "tier",
+          "label": "tier",
+          "format": "enum",
+          "params": {
+            "values": {
+              "0": "Supporter",
+              "1": "Gold",
+              "2": "Platinum",
+              "3": "Partner"
+            }
+          }
+        },
+        {
+          "path": "priceUSD",
+          "label": "price (USD, 8 decimals)",
+          "description": "Monthly price in USD with 8 decimal places (e.g. 1000000000 = $10)",
+          "format": "raw"
+        }
+      ]
     },
     "addTier": {
       "title": "Add Tier",
@@ -342,7 +593,15 @@
           "label": "price (USD, 8 decimals)",
           "description": "Monthly price in USD with 8 decimal places"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "priceUSD",
+          "label": "price (USD, 8 decimals)",
+          "description": "Monthly price in USD with 8 decimal places",
+          "format": "raw"
+        }
+      ]
     },
     "setHook": {
       "title": "Set Hook",
@@ -354,7 +613,15 @@
           "description": "Hook contract address (address(0) to disable)",
           "type": "address"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "_hook",
+          "label": "hook address",
+          "description": "Hook contract address (address(0) to disable)",
+          "format": "addressName"
+        }
+      ]
     },
     "setLogo": {
       "title": "Set Logo",
@@ -370,7 +637,14 @@
           "label": "renderer address",
           "type": "address"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "_renderer",
+          "label": "renderer address",
+          "format": "addressName"
+        }
+      ]
     },
     "withdraw": {
       "title": "Withdraw",
@@ -382,22 +656,40 @@
       "description": "The address that controls admin functions.",
       "stateMutability": "view",
       "group": "admin",
-      "returns": { "_0": { "type": "address" } }
+      "returns": {
+        "_0": {
+          "type": "address"
+        }
+      }
     },
     "pendingOwner": {
       "title": "Pending Owner",
       "description": "The address nominated to become the new owner (two-step transfer). Must call acceptOwnership() to complete.",
       "stateMutability": "view",
       "group": "admin",
-      "returns": { "_0": { "type": "address" } }
+      "returns": {
+        "_0": {
+          "type": "address"
+        }
+      }
     },
     "transferOwnership": {
       "title": "Transfer Ownership",
       "description": "Nominate a new owner. The nominee must call acceptOwnership() to complete the transfer. Only callable by the current owner.",
       "group": "admin",
       "params": {
-        "newOwner": { "label": "new owner", "type": "address" }
-      }
+        "newOwner": {
+          "label": "new owner",
+          "type": "address"
+        }
+      },
+      "fields": [
+        {
+          "path": "newOwner",
+          "label": "new owner",
+          "format": "addressName"
+        }
+      ]
     },
     "acceptOwnership": {
       "title": "Accept Ownership",
@@ -409,7 +701,11 @@
       "description": "The timestamp when subscriptions become available for purchase.",
       "stateMutability": "view",
       "group": "info",
-      "returns": { "_0": { "type": "timestamp" } }
+      "returns": {
+        "_0": {
+          "type": "timestamp"
+        }
+      }
     },
     "setSaleStart": {
       "title": "Set Sale Start",
@@ -420,7 +716,17 @@
           "label": "sale start",
           "type": "timestamp"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "_saleStart",
+          "label": "sale start",
+          "format": "date",
+          "params": {
+            "encoding": "timestamp"
+          }
+        }
+      ]
     },
     "supportsInterface": {
       "title": "Supports Interface",
@@ -435,7 +741,10 @@
       "title": "Subscription Created/Extended",
       "description": "Emitted when a subscription is created, extended, or tier-changed.",
       "params": {
-        "supporter": { "label": "supporter", "type": "address" },
+        "supporter": {
+          "label": "supporter",
+          "type": "address"
+        },
         "tier": {
           "label": "tier",
           "type": {
@@ -448,11 +757,25 @@
             }
           }
         },
-        "subscriptionId": { "label": "subscription ID", "type": "token-id" },
-        "duration": { "label": "months" },
-        "paid": { "label": "ETH paid", "type": "eth" },
-        "startedAt": { "label": "started", "type": "timestamp" },
-        "expiresAt": { "label": "expires", "type": "timestamp" }
+        "subscriptionId": {
+          "label": "subscription ID",
+          "type": "token-id"
+        },
+        "duration": {
+          "label": "months"
+        },
+        "paid": {
+          "label": "ETH paid",
+          "type": "eth"
+        },
+        "startedAt": {
+          "label": "started",
+          "type": "timestamp"
+        },
+        "expiresAt": {
+          "label": "expires",
+          "type": "timestamp"
+        }
       }
     },
     "TierPriceUpdated": {
@@ -470,26 +793,40 @@
             }
           }
         },
-        "priceUSD": { "label": "price (USD, 8 decimals)" }
+        "priceUSD": {
+          "label": "price (USD, 8 decimals)"
+        }
       }
     },
     "HookUpdated": {
       "description": "Emitted when the subscription hook contract is changed.",
       "params": {
-        "hook": { "label": "hook address", "type": "address" }
+        "hook": {
+          "label": "hook address",
+          "type": "address"
+        }
       }
     },
     "Withdrawal": {
       "description": "Emitted when collected ETH is withdrawn by the owner.",
       "params": {
-        "to": { "label": "recipient", "type": "address" },
-        "amount": { "label": "amount", "type": "eth" }
+        "to": {
+          "label": "recipient",
+          "type": "address"
+        },
+        "amount": {
+          "label": "amount",
+          "type": "eth"
+        }
       }
     },
     "MetadataUpdate": {
       "description": "Emitted when a subscription NFT's metadata changes (ERC-4906). Signals marketplaces to refresh the token.",
       "params": {
-        "tokenId": { "label": "subscription ID", "type": "token-id" }
+        "tokenId": {
+          "label": "subscription ID",
+          "type": "token-id"
+        }
       }
     },
     "LogoUpdated": {
@@ -498,7 +835,10 @@
     "RendererUpdated": {
       "description": "Emitted when the renderer contract is updated.",
       "params": {
-        "renderer": { "label": "renderer address", "type": "address" }
+        "renderer": {
+          "label": "renderer address",
+          "type": "address"
+        }
       }
     }
   },

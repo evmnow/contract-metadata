@@ -17,19 +17,41 @@
     "Royalty enforcement only applies to the built-in marketplace — external transfers via transferOwnership bypass royalties"
   ],
   "category": "nft",
-  "tags": ["art", "generative", "onchain", "1-of-1", "webgl", "interactive"],
+  "tags": [
+    "art",
+    "generative",
+    "onchain",
+    "1-of-1",
+    "webgl",
+    "interactive"
+  ],
   "links": [
     {
       "label": "Etherscan",
       "url": "https://etherscan.io/address/0xf3e732194ba87d68fd6ec3d5b1bf813599c8406a"
     },
-    { "label": "Artist", "url": "https://han.io" },
-    { "label": "X (Twitter)", "url": "https://x.com/hanrgb" }
+    {
+      "label": "Artist",
+      "url": "https://han.io"
+    },
+    {
+      "label": "X (Twitter)",
+      "url": "https://x.com/hanrgb"
+    }
   ],
   "groups": {
-    "artwork": { "label": "Artwork", "order": 1 },
-    "marketplace": { "label": "Marketplace", "order": 2 },
-    "admin": { "label": "Admin", "order": 3 }
+    "artwork": {
+      "label": "Artwork",
+      "order": 1
+    },
+    "marketplace": {
+      "label": "Marketplace",
+      "order": 2
+    },
+    "admin": {
+      "label": "Admin",
+      "order": 3
+    }
   },
   "functions": {
     "name": {
@@ -74,21 +96,34 @@
       "description": "The current owner of the artwork.",
       "stateMutability": "view",
       "group": "marketplace",
-      "returns": { "_0": { "type": "address" } }
+      "returns": {
+        "_0": {
+          "type": "address"
+        }
+      }
     },
     "royaltyPercentage": {
       "title": "Royalty Percentage",
       "description": "The percentage of each sale paid as a royalty to the royalty recipient.",
       "stateMutability": "view",
       "group": "marketplace",
-      "returns": { "_0": { "label": "royalty %", "type": "percentage" } }
+      "returns": {
+        "_0": {
+          "label": "royalty %",
+          "type": "percentage"
+        }
+      }
     },
     "royaltyRecipient": {
       "title": "Royalty Recipient",
       "description": "The address that receives royalty payments from marketplace sales.",
       "stateMutability": "view",
       "group": "marketplace",
-      "returns": { "_0": { "type": "address" } }
+      "returns": {
+        "_0": {
+          "type": "address"
+        }
+      }
     },
     "currentOffer": {
       "title": "Current Offer",
@@ -96,15 +131,24 @@
       "stateMutability": "view",
       "group": "marketplace",
       "returns": {
-        "active": { "label": "for sale", "type": "boolean" },
-        "value": { "label": "price", "type": "eth" },
+        "active": {
+          "label": "for sale",
+          "type": "boolean"
+        },
+        "value": {
+          "label": "price",
+          "type": "eth"
+        },
         "toAddress": {
           "label": "reserved for",
           "description": "If set, only this address can buy. Zero address means open to anyone.",
           "type": "address"
         }
       },
-      "related": ["buyNow", "listForSale"]
+      "related": [
+        "buyNow",
+        "listForSale"
+      ]
     },
     "currentBid": {
       "title": "Current Bid",
@@ -112,11 +156,23 @@
       "stateMutability": "view",
       "group": "marketplace",
       "returns": {
-        "active": { "label": "has bid", "type": "boolean" },
-        "value": { "label": "bid amount", "type": "eth" },
-        "fromAddress": { "label": "bidder", "type": "address" }
+        "active": {
+          "label": "has bid",
+          "type": "boolean"
+        },
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "bidder",
+          "type": "address"
+        }
       },
-      "related": ["placeBid", "acceptBid"]
+      "related": [
+        "placeBid",
+        "acceptBid"
+      ]
     },
     "buyNow": {
       "title": "Buy Now",
@@ -125,7 +181,10 @@
       "group": "marketplace",
       "featured": true,
       "warning": "Sends ETH. The exact listed price must be sent — no more, no less.",
-      "related": ["currentOffer", "listForSale"]
+      "related": [
+        "currentOffer",
+        "listForSale"
+      ]
     },
     "placeBid": {
       "title": "Place Bid",
@@ -133,56 +192,107 @@
       "intent": "Place a bid on Mnemonic",
       "group": "marketplace",
       "warning": "Your ETH will be locked in the contract until the owner accepts or you withdraw.",
-      "related": ["currentBid", "withdrawBid", "acceptBid"]
+      "related": [
+        "currentBid",
+        "withdrawBid",
+        "acceptBid"
+      ]
     },
     "acceptBid": {
       "title": "Accept Bid",
       "description": "Accept the current highest bid. The artwork is transferred to the bidder and the bid amount (minus royalty) is credited to the owner's pending withdrawals. Only the owner can call this.",
       "group": "marketplace",
-      "related": ["currentBid", "placeBid"]
+      "related": [
+        "currentBid",
+        "placeBid"
+      ]
     },
     "withdrawBid": {
       "title": "Withdraw Bid",
       "description": "Withdraw your active bid, returning your locked ETH. Only the current bidder can call this.",
       "group": "marketplace",
-      "related": ["placeBid", "currentBid"]
+      "related": [
+        "placeBid",
+        "currentBid"
+      ]
     },
     "listForSale": {
       "title": "List for Sale",
       "description": "List the artwork for sale at a fixed price, open to anyone. Only the owner can call this.",
-      "intent": "List Mnemonic for sale at {salePriceInWei}",
+      "intent": "List for Sale",
       "group": "marketplace",
       "params": {
-        "salePriceInWei": { "label": "price", "type": "eth" }
+        "salePriceInWei": {
+          "label": "price",
+          "type": "eth"
+        }
       },
-      "related": ["listForSaleToAddress", "cancelFromSale", "buyNow"]
+      "related": [
+        "listForSaleToAddress",
+        "cancelFromSale",
+        "buyNow"
+      ],
+      "interpolatedIntent": "List Mnemonic for sale at {salePriceInWei}",
+      "fields": [
+        {
+          "path": "salePriceInWei",
+          "label": "price",
+          "format": "amount"
+        }
+      ]
     },
     "listForSaleToAddress": {
       "title": "List for Sale (Private)",
       "description": "List the artwork for sale to a specific address only. Only the owner can call this.",
-      "intent": "List Mnemonic for sale at {salePriceInWei} to {toAddress}",
+      "intent": "List for Sale (Private)",
       "group": "marketplace",
       "params": {
-        "salePriceInWei": { "label": "price", "type": "eth" },
+        "salePriceInWei": {
+          "label": "price",
+          "type": "eth"
+        },
         "toAddress": {
           "label": "buyer",
           "description": "Only this address can purchase the artwork",
           "type": "address"
         }
       },
-      "related": ["listForSale", "cancelFromSale", "buyNow"]
+      "related": [
+        "listForSale",
+        "cancelFromSale",
+        "buyNow"
+      ],
+      "interpolatedIntent": "List Mnemonic for sale at {salePriceInWei} to {toAddress}",
+      "fields": [
+        {
+          "path": "salePriceInWei",
+          "label": "price",
+          "format": "amount"
+        },
+        {
+          "path": "toAddress",
+          "label": "buyer",
+          "description": "Only this address can purchase the artwork",
+          "format": "addressName"
+        }
+      ]
     },
     "cancelFromSale": {
       "title": "Cancel Sale",
       "description": "Remove the artwork from sale. Only the owner can call this.",
       "group": "marketplace",
-      "related": ["listForSale", "currentOffer"]
+      "related": [
+        "listForSale",
+        "currentOffer"
+      ]
     },
     "withdraw": {
       "title": "Withdraw ETH",
       "description": "Withdraw ETH owed to you from sales or returned bids.",
       "group": "marketplace",
-      "related": ["pendingWithdrawals"]
+      "related": [
+        "pendingWithdrawals"
+      ]
     },
     "pendingWithdrawals": {
       "title": "Pending Withdrawals",
@@ -190,30 +300,65 @@
       "stateMutability": "view",
       "group": "marketplace",
       "params": {
-        "_0": { "label": "address", "type": "address" }
+        "_0": {
+          "label": "address",
+          "type": "address"
+        }
       },
       "returns": {
-        "_0": { "type": "eth" }
+        "_0": {
+          "type": "eth"
+        }
       },
-      "related": ["withdraw"]
+      "related": [
+        "withdraw"
+      ],
+      "fields": [
+        {
+          "path": "_0",
+          "label": "address",
+          "format": "addressName"
+        }
+      ]
     },
     "transferOwnership": {
       "title": "Transfer Ownership",
       "description": "Transfer the artwork to another address without going through the marketplace. Bypasses royalties. If the new owner has an active bid, it is refunded. Any active sale listing is canceled.",
-      "intent": "Transfer Mnemonic to {newOwner}",
+      "intent": "Transfer Ownership",
       "group": "admin",
       "warning": "This is a direct transfer with no payment involved. Royalties are not collected. Make sure you intend to send the artwork for free.",
       "params": {
-        "newOwner": { "label": "new owner", "type": "address" }
-      }
+        "newOwner": {
+          "label": "new owner",
+          "type": "address"
+        }
+      },
+      "interpolatedIntent": "Transfer Mnemonic to {newOwner}",
+      "fields": [
+        {
+          "path": "newOwner",
+          "label": "new owner",
+          "format": "addressName"
+        }
+      ]
     },
     "setRoyaltyRecipient": {
       "title": "Set Royalty Recipient",
       "description": "Change the address that receives royalty payments. Only the current royalty recipient can call this.",
       "group": "admin",
       "params": {
-        "newRoyaltyRecipient": { "label": "new recipient", "type": "address" }
-      }
+        "newRoyaltyRecipient": {
+          "label": "new recipient",
+          "type": "address"
+        }
+      },
+      "fields": [
+        {
+          "path": "newRoyaltyRecipient",
+          "label": "new recipient",
+          "format": "addressName"
+        }
+      ]
     }
   },
   "events": {
@@ -221,61 +366,118 @@
       "title": "Artpiece Created",
       "description": "Emitted when the contract is deployed and the artwork is created.",
       "params": {
-        "creator": { "label": "creator", "type": "address" }
+        "creator": {
+          "label": "creator",
+          "type": "address"
+        }
       }
     },
     "ArtpieceTransferred": {
       "title": "Artpiece Transferred",
       "description": "Emitted when ownership of the artwork changes.",
       "params": {
-        "oldOwner": { "label": "from", "type": "address" },
-        "newOwner": { "label": "to", "type": "address" }
+        "oldOwner": {
+          "label": "from",
+          "type": "address"
+        },
+        "newOwner": {
+          "label": "to",
+          "type": "address"
+        }
       }
     },
     "ListedForSale": {
       "description": "Emitted when the artwork is listed for sale.",
       "params": {
-        "value": { "label": "price", "type": "eth" },
-        "fromAddress": { "label": "seller", "type": "address" },
-        "toAddress": { "label": "reserved for", "type": "address" }
+        "value": {
+          "label": "price",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "seller",
+          "type": "address"
+        },
+        "toAddress": {
+          "label": "reserved for",
+          "type": "address"
+        }
       }
     },
     "SaleCompleted": {
       "description": "Emitted when the artwork is sold via buyNow.",
       "params": {
-        "value": { "label": "sale price", "type": "eth" },
-        "fromAddress": { "label": "seller", "type": "address" },
-        "toAddress": { "label": "buyer", "type": "address" }
+        "value": {
+          "label": "sale price",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "seller",
+          "type": "address"
+        },
+        "toAddress": {
+          "label": "buyer",
+          "type": "address"
+        }
       }
     },
     "SaleCanceled": {
       "description": "Emitted when a sale listing is canceled.",
       "params": {
-        "value": { "label": "listed price", "type": "eth" },
-        "fromAddress": { "label": "seller", "type": "address" },
-        "toAddress": { "label": "was reserved for", "type": "address" }
+        "value": {
+          "label": "listed price",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "seller",
+          "type": "address"
+        },
+        "toAddress": {
+          "label": "was reserved for",
+          "type": "address"
+        }
       }
     },
     "BidPlaced": {
       "description": "Emitted when a bid is placed on the artwork.",
       "params": {
-        "value": { "label": "bid amount", "type": "eth" },
-        "fromAddress": { "label": "bidder", "type": "address" }
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "bidder",
+          "type": "address"
+        }
       }
     },
     "BidAccepted": {
       "description": "Emitted when the owner accepts a bid.",
       "params": {
-        "value": { "label": "bid amount", "type": "eth" },
-        "fromAddress": { "label": "seller", "type": "address" },
-        "toAddress": { "label": "bidder", "type": "address" }
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "seller",
+          "type": "address"
+        },
+        "toAddress": {
+          "label": "bidder",
+          "type": "address"
+        }
       }
     },
     "BidWithdrawn": {
       "description": "Emitted when a bidder withdraws their bid.",
       "params": {
-        "value": { "label": "bid amount", "type": "eth" },
-        "fromAddress": { "label": "bidder", "type": "address" }
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "bidder",
+          "type": "address"
+        }
       }
     }
   },

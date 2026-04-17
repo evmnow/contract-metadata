@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/1001-digital/contract-metadata/schema/contract-metadata.schema.json",
   "title": "Contract Metadata",
-  "description": "Human-readable context for smart contracts. Enriches ABI data with titles, descriptions, semantic type annotations, and presentation hints.",
+  "description": "Human-readable context for smart contracts. Enriches ABI data with titles, descriptions, semantic type annotations, and ERC-7730-compatible clear-signing metadata.",
   "type": "object",
   "required": ["$schema", "chainId", "address"],
   "additionalProperties": false,
@@ -26,6 +26,17 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Interface identifiers to include (e.g. \"interface:erc20\", \"interface:erc721\"). Included metadata is merged with contract-specific metadata taking priority."
+    },
+    "deployments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Deployment"
+      },
+      "description": "Known deployments for this contract. Use when the same metadata applies across multiple chain/address pairs."
+    },
+    "factory": {
+      "$ref": "#/$defs/Factory",
+      "description": "Factory deployment context for clone or child contracts."
     },
     "meta": {
       "$ref": "#/$defs/DocumentMeta",
@@ -103,6 +114,18 @@
       },
       "description": "Security audit references."
     },
+    "metadata": {
+      "$ref": "#/$defs/Metadata",
+      "description": "Grouped descriptive metadata and ERC-7730-style contract metadata."
+    },
+    "display": {
+      "$ref": "#/$defs/Display",
+      "description": "Reusable clear-signing display metadata, including format definitions and named field templates."
+    },
+    "eip712": {
+      "$ref": "#/$defs/EIP712Context",
+      "description": "Default EIP-712 typed-data context for signing flows."
+    },
     "theme": {
       "$ref": "#/$defs/Theme",
       "description": "Visual theme for UI rendering. Color model inspired by ENSIP-18."
@@ -116,7 +139,7 @@
     },
     "functions": {
       "type": "object",
-      "description": "Per-function metadata. Keys can be a bare ABI name (e.g. \"transfer\"), a full Solidity signature for overloaded functions (e.g. \"safeTransferFrom(address,address,uint256,bytes)\"), or a 4-byte selector for unverified contracts (e.g. \"0xa9059cbb\").",
+      "description": "Per-function metadata. Keys SHOULD be canonical named ABI fragments (e.g. \"transfer(address to,uint256 value)\") for ERC-7730 compatibility. Bare ABI names and 4-byte selectors remain valid for backwards compatibility.",
       "additionalProperties": {
         "$ref": "#/$defs/FunctionMeta"
       }
@@ -137,7 +160,7 @@
     },
     "messages": {
       "type": "object",
-      "description": "EIP-712 typed message metadata, keyed by primary type name (e.g. \"Permit\", \"Order\"). Describes off-chain signing flows verified by this contract.",
+      "description": "EIP-712 typed message metadata, keyed by primary type name, canonical type signature, or another stable message identifier. Supports ERC-7730-style signing display metadata.",
       "additionalProperties": {
         "$ref": "#/$defs/MessageMeta"
       }
@@ -173,6 +196,337 @@
           "description": "Optional signature for verifying metadata authenticity."
         }
       }
+    },
+    "Deployment": {
+      "type": "object",
+      "description": "A deployed contract instance identified by chain ID and address.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "required": ["chainId", "address"],
+      "properties": {
+        "chainId": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Chain ID of the deployment."
+        },
+        "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{40}$",
+          "description": "Lowercase contract address."
+        },
+        "label": {
+          "type": "string",
+          "description": "Optional human-readable label for the deployment."
+        }
+      }
+    },
+    "Factory": {
+      "type": "object",
+      "description": "Factory deployment context used to discover contract instances.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{40}$",
+          "description": "Factory contract address on the top-level chain."
+        },
+        "deployEvent": {
+          "type": "string",
+          "description": "Canonical event fragment emitted when a new instance is deployed."
+        },
+        "instancePath": {
+          "type": "string",
+          "description": "Path within the deploy event that contains the deployed instance address."
+        },
+        "deployments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Deployment"
+          },
+          "description": "Factory deployments across chains."
+        }
+      }
+    },
+    "Metadata": {
+      "type": "object",
+      "description": "Grouped descriptive metadata and ERC-7730-style metadata containers.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable contract name."
+        },
+        "contractName": {
+          "type": "string",
+          "description": "ERC-7730-style contract name."
+        },
+        "contractVersion": {
+          "type": "string",
+          "description": "Version string for the contract or signing context."
+        },
+        "symbol": {
+          "type": "string",
+          "description": "Contract or token symbol."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short human-readable description."
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Contract image or logo URI."
+        },
+        "banner_image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Banner image URI."
+        },
+        "featured_image": {
+          "type": "string",
+          "format": "uri",
+          "description": "Featured image URI."
+        },
+        "external_link": {
+          "type": "string",
+          "format": "uri",
+          "description": "Primary external URL for the project."
+        },
+        "collaborators": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          },
+          "description": "Ethereum addresses of authorized metadata editors."
+        },
+        "about": {
+          "type": "string",
+          "description": "Long-form context and explanations in Markdown format."
+        },
+        "category": {
+          "type": "string",
+          "description": "Primary category."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Free-form tags for search and categorization."
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Link"
+          },
+          "description": "External links."
+        },
+        "risks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Known risks or caveats users should be aware of."
+        },
+        "audits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AuditReference"
+          },
+          "description": "Security audit references."
+        },
+        "theme": {
+          "$ref": "#/$defs/Theme",
+          "description": "Visual theme for UI rendering."
+        },
+        "info": {
+          "type": "object",
+          "description": "Free-form ERC-7730-style contract information container.",
+          "additionalProperties": true
+        },
+        "token": {
+          "type": "object",
+          "description": "Free-form token metadata container for ERC-7730-style signing context.",
+          "additionalProperties": true
+        },
+        "constants": {
+          "type": "object",
+          "description": "Reusable named constants.",
+          "additionalProperties": true
+        },
+        "enums": {
+          "type": "object",
+          "description": "Reusable named enum definitions.",
+          "additionalProperties": true
+        },
+        "maps": {
+          "type": "object",
+          "description": "Reusable named map definitions.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "Display": {
+      "type": "object",
+      "description": "Reusable ERC-7730-style display metadata for signing and review.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "definitions": {
+          "type": "object",
+          "description": "Reusable named field definitions.",
+          "additionalProperties": {
+            "$ref": "#/$defs/FieldMeta"
+          }
+        },
+        "formats": {
+          "type": "object",
+          "description": "Named display formats keyed by ABI fragment, message signature, or other stable identifier.",
+          "additionalProperties": {
+            "$ref": "#/$defs/DisplayFormatMeta"
+          }
+        },
+        "constants": {
+          "type": "object",
+          "description": "Reusable named constants.",
+          "additionalProperties": true
+        },
+        "enums": {
+          "type": "object",
+          "description": "Reusable named enum definitions.",
+          "additionalProperties": true
+        },
+        "maps": {
+          "type": "object",
+          "description": "Reusable named map definitions.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "EIP712Context": {
+      "type": "object",
+      "description": "EIP-712 typed-data context for a contract or message flow.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "EIP-712 domain name."
+        },
+        "version": {
+          "type": "string",
+          "description": "EIP-712 domain version."
+        },
+        "chainId": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Chain ID for the typed-data context."
+        },
+        "verifyingContract": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{40}$",
+          "description": "Verifying contract address."
+        },
+        "salt": {
+          "type": "string",
+          "description": "Optional EIP-712 domain salt."
+        },
+        "primaryType": {
+          "type": "string",
+          "description": "Primary EIP-712 type name."
+        },
+        "signature": {
+          "type": "string",
+          "description": "Canonical human-readable signature for the typed data."
+        },
+        "typeEncoding": {
+          "type": "string",
+          "description": "Canonical EIP-712 type encoding."
+        },
+        "domain": {
+          "$ref": "#/$defs/EIP712Domain",
+          "description": "Structured EIP-712 domain object."
+        },
+        "types": {
+          "type": "object",
+          "description": "EIP-712 type definitions keyed by type name.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/EIP712TypeField"
+            }
+          }
+        },
+        "deployments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Deployment"
+          },
+          "description": "Deployments for the verifying contract or typed-data context."
+        }
+      }
+    },
+    "EIP712Domain": {
+      "type": "object",
+      "description": "Structured EIP-712 domain values.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "chainId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "verifyingContract": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{40}$"
+        },
+        "salt": {
+          "type": "string"
+        }
+      }
+    },
+    "EIP712TypeField": {
+      "type": "object",
+      "description": "Single EIP-712 typed-data field definition.",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "type"]
     },
     "Theme": {
       "type": "object",
@@ -267,6 +621,100 @@
         }
       }
     },
+    "DisplayFormat": {
+      "type": "string",
+      "enum": [
+        "raw",
+        "amount",
+        "tokenAmount",
+        "nftName",
+        "date",
+        "datetime",
+        "duration",
+        "unit",
+        "enum",
+        "chainId",
+        "chain-id",
+        "addressName",
+        "tokenTicker",
+        "interoperableAddressName",
+        "calldata",
+        "eth",
+        "gwei",
+        "boolean",
+        "blockNumber",
+        "blocknumber",
+        "tokenId",
+        "token-id",
+        "percentage",
+        "basisPoints",
+        "basis-points",
+        "bytes32Utf8",
+        "bytes32-utf8",
+        "hidden"
+      ],
+      "description": "ERC-7730-aligned display format for a field or value."
+    },
+    "DisplayFormatMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "Canonical ABI fragment or message signature this display format describes."
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable short label."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable explanation of the signing display."
+        },
+        "warning": {
+          "type": "string",
+          "description": "Risk warning displayed to users."
+        },
+        "intent": {
+          "type": "string",
+          "description": "Short intent string for the display format."
+        },
+        "interpolatedIntent": {
+          "type": "string",
+          "description": "Template string rendered with formatted field values."
+        },
+        "fields": {
+          "type": "array",
+          "description": "Ordered list of display fields.",
+          "items": {
+            "$ref": "#/$defs/FieldMeta"
+          }
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths that must be present."
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths that must be omitted."
+        },
+        "eip712": {
+          "$ref": "#/$defs/EIP712Context",
+          "description": "EIP-712 context for the display format."
+        }
+      }
+    },
     "FunctionMeta": {
       "type": "object",
       "additionalProperties": false,
@@ -289,9 +737,17 @@
           "type": "string",
           "description": "What the function does, explained for end users."
         },
+        "signature": {
+          "type": "string",
+          "description": "Canonical named ABI fragment for the function, if the object key is not already that signature."
+        },
         "intent": {
           "type": "string",
-          "description": "Template string rendered with formatted parameter values. Use {paramName} placeholders (e.g. \"Transfer {wad} to {dst}\"). Prefix with # to prepend a hash symbol (e.g. \"Buy Punk #{punkIndex}\" renders as \"Buy Punk #7804\"). Values are formatted using their type before insertion."
+          "description": "Short clear-signing summary of the action. Dynamic values SHOULD be placed in interpolatedIntent instead."
+        },
+        "interpolatedIntent": {
+          "type": "string",
+          "description": "ERC-7730-style template string rendered with formatted field values."
         },
         "group": {
           "type": "string",
@@ -320,6 +776,34 @@
           "additionalProperties": {
             "$ref": "#/$defs/ParamMeta"
           }
+        },
+        "input": {
+          "type": "object",
+          "description": "Input metadata keyed by parameter name. This mirrors params and is retained for forward-compatible authoring.",
+          "additionalProperties": {
+            "$ref": "#/$defs/InputMeta"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "description": "Ordered clear-signing display fields. This is the preferred forward-compatible surface.",
+          "items": {
+            "$ref": "#/$defs/FieldMeta"
+          }
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths or parameter names that must be present."
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths or parameter names that must be omitted."
         },
         "returns": {
           "type": "object",
@@ -369,20 +853,60 @@
           "type": "string",
           "description": "What signing this message does, explained for end users."
         },
+        "signature": {
+          "type": "string",
+          "description": "Canonical typed-message signature or primary type signature."
+        },
+        "typeEncoding": {
+          "type": "string",
+          "description": "Canonical EIP-712 type encoding for the message, if known."
+        },
         "intent": {
           "type": "string",
           "description": "Template string rendered with formatted field values. Use {fieldName} placeholders (e.g. \"Permit {spender} to spend {value}\")."
+        },
+        "interpolatedIntent": {
+          "type": "string",
+          "description": "ERC-7730-style template string rendered with formatted field values."
         },
         "warning": {
           "type": "string",
           "description": "Risk warning displayed to users before signing."
         },
         "fields": {
-          "type": "object",
-          "description": "Field metadata, keyed by EIP-712 field name.",
-          "additionalProperties": {
-            "$ref": "#/$defs/ParamMeta"
-          }
+          "description": "Field metadata. Array form is preferred for ERC-7730-compatible ordered display; object form is retained for backwards compatibility.",
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FieldMeta"
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/ParamMeta"
+              }
+            }
+          ]
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths or names that must be present."
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field paths or names that must be omitted."
+        },
+        "eip712": {
+          "$ref": "#/$defs/EIP712Context",
+          "description": "EIP-712 context for the message."
         }
       }
     },
@@ -481,11 +1005,333 @@
         }
       }
     },
+    "InputMeta": {
+      "$ref": "#/$defs/ParamMeta",
+      "description": "Alias for ParamMeta used where the schema wants to name input metadata explicitly."
+    },
+    "FieldParams": {
+      "type": "object",
+      "description": "Formatter-specific parameters for a field.",
+      "additionalProperties": true,
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Literal token contract address or metadata reference."
+        },
+        "tokenAddress": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{40}$"
+        },
+        "tokenPath": {
+          "type": "string",
+          "description": "Path to the token context or token metadata source."
+        },
+        "tokenTicker": {
+          "type": "string",
+          "description": "Ticker to use when rendering the field."
+        },
+        "nativeCurrencyAddress": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Address or addresses that should be treated as the native currency sentinel."
+        },
+        "collection": {
+          "type": "string",
+          "description": "Literal NFT collection address or metadata reference."
+        },
+        "collectionPath": {
+          "type": "string",
+          "description": "Path to the NFT collection address."
+        },
+        "chainId": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Chain ID used for resolving token or collection metadata."
+        },
+        "chainIdPath": {
+          "type": "string",
+          "description": "Path to the chain ID used for resolving token or collection metadata."
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "decimalsPath": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "symbolPath": {
+          "type": "string"
+        },
+        "namePath": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "precision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "threshold": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Inline enum or lookup values."
+        },
+        "calleePath": {
+          "type": "string",
+          "description": "Path to the contract address used to decode embedded calldata."
+        },
+        "selector": {
+          "type": "string",
+          "description": "Literal function selector for embedded calldata."
+        },
+        "selectorPath": {
+          "type": "string",
+          "description": "Path to the function selector for embedded calldata."
+        },
+        "calldataPath": {
+          "type": "string",
+          "description": "Path to embedded calldata."
+        },
+        "amountPath": {
+          "type": "string",
+          "description": "Path to transaction value or amount context for embedded calldata."
+        },
+        "spenderPath": {
+          "type": "string",
+          "description": "Path to spender context for embedded calldata."
+        },
+        "recipientPath": {
+          "type": "string",
+          "description": "Path to recipient context for embedded calldata."
+        }
+      }
+    },
+    "VisibleRule": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": ["always", "never", "auto", "optional"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^_[a-zA-Z]": {
+              "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+            }
+          },
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to inspect when deciding whether the field is visible."
+            },
+            "exists": {
+              "type": "boolean"
+            },
+            "equals": true,
+            "notEquals": true,
+            "in": {
+              "type": "array",
+              "items": true
+            },
+            "notIn": {
+              "type": "array",
+              "items": true
+            },
+            "ifIn": {
+              "type": "array",
+              "items": true
+            },
+            "ifNotIn": {
+              "type": "array",
+              "items": true
+            },
+            "ifEquals": true,
+            "ifNotEquals": true,
+            "mustMatch": true,
+            "ifNotMatch": true
+          }
+        }
+      ],
+      "description": "Visibility rule for a field."
+    },
+    "FieldPreview": {
+      "type": "object",
+      "description": "Visual preview shown as the user fills or reviews a field value.",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "URI template that resolves to an image for the current field value."
+        }
+      }
+    },
+    "Encryption": {
+      "type": "object",
+      "description": "Optional encryption metadata for a field value.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "scheme": {
+          "type": "string",
+          "description": "Encryption scheme identifier."
+        },
+        "plaintextType": {
+          "type": "string",
+          "description": "Expected plaintext type after decryption."
+        },
+        "fallbackLabel": {
+          "type": "string",
+          "description": "Label to display when the value cannot be decrypted."
+        },
+        "keyId": {
+          "type": "string",
+          "description": "Identifier of the key used for encryption."
+        },
+        "recipient": {
+          "type": "string",
+          "description": "Recipient or public key reference."
+        },
+        "params": {
+          "type": "object",
+          "description": "Scheme-specific encryption parameters.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "FieldMeta": {
+      "type": "object",
+      "description": "A display field or reusable field reference. Supports ERC-7730-style paths, literal values, and reusable references.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^_[a-zA-Z]": {
+          "description": "Extension object. Names must start with _ followed by a letter. Consumers that do not understand a given extension must ignore it."
+        }
+      },
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to the value within the current context."
+        },
+        "$ref": {
+          "type": "string",
+          "description": "Reference to a reusable field definition."
+        },
+        "value": true,
+        "label": {
+          "type": "string",
+          "description": "Human-readable label for the field."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional human-readable explanation of the field."
+        },
+        "format": {
+          "$ref": "#/$defs/DisplayFormat",
+          "description": "Display format used to render the field."
+        },
+        "params": {
+          "$ref": "#/$defs/FieldParams",
+          "description": "Formatter-specific parameters."
+        },
+        "visible": {
+          "$ref": "#/$defs/VisibleRule",
+          "description": "Visibility rule for the field."
+        },
+        "fields": {
+          "type": "array",
+          "description": "Nested child fields for grouped or structured values.",
+          "items": {
+            "$ref": "#/$defs/FieldMeta"
+          }
+        },
+        "input": {
+          "$ref": "#/$defs/InputMeta",
+          "description": "Input metadata for the same value."
+        },
+        "preview": {
+          "$ref": "#/$defs/FieldPreview",
+          "description": "Visual preview metadata for the field."
+        },
+        "encryption": {
+          "$ref": "#/$defs/Encryption",
+          "description": "Optional encryption metadata for the field value."
+        }
+      }
+    },
     "Type": {
       "oneOf": [
         {
           "type": "string",
-          "enum": ["eth", "gwei", "timestamp", "address", "boolean", "blocknumber", "duration", "bytes32-utf8", "token-id", "percentage", "basis-points", "token-amount", "date", "datetime", "hidden"],
+          "enum": [
+            "eth",
+            "gwei",
+            "timestamp",
+            "address",
+            "boolean",
+            "blocknumber",
+            "blockNumber",
+            "duration",
+            "bytes32-utf8",
+            "bytes32Utf8",
+            "token-id",
+            "tokenId",
+            "percentage",
+            "basis-points",
+            "basisPoints",
+            "token-amount",
+            "tokenAmount",
+            "date",
+            "datetime",
+            "raw",
+            "amount",
+            "unit",
+            "enum",
+            "chain-id",
+            "chainId",
+            "addressName",
+            "tokenTicker",
+            "interoperableAddressName",
+            "calldata",
+            "nftName",
+            "hidden"
+          ],
           "description": "Semantic type. Tells consumers what a value represents and how to render it in both read and write contexts."
         },
         {
@@ -509,7 +1355,7 @@
         },
         {
           "type": "object",
-          "required": ["type", "tokenAddress"],
+          "required": ["type"],
           "additionalProperties": false,
           "properties": {
             "type": { "const": "token-amount" },
@@ -517,13 +1363,25 @@
               "type": "string",
               "pattern": "^0x[0-9a-f]{40}$",
               "description": "The token contract address (lowercase)."
+            },
+            "tokenPath": {
+              "type": "string",
+              "description": "Path to the token context or token metadata source."
             }
           },
+          "oneOf": [
+            {
+              "required": ["tokenAddress"]
+            },
+            {
+              "required": ["tokenPath"]
+            }
+          ],
           "description": "Token amount for a specific ERC-20, ERC-721, or ERC-1155. Display: format with decimals and symbol. Input: show balance and max button."
         },
         {
           "type": "object",
-          "required": ["type", "tokenAddress"],
+          "required": ["type"],
           "additionalProperties": false,
           "properties": {
             "type": { "const": "token-id" },
@@ -531,8 +1389,20 @@
               "type": "string",
               "pattern": "^0x[0-9a-f]{40}$",
               "description": "The token contract address (lowercase)."
+            },
+            "tokenPath": {
+              "type": "string",
+              "description": "Path to the token context or token metadata source."
             }
           },
+          "oneOf": [
+            {
+              "required": ["tokenAddress"]
+            },
+            {
+              "required": ["tokenPath"]
+            }
+          ],
           "description": "Token ID for a specific ERC-721 or ERC-1155."
         },
         {

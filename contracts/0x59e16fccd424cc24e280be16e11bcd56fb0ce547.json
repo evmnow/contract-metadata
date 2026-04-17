@@ -17,21 +17,51 @@
     "Expired name premiums — recently expired names carry a decaying premium that can be very high initially"
   ],
   "category": "identity",
-  "tags": ["ens", "identity", "naming", "dns", "infrastructure"],
+  "tags": [
+    "ens",
+    "identity",
+    "naming",
+    "dns",
+    "infrastructure"
+  ],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547" },
-    { "label": "ENS", "url": "https://ens.domains" },
-    { "label": "Documentation", "url": "https://docs.ens.domains" },
-    { "label": "ENS App", "url": "https://app.ens.domains" }
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547"
+    },
+    {
+      "label": "ENS",
+      "url": "https://ens.domains"
+    },
+    {
+      "label": "Documentation",
+      "url": "https://docs.ens.domains"
+    },
+    {
+      "label": "ENS App",
+      "url": "https://app.ens.domains"
+    }
   ],
   "theme": {
     "accent": "#5284FF"
   },
   "groups": {
-    "registration": { "label": "Registration", "order": 1 },
-    "renewal": { "label": "Renewal", "order": 2 },
-    "info": { "label": "Info", "order": 3 },
-    "admin": { "label": "Admin", "order": 4 }
+    "registration": {
+      "label": "Registration",
+      "order": 1
+    },
+    "renewal": {
+      "label": "Renewal",
+      "order": 2
+    },
+    "info": {
+      "label": "Info",
+      "order": 3
+    },
+    "admin": {
+      "label": "Admin",
+      "order": 4
+    }
   },
   "functions": {
     "available": {
@@ -46,8 +76,26 @@
         }
       },
       "examples": [
-        { "label": "Check \"vitalik\"", "params": { "label": "vitalik" } },
-        { "label": "Check \"ethereum\"", "params": { "label": "ethereum" } }
+        {
+          "label": "Check \"vitalik\"",
+          "params": {
+            "label": "vitalik"
+          }
+        },
+        {
+          "label": "Check \"ethereum\"",
+          "params": {
+            "label": "ethereum"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "path": "label",
+          "label": "name",
+          "description": "The name to check (without .eth suffix, e.g. \"vitalik\")",
+          "format": "raw"
+        }
       ]
     },
     "rentPrice": {
@@ -66,9 +114,32 @@
           "type": "duration"
         }
       },
-      "related": ["available", "register"],
+      "related": [
+        "available",
+        "register"
+      ],
       "examples": [
-        { "label": "Price \"alice\" for 1 year", "params": { "label": "alice", "duration": "31536000" } }
+        {
+          "label": "Price \"alice\" for 1 year",
+          "params": {
+            "label": "alice",
+            "duration": "31536000"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "path": "label",
+          "label": "name",
+          "description": "The name to price (without .eth suffix)",
+          "format": "raw"
+        },
+        {
+          "path": "duration",
+          "label": "duration",
+          "description": "Registration duration in seconds (minimum 28 days / 2419200 seconds)",
+          "format": "duration"
+        }
       ]
     },
     "valid": {
@@ -81,7 +152,15 @@
           "label": "name",
           "description": "The name to validate (without .eth suffix)"
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "label",
+          "label": "name",
+          "description": "The name to validate (without .eth suffix)",
+          "format": "raw"
+        }
+      ]
     },
     "makeCommitment": {
       "title": "Make Commitment",
@@ -94,7 +173,18 @@
           "description": "Registration details: label, owner, duration, secret, resolver, records data, reverse record flags, and referrer"
         }
       },
-      "related": ["commit", "register"]
+      "related": [
+        "commit",
+        "register"
+      ],
+      "fields": [
+        {
+          "path": "registration",
+          "label": "registration",
+          "description": "Registration details: label, owner, duration, secret, resolver, records data, reverse record flags, and referrer",
+          "format": "raw"
+        }
+      ]
     },
     "commit": {
       "title": "Commit",
@@ -106,7 +196,18 @@
           "description": "The commitment hash from makeCommitment()"
         }
       },
-      "related": ["makeCommitment", "register"]
+      "related": [
+        "makeCommitment",
+        "register"
+      ],
+      "fields": [
+        {
+          "path": "commitment",
+          "label": "commitment",
+          "description": "The commitment hash from makeCommitment()",
+          "format": "raw"
+        }
+      ]
     },
     "register": {
       "title": "Register",
@@ -120,12 +221,25 @@
           "description": "The same Registration struct used in makeCommitment(): label, owner, duration, secret, resolver, data, reverseRecord, referrer"
         }
       },
-      "related": ["commit", "makeCommitment", "rentPrice", "available"]
+      "related": [
+        "commit",
+        "makeCommitment",
+        "rentPrice",
+        "available"
+      ],
+      "fields": [
+        {
+          "path": "registration",
+          "label": "registration",
+          "description": "The same Registration struct used in makeCommitment(): label, owner, duration, secret, resolver, data, reverseRecord, referrer",
+          "format": "raw"
+        }
+      ]
     },
     "renew": {
       "title": "Renew",
       "description": "Extend the registration of a .eth name. Anyone can renew any name — you don't have to be the owner. Only the base price is charged (no premium). Excess ETH is refunded.",
-      "intent": "Renew {label}.eth for {duration}",
+      "intent": "Renew",
       "group": "renewal",
       "warning": "Sends ETH to cover the renewal cost.",
       "params": {
@@ -143,7 +257,30 @@
           "description": "Optional referrer identifier"
         }
       },
-      "related": ["rentPrice"]
+      "related": [
+        "rentPrice"
+      ],
+      "interpolatedIntent": "Renew {label}.eth for {duration}",
+      "fields": [
+        {
+          "path": "label",
+          "label": "name",
+          "description": "The name to renew (without .eth suffix)",
+          "format": "raw"
+        },
+        {
+          "path": "duration",
+          "label": "duration",
+          "description": "Additional time to add in seconds",
+          "format": "duration"
+        },
+        {
+          "path": "referrer",
+          "label": "referrer",
+          "description": "Optional referrer identifier",
+          "format": "raw"
+        }
+      ]
     },
     "commitments": {
       "title": "Commitment Timestamp",
@@ -156,22 +293,39 @@
         }
       },
       "returns": {
-        "_0": { "type": "timestamp" }
-      }
+        "_0": {
+          "type": "timestamp"
+        }
+      },
+      "fields": [
+        {
+          "path": "_0",
+          "label": "commitment hash",
+          "format": "raw"
+        }
+      ]
     },
     "minCommitmentAge": {
       "title": "Min Commitment Age",
       "description": "Minimum time (in seconds) that must pass between commit() and register(). Typically 60 seconds.",
       "stateMutability": "view",
       "group": "info",
-      "returns": { "_0": { "type": "duration" } }
+      "returns": {
+        "_0": {
+          "type": "duration"
+        }
+      }
     },
     "maxCommitmentAge": {
       "title": "Max Commitment Age",
       "description": "Maximum time (in seconds) a commitment remains valid. After this, the commitment expires and a new one must be made. Typically 24 hours.",
       "stateMutability": "view",
       "group": "info",
-      "returns": { "_0": { "type": "duration" } }
+      "returns": {
+        "_0": {
+          "type": "duration"
+        }
+      }
     },
     "withdraw": {
       "title": "Withdraw",
@@ -183,17 +337,46 @@
       "description": "Recover ERC-20 tokens accidentally sent to this contract. Only callable by the contract owner.",
       "group": "admin",
       "params": {
-        "_token": { "label": "token address", "type": "address" },
-        "_to": { "label": "recipient", "type": "address" },
-        "_amount": { "label": "amount" }
-      }
+        "_token": {
+          "label": "token address",
+          "type": "address"
+        },
+        "_to": {
+          "label": "recipient",
+          "type": "address"
+        },
+        "_amount": {
+          "label": "amount"
+        }
+      },
+      "fields": [
+        {
+          "path": "_token",
+          "label": "token address",
+          "format": "addressName"
+        },
+        {
+          "path": "_to",
+          "label": "recipient",
+          "format": "addressName"
+        },
+        {
+          "path": "_amount",
+          "label": "amount",
+          "format": "raw"
+        }
+      ]
     },
     "owner": {
       "title": "Owner",
       "description": "The address that controls admin functions (withdraw, recover funds).",
       "stateMutability": "view",
       "group": "admin",
-      "returns": { "_0": { "type": "address" } }
+      "returns": {
+        "_0": {
+          "type": "address"
+        }
+      }
     },
     "supportsInterface": {
       "title": "Supports Interface",
@@ -201,31 +384,70 @@
       "stateMutability": "view",
       "group": "info",
       "params": {
-        "interfaceID": { "label": "interface ID" }
-      }
+        "interfaceID": {
+          "label": "interface ID"
+        }
+      },
+      "fields": [
+        {
+          "path": "interfaceID",
+          "label": "interface ID",
+          "format": "raw"
+        }
+      ]
     }
   },
   "events": {
     "NameRegistered": {
       "description": "Emitted when a .eth name is successfully registered.",
       "params": {
-        "label": { "label": "name" },
-        "labelhash": { "label": "labelhash" },
-        "owner": { "label": "owner", "type": "address" },
-        "baseCost": { "label": "base cost", "type": "eth" },
-        "premium": { "label": "premium", "type": "eth" },
-        "expires": { "label": "expires", "type": "timestamp" },
-        "referrer": { "label": "referrer" }
+        "label": {
+          "label": "name"
+        },
+        "labelhash": {
+          "label": "labelhash"
+        },
+        "owner": {
+          "label": "owner",
+          "type": "address"
+        },
+        "baseCost": {
+          "label": "base cost",
+          "type": "eth"
+        },
+        "premium": {
+          "label": "premium",
+          "type": "eth"
+        },
+        "expires": {
+          "label": "expires",
+          "type": "timestamp"
+        },
+        "referrer": {
+          "label": "referrer"
+        }
       }
     },
     "NameRenewed": {
       "description": "Emitted when a .eth name is renewed.",
       "params": {
-        "label": { "label": "name" },
-        "labelhash": { "label": "labelhash" },
-        "cost": { "label": "cost", "type": "eth" },
-        "expires": { "label": "new expiry", "type": "timestamp" },
-        "referrer": { "label": "referrer" }
+        "label": {
+          "label": "name"
+        },
+        "labelhash": {
+          "label": "labelhash"
+        },
+        "cost": {
+          "label": "cost",
+          "type": "eth"
+        },
+        "expires": {
+          "label": "new expiry",
+          "type": "timestamp"
+        },
+        "referrer": {
+          "label": "referrer"
+        }
       }
     }
   }

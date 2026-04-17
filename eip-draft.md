@@ -1,7 +1,7 @@
 ---
 eip: TBD
 title: Contract Metadata
-description: A JSON standard for layering human-readable context on top of smart contract ABIs.
+description: A JSON standard for layering human-readable context and clear-signing metadata on top of smart contract ABIs.
 author: YGG (@yougogirldoteth), Jalil Sebastian Wahdatehagh (@jwahdatehagh)
 discussions-to: TBD
 status: Draft
@@ -12,7 +12,7 @@ created: 2026-04-01
 
 ## Abstract
 
-This EIP defines a JSON metadata format that enriches smart contracts with human-readable context at every level: contract descriptions, function titles and warnings, semantic type annotations for parameters, input guidance, and event/error enrichment. It layers on top of the ABI and NatSpec without replacing either, giving wallets, explorers, and dApps the information they need to present contract interactions in terms users can understand.
+This EIP defines a JSON metadata format that enriches smart contracts with human-readable context at every level: contract descriptions, clear-signing intents, ordered display fields, semantic value formats, input guidance, and event/error enrichment. It layers on top of the ABI and NatSpec without replacing either, giving wallets, explorers, and dApps the information they need to present contract interactions in terms users can understand while remaining forward-compatible with ERC-7730-style clear signing.
 
 ## Motivation
 
@@ -20,7 +20,7 @@ Smart contracts expose two layers of machine-readable information: the **ABI** (
 
 When someone encounters a contract in a wallet, explorer, or dApp, they see raw function signatures like `offerPunkForSaleToAddress(uint256, uint256, address)` with no context about what happens when they call it, what the risks are, or what the parameters actually mean in human terms. A `uint256` could represent an ETH amount, a timestamp, a token ID, or a percentage in basis points. The ABI doesn't say which.
 
-NatSpec provides basic descriptions (including user-facing `@notice` text), but it's flat text embedded in source code. It can't express semantic types, input guidance, or contract-level context, and is unavailable for unverified contracts.
+NatSpec provides basic descriptions (including user-facing `@notice` text), but it's flat text embedded in source code. It can't express semantic display fields, structured clear-signing intents, input guidance, or contract-level context, and is unavailable for unverified contracts.
 
 ## Specification
 
@@ -56,10 +56,14 @@ A metadata file describes a single deployed contract:
 | `address`   | `string` | REQUIRED | The contract address (lowercase, checksummed addresses MUST be accepted) |
 | `includes`  | `array`  | OPTIONAL | Interface identifiers to include (e.g. `["interface:erc721"]`)           |
 | `meta`      | `object` | OPTIONAL | Document housekeeping (version, lastUpdated, locale, signature)          |
+| `metadata`  | `object` | OPTIONAL | Reusable constants, enums, maps, and shared metadata definitions         |
+| `display`   | `object` | OPTIONAL | Reusable clear-signing field definitions                                 |
+| `deployments` | `array` | OPTIONAL | Additional chain/address deployment records for the same contract        |
+| `factory`   | `object` | OPTIONAL | Factory deployment context and instance-discovery metadata               |
 
 #### Contract-Level Context
 
-The following fields provide context about the contract itself. The fields `name`, `symbol`, `description`, `image`, `banner_image`, `featured_image`, `external_link`, and `collaborators` are compatible with [ERC-7572](./eip-7572.md) -- a contract-metadata document with `name` present is a valid ERC-7572 `contractURI()` response. The `theme` color model is inspired by [ENSIP-18](https://docs.ens.domains/ensip/18).
+The following fields provide context about the contract itself. The fields `name`, `symbol`, `description`, `image`, `banner_image`, `featured_image`, `external_link`, and `collaborators` are compatible with [ERC-7572](./eip-7572.md) -- a contract-metadata document with `name` present is a valid ERC-7572 `contractURI()` response. The `theme` color model is inspired by [ENSIP-18](https://docs.ens.domains/ensip/18). The same document MAY also carry reusable metadata and display definitions so that documentation, input guidance, and clear-signing context are authored once.
 
 | Field            | Type     | Required | Description                                                              |
 | ---------------- | -------- | -------- | ------------------------------------------------------------------------ |
@@ -84,10 +88,19 @@ The following fields provide context about the contract itself. The fields `name
 | Field       | Type     | Required | Description                                                              |
 | ----------- | -------- | -------- | ------------------------------------------------------------------------ |
 | `groups`    | `object` | OPTIONAL | Named groups for organizing functions                                    |
-| `functions` | `object` | OPTIONAL | Per-function metadata, keyed by name, signature, or 4-byte selector      |
-| `events`    | `object` | OPTIONAL | Per-event metadata, keyed by name, signature, or 32-byte topic hash      |
-| `errors`    | `object` | OPTIONAL | Per-error metadata, keyed by name, signature, or 4-byte selector         |
-| `messages`  | `object` | OPTIONAL | EIP-712 typed message metadata, keyed by primary type name               |
+| `functions` | `object` | OPTIONAL | Per-function metadata, keyed preferably by canonical named ABI fragment  |
+| `events`    | `object` | OPTIONAL | Per-event metadata, keyed preferably by canonical named ABI fragment      |
+| `errors`    | `object` | OPTIONAL | Per-error metadata, keyed preferably by canonical named ABI fragment      |
+| `messages`  | `object` | OPTIONAL | EIP-712 typed message metadata, keyed preferably by primary type name    |
+
+#### Deployment Context
+
+The common `chainId` and `address` pair describe a single deployed contract. For contracts that exist across multiple networks or are discovered through a factory, authors MAY include `deployments` and `factory` context alongside the single-deployment fields.
+
+- `deployments` SHOULD list the relevant chain/address pairs for the same contract identity.
+- `factory` SHOULD describe the factory contract, deploy event, or instance-discovery pattern used to materialize clones or child contracts.
+
+Consumers that understand only `chainId` and `address` MUST be able to ignore the richer deployment context without losing the basic contract identity.
 
 ### Contract-Level Example
 
@@ -126,14 +139,14 @@ Functions, events, and errors are keyed by one of three formats:
 | Format            | When to use                  | Example                                             |
 | ----------------- | ---------------------------- | --------------------------------------------------- |
 | `name`            | No overloads, verified ABI   | `"transfer"`                                        |
-| `name(type,type)` | Overloaded functions         | `"safeTransferFrom(address,address,uint256,bytes)"` |
+| `name(type name,type name)` | Clear-signing metadata and overloads | `"safeTransferFrom(address from,address to,uint256 tokenId,bytes data)"` |
 | `0xabcdef12`      | Unverified contract / no ABI | `"0xa9059cbb"`                                      |
 
-**Bare name** is the default for verified contracts without overloaded functions. When a contract has multiple functions with the same name but different parameter types (overloads), the full Solidity-style signature MUST be used to disambiguate. For unverified contracts where no ABI is available, the 4-byte function selector (the first 4 bytes of `keccak256(signature)`) SHOULD be used.
+For forward compatibility with clear signing, the preferred key format is the canonical named ABI fragment, for example `transfer(address to,uint256 value)`. Bare names remain acceptable for simple verified contracts, but they do not carry enough information to express parameter paths or clear-signing fields on their own. When a contract has multiple functions with the same name but different parameter types (overloads), the full Solidity-style signature MUST be used to disambiguate. For unverified contracts where no ABI is available, the 4-byte function selector (the first 4 bytes of `keccak256(signature)`) SHOULD be used.
 
 The same formats apply to events and errors. For events, the selector is the full 32-byte topic hash (`0x` + 64 hex chars). For errors, it is the 4-byte selector like functions.
 
-Consumers SHOULD match by name first, then fall back to signature or selector lookup.
+Consumers SHOULD match by canonical named ABI fragment first when available, then fall back to bare name, signature, or selector lookup.
 
 ### Function Metadata
 
@@ -142,30 +155,44 @@ Each function entry MAY include the following fields:
 ```json
 {
   "functions": {
-    "offerPunkForSaleToAddress": {
+    "offerPunkForSaleToAddress(uint256 punkIndex,uint256 minSalePriceInWei,address toAddress)": {
       "title": "List Punk for Sale (Private)",
       "description": "List a punk for sale to a specific address only, at a minimum price.",
       "group": "marketplace",
       "warning": "This creates a binding offer. The buyer can purchase at any time.",
       "featured": true,
       "hidden": false,
-      "intent": "List Punk #{punkIndex} for sale at {minSalePriceInWei} to {toAddress}",
-      "related": ["offerPunkForSale", "buyPunk"],
-      "params": {
-        "punkIndex": {
+      "intent": "List Punk for Sale",
+      "interpolatedIntent": "List Punk #{punkIndex} for sale at {minSalePriceInWei} to {toAddress}",
+      "fields": [
+        {
+          "path": "punkIndex",
           "label": "Punk",
           "description": "The punk ID to list (0-9999)",
-          "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "format": "nftName",
+          "params": {
+            "collection": "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb"
+          },
+          "input": {
+            "validation": { "min": "0", "max": "9999" }
+          }
         },
-        "minSalePriceInWei": {
+        {
+          "path": "minSalePriceInWei",
           "label": "Price",
-          "type": "eth"
+          "format": "amount"
         },
-        "toAddress": {
+        {
+          "path": "toAddress",
           "label": "Buyer",
           "description": "Only this address can buy the punk",
-          "type": "address"
+          "format": "addressName"
+        }
+      ],
+      "related": ["offerPunkForSale", "buyPunk"],
+      "input": {
+        "punkIndex": {
+          "validation": { "min": "0", "max": "9999" }
         }
       }
     }
@@ -180,58 +207,97 @@ Each function entry MAY include the following fields:
 - `warning` (string): Cautionary text displayed to the user.
 - `featured` (boolean): If `true`, highlights this as a primary action.
 - `hidden` (boolean): If `true`, suppresses the function from the default UI.
-- `intent` (string): Human-readable sentence template rendered with formatted parameter values.
+- `intent` (string): Short human-readable summary of the action. It SHOULD be stable across renderers and may omit dynamic values.
+- `interpolatedIntent` (string): Human-readable sentence template rendered with formatted field values for clear signing.
+- `fields` (array): Ordered clear-signing and display metadata entries.
+- `input` (object): Input, autofill, and validation guidance for write flows.
 - `related` (array of strings): Keys of related functions.
-- `params` (object): Per-parameter metadata, keyed by ABI parameter name.
+- `params` (object): Per-parameter metadata, keyed by ABI parameter name. This MAY remain as an input-oriented compatibility layer, but clear-signing consumers SHOULD rely on `fields`.
 
-### Semantic Types
+### Clear-Signing Fields
 
-The `type` field on a parameter is a semantic annotation that tells consumers what a value _represents_. A `uint256` in the ABI carries no meaning beyond "256-bit unsigned integer." Semantic types bridge that gap -- consumers use them to render appropriate UI for both display (read) and input (write) contexts.
+`fields` is the canonical ordered list of values shown to a user for review or signing. Each field entry MAY be nested and MAY include any of the following members: `path`, `label`, `description`, `format`, `params`, `visible`, `fields`, `$ref`, `value`, `input`, and `preview`.
 
-#### String Types
+- `path` identifies the source value for the field.
+- `label` provides the human-readable name shown alongside the value.
+- `format` is the display primitive and determines how the value is rendered.
+- `params` configures the chosen formatter.
+- `visible` controls whether the field is shown unconditionally or only under specific conditions.
+- `fields` nests child fields for composite values such as structs, arrays, or grouped display sections.
+- `$ref` points to a reusable field definition in `display.definitions` or a reusable metadata definition.
+- `value` provides a literal value when the field is a constant rather than a data reference.
 
-| Type           | Meaning                                                           |
-| -------------- | ----------------------------------------------------------------- |
-| `eth`          | Value in wei, represents an ETH amount                            |
-| `gwei`         | Value in gwei                                                     |
-| `timestamp`    | Unix timestamp (display: formatted date, input: date picker)      |
-| `address`      | Ethereum address (with ENS resolution)                            |
-| `boolean`      | Boolean value                                                     |
-| `blocknumber`  | Block number                                                      |
-| `duration`     | Duration in seconds                                               |
-| `bytes32-utf8` | bytes32 encoding a UTF-8 string                                   |
-| `token-id`     | Token ID / NFT identifier                                         |
-| `percentage`   | Percentage value (0-100)                                          |
-| `basis-points` | Value in basis points (1/100th of a percent)                      |
-| `token-amount` | Token amount (display: formatted balance, input: with max button) |
-| `date`         | Date value                                                        |
-| `datetime`     | Date and time value                                               |
-| `hidden`       | Not shown to the user; value is auto-populated (see `autofill`)   |
+Fields SHOULD preserve the order declared in the document. Consumers MAY use the order to drive both display and clear-signing sentence construction.
 
-#### Object Types
+### Path Roots
 
-Types that need additional configuration MUST use an object form:
+Field paths use ERC-7730-style roots:
+
+- `#` refers to the decoded structured data being described, such as function arguments or typed message fields.
+- `$` refers to the metadata document itself, including reusable `metadata` constants, enums, maps, and display definitions.
+- `@` refers to the surrounding execution context, such as transaction or message envelope data like `from`, `to`, `value`, `chainId`, or similar container values.
+
+Consumers SHOULD treat paths as structure-aware references rather than raw string labels. Paths MAY address nested values, array elements, and reusable definitions as long as the consumer can resolve them deterministically.
+
+### Display Formats
+
+The `format` field is the semantic display primitive. It tells consumers how to render a value for clear signing and read-only presentation. A Solidity `uint256` carries no meaning beyond "256-bit unsigned integer"; display formats bridge that gap by saying whether the value is an amount, a timestamp, an address, a token ID, or something else.
+
+#### String Formats
+
+| Format                     | Meaning                                                                   |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `raw`                      | Render the primitive value without semantic conversion                     |
+| `amount`                   | Render a native-currency amount                                           |
+| `tokenAmount`              | Render an ERC-20 or native token amount using token metadata              |
+| `nftName`                  | Render an NFT collection item by collection and token ID                  |
+| `date`                     | Render a timestamp, block height, or other date-like integer              |
+| `duration`                 | Render a duration in human-readable units                                 |
+| `unit`                     | Render a number with a configured unit                                    |
+| `enum`                     | Render a raw value through a label map                                    |
+| `chainId`                  | Render a chain ID as a network name                                       |
+| `addressName`              | Render an address with trusted name resolution where available            |
+| `tokenTicker`              | Render an address as a token ticker where available                       |
+| `interoperableAddressName` | Render an interoperable address name                                      |
+| `calldata`                 | Decode and render embedded calldata using the target contract and selector |
+
+Legacy aliases such as `eth`, `timestamp`, `address`, `token-id`, and `token-amount` MAY be accepted by consumers for older documents, but new clear-signing metadata SHOULD use the ERC-7730-aligned format names above.
+
+#### Format Examples
+
+Formats that need additional configuration use field-level `params`:
 
 ```jsonc
-// Address with options
-{ "type": "address", "ens": true, "addressBook": true }
+// Address with name resolution
+{ "path": "toAddress", "format": "addressName" }
 
 // Token amount for a specific token
-{ "type": "token-amount", "tokenAddress": "0x..." }
+{ "path": "amount", "format": "tokenAmount", "params": { "token": "0x..." } }
 
 // Token ID for a specific NFT collection
-{ "type": "token-id", "tokenAddress": "0x..." }
+{ "path": "tokenId", "format": "nftName", "params": { "collection": "0x..." } }
 
-// Enum -- display: show label, input: render as select dropdown
-{ "type": "enum", "values": { "0": "Pending", "1": "Active" } }
+// Enum -- display through a label map
+{ "path": "status", "format": "enum", "params": { "values": { "0": "Pending", "1": "Active" } } }
 
-// Slider -- input: render as range slider
-{ "type": "slider", "min": "0", "max": "9999", "step": "1" }
+// Date encoded as a unix timestamp
+{ "path": "deadline", "format": "date", "params": { "encoding": "timestamp" } }
 ```
 
-### Autofill
+Common formatter params SHOULD be understood as part of the display format contract:
 
-The `autofill` field specifies a source to pre-populate an input with. It is separate from `type` -- one describes the value, the other controls the default.
+- `token` or `tokenPath` identifies the ERC-20 or native asset used for token-aware display.
+- `collection` or `collectionPath` identifies the NFT collection used for token ID or NFT display.
+- `chainId` or `chainIdPath` binds a formatter to a specific chain or chain-derived context.
+- `threshold` and `message` allow special-case rendering such as sentinel amounts, unlimited approvals, or other notable values.
+- `encoding` describes how to interpret date-like values, such as timestamp, block height, or calendar date encoding.
+- `calldata` formatters MAY use structural params such as selector, target, recipient, spender, amount, or other field paths needed to present call data in a human-readable way.
+
+### Input, Autofill, and Validation
+
+Input guidance is separate from display formatting. Consumers MAY use `input`, `autofill`, and `validation` to drive how a value is collected, while `format` controls how that value is rendered. Where older documents use `type`, they are describing the input-side hinting model, not the clear-signing display primitive.
+
+The `autofill` field specifies a source to pre-populate an input with.
 
 #### String Autofill Values
 
@@ -250,13 +316,16 @@ For literal constants:
 { "type": "constant", "value": "86400" }
 ```
 
-A parameter MAY combine `type` and `autofill`:
+A value MAY combine display format, autofill, and validation guidance:
 
 ```json
-"from": {
-  "label": "from",
-  "type": "address",
-  "autofill": "connected-address"
+"input": {
+  "from": {
+    "autofill": "connected-address",
+    "validation": {
+      "pattern": "^0x[0-9a-fA-F]{40}$"
+    }
+  }
 }
 ```
 
@@ -278,42 +347,53 @@ Individual functions, events, errors, and messages MAY also have an `order` fiel
 
 ### Intent Templates
 
-Functions MAY include an `intent` template -- a human-readable sentence rendered with formatted parameter values:
+Functions SHOULD expose a short `intent` plus an `interpolatedIntent` that can be rendered from the canonical `fields` list. The `intent` is the stable human summary, while `interpolatedIntent` is the value-bearing sentence used for clear signing:
 
 ```json
 {
   "functions": {
-    "composite": {
+    "composite(uint256 tokenId,uint256 burnId)": {
       "title": "Composite",
-      "intent": "Composite Check #{tokenId} with #{burnId}",
-      "params": {
-        "tokenId": {
+      "intent": "Composite Check",
+      "interpolatedIntent": "Composite Check #{tokenId} with #{burnId}",
+      "fields": [
+        {
+          "path": "tokenId",
           "label": "Keep Token ID",
+          "format": "nftName",
+          "params": {
+            "collection": "0x036721e5a769cc48b3189efbb9cce4471e8a48b1"
+          },
           "preview": {
             "image": "eip155:1/erc721:0x036721e5a769cc48b3189efbb9cce4471e8a48b1/{tokenId}"
           }
         },
-        "burnId": {
+        {
+          "path": "burnId",
           "label": "Burn Token ID",
+          "format": "nftName",
+          "params": {
+            "collection": "0x036721e5a769cc48b3189efbb9cce4471e8a48b1"
+          },
           "preview": { "image": "ipfs://Qme/{burnId}" }
         }
-      }
+      ]
     }
   }
 }
 ```
 
-After the user fills in parameters, the intent renders as: **"Composite Check #4200 with #8000"**. Placeholders use `{paramName}` syntax. Prefix with `#` to prepend a hash symbol (e.g. `#{tokenId}` renders as `#4200`). Values MUST be formatted using their `type` before insertion.
+After the user fills in fields, the interpolated intent renders as the user-facing sentence. Placeholders SHOULD resolve against field paths, and consumers MUST format values using the declared `format` before insertion. Prefixing a placeholder with `#` MAY still be used as a display convention for hash-style identifiers, but the underlying reference model is the field path rather than a bare parameter name.
 
 ### Parameter Previews
 
-Parameters MAY include a `preview` object to show a visual preview as the user fills in values. The `image` field specifies a URI template that resolves to an image for the current parameter value:
+Fields MAY include a `preview` object to show a visual preview as the user fills in values. The `image` field specifies a URI template that resolves to an image for the current field value:
 
 ```json
 "preview": { "image": "eip155:1/erc721:0x036721e5a769cc48b3189efbb9cce4471e8a48b1/{tokenId}" }
 ```
 
-URI templates use `{paramName}` interpolation -- the same syntax as intent templates. Supported URI formats:
+URI templates MAY interpolate field values. The same placeholder conventions used for clear-signing sentences apply here. Supported URI formats:
 
 | Format      | Example                                    | Use case                                         |
 | ----------- | ------------------------------------------ | ------------------------------------------------ |
@@ -323,6 +403,17 @@ URI templates use `{paramName}` interpolation -- the same syntax as intent templ
 | HTTPS URI   | `https://example.com/images/{tokenId}.png` | Conventional hosted image                        |
 
 Consumers SHOULD resolve CAIP-19 and CAIP-29 URIs by fetching the token's metadata (e.g. via `tokenURI` or `uri`) and extracting the image. IPFS and HTTPS URIs resolve directly to the image content.
+
+### Reusable Metadata and Display Definitions
+
+To avoid repetition and support clear-signing reuse, a document MAY include reusable `metadata` and `display` namespaces.
+
+- `metadata.constants` stores named literal values that can be referenced from fields, messages, or other definitions.
+- `metadata.enums` stores reusable label sets for repeated enum-like values.
+- `metadata.maps` stores reusable lookup tables or path-based mappings.
+- `display.definitions` stores named reusable field definitions that can be referenced with `$ref`.
+
+These namespaces are document-local unless brought in through includes. They SHOULD be shallow-mergeable in the same way as other top-level sections, so authors can override or extend shared definitions without implicit deep merging.
 
 ### Interface Includes
 
@@ -347,11 +438,15 @@ Includes support two formats:
 - **`interface:` prefix** -- references a named interface file in the `interfaces/` subdirectory relative to the `$schema` URL (e.g. `"interface:erc721"` resolves to `interfaces/erc721.json` next to the schema file). These files contain `groups`, `functions`, `events`, `errors`, and `messages`.
 - **URL** -- fetches the metadata file from the given URL. The resolved file can live anywhere and follows the same structure.
 
-Multiple includes merge left-to-right. Contract-specific metadata is then applied on top.
+Multiple includes merge left-to-right. Contract-specific metadata is then applied on top, including any reusable `metadata` or `display` definitions.
+
+Optional capabilities SHOULD be modeled as separate includes rather than added to a base interface. For example, a token that implements EIP-2612 Permit can include both `interface:erc20` and `interface:erc20-permit`, while an ERC-20 token without Permit support includes only `interface:erc20`. This keeps common ERC-20 clear-signing metadata reusable without advertising unsupported EIP-712 signing flows.
 
 #### Merge Semantics
 
-The merge is _shallow per top-level key within each section_. When a contract defines a function that also exists in an included interface, the contract's entire function object replaces the interface's. There is no deep merge of `params`, `returns`, or other nested fields. This means if you override a function, you MUST re-declare everything you want to keep (params, returns, types, etc.).
+The merge is _shallow per top-level key within each section_. When a contract defines a function that also exists in an included interface, the contract's entire function object replaces the interface's. There is no deep merge of `fields`, `params`, `returns`, or other nested fields. This means if you override a function, you MUST re-declare everything you want to keep (fields, params, returns, formats, and related metadata).
+
+Because the merge is key-based, overrides MUST use the same key form as the included interface entry. If an included interface uses `transfer(address to,uint256 value)`, then a contract-specific override for that function MUST use `transfer(address to,uint256 value)` rather than `transfer`; otherwise both entries remain after merging.
 
 ```
 # Merge order for includes: ["interface:erc20", "interface:erc721"]
@@ -363,43 +458,77 @@ The merge is _shallow per top-level key within each section_. When a contract de
 
 ### EIP-712 Message Metadata
 
-Off-chain signing flows (Permit, Seaport orders, etc.) MAY be described with the `messages` object:
+Off-chain signing flows (Permit, Seaport orders, etc.) MAY be described with the `messages` object. Message entries SHOULD be keyed by the canonical EIP-712 primary type, and the authored metadata SHOULD capture the same clear-signing primitives as functions: `title`, `description`, `warning`, `intent`, `interpolatedIntent`, and ordered `fields`.
 
 ```json
 {
   "messages": {
-    "Permit": {
+    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)": {
       "title": "Token Permit",
       "description": "Approve a spender to transfer your tokens without a separate approve transaction.",
       "warning": "This grants token spending permission. Verify the spender address carefully.",
-      "intent": "Permit {spender} to spend {value} of your tokens until {deadline}",
-      "fields": {
-        "owner": { "label": "owner", "type": "address" },
-        "spender": { "label": "spender", "type": "address" },
-        "value": { "label": "amount", "type": "eth" },
-        "nonce": { "label": "nonce" },
-        "deadline": { "label": "deadline", "type": "timestamp" }
-      }
+      "intent": "Approve token spending",
+      "interpolatedIntent": "Approve {spender} to spend {value} until {deadline}",
+      "eip712": {
+        "primaryType": "Permit",
+        "domain": {
+          "name": "Example Token",
+          "version": "1",
+          "chainId": 1,
+          "verifyingContract": "0x0000000000000000000000000000000000000000"
+        }
+      },
+      "fields": [
+        { "path": "owner", "label": "Owner", "format": "addressName" },
+        { "path": "spender", "label": "Spender", "format": "addressName" },
+        {
+          "path": "value",
+          "label": "Amount",
+          "format": "tokenAmount",
+          "params": { "tokenPath": "@.domain.verifyingContract" }
+        },
+        { "path": "nonce", "label": "Nonce", "format": "raw" },
+        {
+          "path": "deadline",
+          "label": "Deadline",
+          "format": "date",
+          "params": { "encoding": "timestamp" }
+        }
+      ]
     }
   }
 }
 ```
 
-Messages are keyed by EIP-712 primary type name and MUST be defined on the contract that verifies them. Each message supports the same enrichment as functions: `title`, `description`, `warning`, `intent`, and `fields` with the same parameter metadata (label, description, type).
+Messages are keyed by EIP-712 primary type name or canonical type signature and MUST be defined on the contract that verifies them. Each message SHOULD also carry the domain and binding context needed for verification, including chain, verifying contract, and any message-specific constants or reusable definitions. Message `fields` SHOULD follow the same `path`, `label`, `format`, `params`, `visible`, `fields`, `$ref`, and `value` model used by functions.
+
+### Native ERC-7730 Forward Compatibility
+
+This standard is not an ERC-7730 file, but its clear-signing subset intentionally uses the same primitives:
+
+- canonical named ABI fragments for function display entries
+- `intent` and `interpolatedIntent`
+- ordered `fields`
+- ERC-7730-style path roots `#`, `$`, and `@`
+- ERC-7730-aligned `format` names and formatter `params`
+- reusable `metadata.constants`, `metadata.enums`, `metadata.maps`, and `display.definitions`
+- deployment, factory, and EIP-712 binding context
+
+Documents that use these primitives conform to the clear-signing profile. A consumer that understands ERC-7730-style clear signing should be able to read the clear-signing profile directly from Contract Metadata.
 
 ### Extensions
 
-Publishers MAY use custom extension objects on the root document, functions, events, errors, messages, and parameters. Extension names MUST start with an `_` character followed by a letter. Consumers that do not understand a given extension MUST ignore it.
+Publishers MAY use custom extension objects on the root document, `metadata`, `display`, functions, events, errors, messages, fields, and parameters. Extension names MUST start with an `_` character followed by a letter. Consumers that do not understand a given extension MUST ignore it.
 
 ```json
 {
   "functions": {
-    "colors": {
+    "colors(uint256 tokenId)": {
       "title": "Check Colors",
       "description": "Get the colors of a given Check.",
-      "params": {
-        "tokenId": { "label": "Check", "type": "token-id" }
-      },
+      "fields": [
+        { "path": "tokenId", "label": "Check", "format": "nftName" }
+      ],
       "_component": {
         "type": "color-map",
         "columns": "8"
@@ -421,11 +550,11 @@ No standard keys will ever begin with `_`, so the namespace is reserved for exte
 
 ### Why not extend NatSpec?
 
-NatSpec is embedded in Solidity source code and targets developers. It cannot express semantic types, input guidance, or contract-level context like categories, risks, and audits. It is also unavailable for unverified contracts. A separate JSON format allows metadata to be authored, versioned, and served independently of the contract source.
+NatSpec is embedded in Solidity source code and targets developers. It cannot express semantic display formats, clear-signing fields, input guidance, or contract-level context like categories, risks, and audits. It is also unavailable for unverified contracts. A separate JSON format allows metadata to be authored, versioned, and served independently of the contract source.
 
-### Why semantic types instead of just labels?
+### Why display formats instead of just labels?
 
-Labels help humans but not machines. A label "Price" on a `uint256` still doesn't tell a wallet whether to format the value as ETH, display a date picker, or show an NFT preview. Semantic types enable consumers to render appropriate UI automatically.
+Labels help humans but not machines. A label "Price" on a `uint256` still doesn't tell a wallet whether to format the value as ETH, display a date, or show an NFT preview. Display formats enable consumers to render appropriate UI automatically, while input guidance remains separate and explicit.
 
 ### Why shallow merge for includes?
 
@@ -433,13 +562,13 @@ Deep merging creates ambiguity about which nested fields take precedence and mak
 
 ### Why three key formats (name, signature, selector)?
 
-Bare names are the common case and the most readable. Signatures are needed for overloaded functions. Selectors are needed for unverified contracts where no ABI is available. Supporting all three covers the full spectrum of real-world contracts.
+Bare names are the common case and the most readable. Canonical named ABI fragments are preferred when clear-signing fields are present because they carry parameter names. Signatures are needed for overloaded functions. Selectors are needed for unverified contracts where no ABI is available. Supporting all three covers the full spectrum of real-world contracts.
 
 ## Backwards Compatibility
 
-This EIP introduces a new metadata format and does not modify any existing standards. It is fully complementary to ABIs, NatSpec, ERC-7572, and EIP-7730.
+This EIP introduces a new metadata format and does not modify any existing standards. It is fully complementary to ABIs, NatSpec, ERC-7572, and ERC-7730.
 
-Contract-level fields (`name`, `symbol`, `description`, `image`, `banner_image`, `featured_image`, `external_link`, `collaborators`) are placed at the top level to maintain backwards compatibility with [ERC-7572](./eip-7572.md). A contract-metadata document with `name` present is a valid ERC-7572 `contractURI()` response -- existing consumers that understand only ERC-7572 will read the fields they recognize and ignore the rest.
+Contract-level fields (`name`, `symbol`, `description`, `image`, `banner_image`, `featured_image`, `external_link`, `collaborators`) are placed at the top level to maintain backwards compatibility with [ERC-7572](./eip-7572.md). A contract-metadata document with `name` present is a valid ERC-7572 `contractURI()` response -- existing consumers that understand only ERC-7572 will read the fields they recognize and ignore the rest. Additional context such as `metadata`, `display`, `deployments`, and `factory` should be additive and MUST NOT interfere with consumers that only understand the older ERC-7572 surface.
 
 ## Reference Implementation
 
@@ -465,7 +594,7 @@ A malicious metadata author could assign misleading labels or descriptions to fu
 
 ### Intent Template Injection
 
-Intent templates use `{paramName}` interpolation. Consumers MUST sanitize rendered intent strings to prevent injection attacks (e.g. XSS in web-based wallets). Parameter values MUST be treated as untrusted input during rendering.
+Intent templates use field-based interpolation. Consumers MUST sanitize rendered intent strings to prevent injection attacks (e.g. XSS in web-based wallets). Field values MUST be treated as untrusted input during rendering.
 
 ### Extension Safety
 

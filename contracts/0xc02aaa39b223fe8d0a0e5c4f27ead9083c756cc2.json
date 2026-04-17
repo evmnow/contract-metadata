@@ -2,7 +2,9 @@
   "$schema": "https://1001-digital.github.io/contract-metadata/v1/schema.json",
   "chainId": 1,
   "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-  "includes": ["interface:erc20"],
+  "includes": [
+    "interface:erc20"
+  ],
   "meta": {
     "version": 1,
     "lastUpdated": "2026-03-28T00:00:00Z",
@@ -16,28 +18,38 @@
     "No Permit (EIP-2612) support — predates gasless approval standard"
   ],
   "category": "token",
-  "tags": ["token", "weth", "defi-primitive"],
+  "tags": [
+    "token",
+    "weth",
+    "defi-primitive"
+  ],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" }
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    }
   ],
   "theme": {
     "accent": "#c33c3c"
   },
   "groups": {
-    "wrap": { "label": "Wrap / Unwrap", "order": 1 }
+    "wrap": {
+      "label": "Wrap / Unwrap",
+      "order": 1
+    }
   },
   "functions": {
-    "deposit": {
+    "deposit()": {
       "title": "Wrap ETH",
       "description": "Wrap ETH into WETH. Send ETH with this transaction to receive the same amount in WETH.",
       "intent": "Wrap ETH into WETH",
       "group": "wrap",
       "warning": "Sends ETH value — make sure msg.value is set."
     },
-    "withdraw": {
+    "withdraw(uint256 wad)": {
       "title": "Unwrap WETH",
       "description": "Unwrap WETH back to native ETH. Burns WETH and sends you ETH.",
-      "intent": "Unwrap {wad} WETH back to ETH",
+      "intent": "Unwrap WETH",
       "group": "wrap",
       "params": {
         "wad": {
@@ -46,67 +58,166 @@
           "type": "eth"
         }
       },
-      "related": ["deposit", "balanceOf"]
-    },
-    "balanceOf": {
-      "title": "Balance",
-      "description": "Check the WETH balance of any address.",
-      "params": {
-        "_0": { "label": "holder", "type": "address" }
-      },
-      "returns": { "_0": { "type": "eth" } },
-      "examples": [
+      "related": [
+        "deposit",
+        "balanceOf"
+      ],
+      "interpolatedIntent": "Unwrap {wad} WETH back to ETH",
+      "fields": [
         {
-          "label": "Check Vitalik's balance",
-          "params": { "_0": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" }
+          "path": "wad",
+          "label": "amount",
+          "description": "Amount of WETH to unwrap (in wei)",
+          "format": "amount"
         }
       ]
     },
-    "totalSupply": {
+    "balanceOf(address account)": {
+      "title": "Balance",
+      "description": "Check the WETH balance of any address.",
+      "params": {
+        "account": {
+          "label": "holder",
+          "type": "address"
+        }
+      },
+      "returns": {
+        "_0": {
+          "type": "eth"
+        }
+      },
+      "examples": [
+        {
+          "label": "Check Vitalik's balance",
+          "params": {
+            "account": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "path": "account",
+          "label": "holder",
+          "format": "addressName"
+        }
+      ]
+    },
+    "totalSupply()": {
       "title": "Total Supply",
       "description": "Total amount of WETH in existence (ETH locked in the contract).",
-      "returns": { "_0": { "type": "eth" } }
+      "returns": {
+        "_0": {
+          "type": "eth"
+        }
+      }
     },
-    "allowance": {
+    "allowance(address owner,address spender)": {
       "description": "Check how much WETH an address has approved another address to spend.",
-      "returns": { "_0": { "type": "eth" } }
+      "returns": {
+        "_0": {
+          "type": "eth"
+        }
+      }
     },
-    "approve": {
+    "approve(address spender,uint256 value)": {
       "description": "Approve a spender to transfer up to the given amount of your WETH.",
-      "intent": "Approve {guy} to spend {wad} WETH",
+      "intent": "Approve to spend WETH",
       "params": {
-        "guy": {
+        "spender": {
           "label": "spender",
           "description": "Address to approve",
           "type": "address"
         },
-        "wad": { "label": "amount", "type": "eth" }
-      }
+        "value": {
+          "label": "amount",
+          "type": "eth"
+        }
+      },
+      "interpolatedIntent": "Approve {spender} to spend {value} WETH",
+      "fields": [
+        {
+          "path": "spender",
+          "label": "spender",
+          "description": "Address to approve",
+          "format": "addressName"
+        },
+        {
+          "path": "value",
+          "label": "amount",
+          "format": "amount"
+        }
+      ]
     },
-    "transfer": {
+    "transfer(address to,uint256 value)": {
       "description": "Transfer WETH to another address.",
-      "intent": "Transfer {wad} WETH to {dst}",
+      "intent": "Transfer WETH to",
       "params": {
-        "dst": { "label": "recipient", "type": "address" },
-        "wad": { "label": "amount", "type": "eth" }
-      }
+        "to": {
+          "label": "recipient",
+          "type": "address"
+        },
+        "value": {
+          "label": "amount",
+          "type": "eth"
+        }
+      },
+      "interpolatedIntent": "Transfer {value} WETH to {to}",
+      "fields": [
+        {
+          "path": "to",
+          "label": "recipient",
+          "format": "addressName"
+        },
+        {
+          "path": "value",
+          "label": "amount",
+          "format": "amount"
+        }
+      ]
     },
-    "transferFrom": {
+    "transferFrom(address from,address to,uint256 value)": {
       "description": "Transfer WETH from one address to another, using a previously set allowance.",
-      "intent": "Transfer {wad} WETH from {src} to {dst}",
+      "intent": "Transfer WETH from allowance",
       "params": {
-        "src": { "label": "from", "type": "address" },
-        "dst": { "label": "to", "type": "address" },
-        "wad": { "label": "amount", "type": "eth" }
-      }
+        "from": {
+          "label": "from",
+          "type": "address"
+        },
+        "to": {
+          "label": "to",
+          "type": "address"
+        },
+        "value": {
+          "label": "amount",
+          "type": "eth"
+        }
+      },
+      "interpolatedIntent": "Transfer {value} WETH from {from} to {to}",
+      "fields": [
+        {
+          "path": "from",
+          "label": "from",
+          "format": "addressName"
+        },
+        {
+          "path": "to",
+          "label": "to",
+          "format": "addressName"
+        },
+        {
+          "path": "value",
+          "label": "amount",
+          "format": "amount"
+        }
+      ]
     },
-    "name": {
+    "name()": {
       "description": "The name of the token (Wrapped Ether)."
     },
-    "symbol": {
+    "symbol()": {
       "description": "The token symbol (WETH)."
     },
-    "decimals": {
+    "decimals()": {
       "description": "Number of decimal places (18, same as ETH)."
     }
   },
@@ -114,31 +225,55 @@
     "Deposit": {
       "description": "Emitted when ETH is wrapped into WETH.",
       "params": {
-        "dst": { "label": "depositor" },
-        "wad": { "label": "amount", "type": "eth" }
+        "dst": {
+          "label": "depositor"
+        },
+        "wad": {
+          "label": "amount",
+          "type": "eth"
+        }
       }
     },
     "Withdrawal": {
       "description": "Emitted when WETH is unwrapped back to ETH.",
       "params": {
-        "src": { "label": "withdrawer" },
-        "wad": { "label": "amount", "type": "eth" }
+        "src": {
+          "label": "withdrawer"
+        },
+        "wad": {
+          "label": "amount",
+          "type": "eth"
+        }
       }
     },
     "Approval": {
       "description": "Emitted when an approval is set.",
       "params": {
-        "src": { "label": "owner" },
-        "guy": { "label": "spender" },
-        "wad": { "label": "amount", "type": "eth" }
+        "src": {
+          "label": "owner"
+        },
+        "guy": {
+          "label": "spender"
+        },
+        "wad": {
+          "label": "amount",
+          "type": "eth"
+        }
       }
     },
     "Transfer": {
       "description": "Emitted when WETH is transferred.",
       "params": {
-        "src": { "label": "from" },
-        "dst": { "label": "to" },
-        "wad": { "label": "amount", "type": "eth" }
+        "src": {
+          "label": "from"
+        },
+        "dst": {
+          "label": "to"
+        },
+        "wad": {
+          "label": "amount",
+          "type": "eth"
+        }
       }
     }
   }

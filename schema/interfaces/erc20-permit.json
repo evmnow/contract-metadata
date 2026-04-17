@@ -1,0 +1,54 @@
+{
+  "messages": {
+    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)": {
+      "title": "Token Permit (EIP-2612)",
+      "description": "Approve a spender to transfer your tokens via an off-chain signature, avoiding a separate approve transaction.",
+      "warning": "This grants token spending permission. Verify the spender address and amount carefully. Phishing sites commonly request Permit signatures to drain wallets.",
+      "intent": "Approve token spending",
+      "interpolatedIntent": "Approve {spender} to spend {value} until {deadline}",
+      "eip712": {
+        "primaryType": "Permit"
+      },
+      "fields": [
+        {
+          "path": "owner",
+          "label": "Owner",
+          "description": "The token holder granting the approval",
+          "format": "addressName"
+        },
+        {
+          "path": "spender",
+          "label": "Spender",
+          "description": "The address being approved to spend tokens",
+          "format": "addressName"
+        },
+        {
+          "path": "value",
+          "label": "Amount",
+          "description": "Maximum amount the spender can transfer",
+          "format": "tokenAmount",
+          "params": {
+            "tokenPath": "@.domain.verifyingContract",
+            "threshold": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "message": "Unlimited"
+          }
+        },
+        {
+          "path": "nonce",
+          "label": "Nonce",
+          "description": "Sequential nonce preventing signature replay",
+          "format": "raw"
+        },
+        {
+          "path": "deadline",
+          "label": "Deadline",
+          "description": "Unix timestamp after which the permit expires",
+          "format": "date",
+          "params": {
+            "encoding": "timestamp"
+          }
+        }
+      ]
+    }
+  }
+}

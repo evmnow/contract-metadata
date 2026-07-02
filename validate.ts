@@ -8,6 +8,7 @@ interface ContractData {
   includes?: string[]
   groups?: Record<string, unknown>
   functions?: Record<string, FunctionEntry>
+  messages?: Record<string, MessageEntry>
   events?: Record<string, unknown>
   errors?: Record<string, unknown>
 }
@@ -15,6 +16,20 @@ interface ContractData {
 interface FunctionEntry {
   group?: string
   related?: string[]
+  intent?: string
+  interpolatedIntent?: string
+  fields?: FieldEntry[] | Record<string, FieldEntry>
+}
+
+interface MessageEntry {
+  intent?: string
+  interpolatedIntent?: string
+  fields?: FieldEntry[] | Record<string, FieldEntry>
+}
+
+interface FieldEntry {
+  path?: string
+  fields?: FieldEntry[]
 }
 
 const ajv = new Ajv({ strict: false, allErrors: true })
@@ -71,7 +86,7 @@ if (runInterfaces && existsSync('schema/interfaces')) {
 
   for (const file of files) {
     const path = join(interfaceDir, file)
-    const data = JSON.parse(readFileSync(path, 'utf8'))
+    const data: ContractData = JSON.parse(readFileSync(path, 'utf8'))
     const valid = validateInterface(data)
 
     if (valid) {
@@ -82,6 +97,12 @@ if (runInterfaces && existsSync('schema/interfaces')) {
       for (const err of validateInterface.errors as ErrorObject[]) {
         console.log(`    ${err.instancePath || '/'} ${err.message}`)
       }
+    }
+
+    // Additional semantic checks
+    const warnings = semanticChecks(data, path)
+    for (const w of warnings) {
+      console.log(`    \x1b[33m⚠\x1b[0m ${w}`)
     }
   }
 }
@@ -110,6 +131,60 @@ function functionKeysMatch(ref: string, keys: Set<string>): boolean {
   return false
 }
 
+function collectFieldPaths(fields: FieldEntry[] | Record<string, FieldEntry> | undefined): Set<string> {
+  const paths = new Set<string>()
+
+  if (Array.isArray(fields)) {
+    for (const field of fields) {
+      if (field.path) paths.add(field.path)
+      for (const childPath of collectFieldPaths(field.fields)) {
+        paths.add(childPath)
+      }
+    }
+  } else if (fields) {
+    for (const [key, field] of Object.entries(fields)) {
+      paths.add(field.path ?? key)
+      for (const childPath of collectFieldPaths(field.fields)) {
+        paths.add(childPath)
+      }
+    }
+  }
+
+  return paths
+}
+
+function extractPlaceholders(template: string): string[] {
+  const matches = template.matchAll(/\{([^{}]+)\}/g)
+  return Array.from(matches, match => match[1])
+}
+
+function checkInterpolatedIntent(
+  warnings: string[],
+  location: string,
+  entry: FunctionEntry | MessageEntry,
+): void {
+  if (entry.intent) {
+    for (const placeholder of extractPlaceholders(entry.intent)) {
+      warnings.push(`${location}.intent contains dynamic placeholder "{${placeholder}}"; use interpolatedIntent for value-bearing templates`)
+    }
+  }
+
+  if (!entry.interpolatedIntent) return
+
+  const placeholders = extractPlaceholders(entry.interpolatedIntent)
+  const paths = collectFieldPaths(entry.fields)
+  if (paths.size === 0 && placeholders.length > 0) {
+    warnings.push(`${location}.interpolatedIntent has placeholders but no fields to resolve them`)
+    return
+  }
+
+  for (const placeholder of placeholders) {
+    if (!paths.has(placeholder)) {
+      warnings.push(`${location}.interpolatedIntent placeholder "{${placeholder}}" has no matching fields.path`)
+    }
+  }
+}
+
 function semanticChecks(data: ContractData, path: string): string[] {
   const warnings: string[] = []
   const groups = data.groups ? Object.keys(data.groups) : []
@@ -134,6 +209,15 @@ function semanticChecks(data: ContractData, path: string): string[] {
           }
         }
       }
+
+      checkInterpolatedIntent(warnings, `functions.${key}`, fn)
+    }
+  }
+
+  // Check message clear-signing placeholders
+  if (data.messages) {
+    for (const [key, message] of Object.entries(data.messages)) {
+      checkInterpolatedIntent(warnings, `messages.${key}`, message)
     }
   }
 
@@ -160,8 +244,20 @@ function semanticChecks(data: ContractData, path: string): string[] {
     for (const ref of data.includes) {
       if (ref.startsWith('interface:')) {
         const name = ref.slice('interface:'.length)
-        if (!existsSync(join('schema', 'interfaces', `${name}.json`))) {
+        const interfacePath = join('schema', 'interfaces', `${name}.json`)
+        if (!existsSync(interfacePath)) {
           warnings.push(`includes references unknown interface "${ref}"`)
+        } else if (data.functions) {
+          const interfaceData: ContractData = JSON.parse(readFileSync(interfacePath, 'utf8'))
+          const interfaceFunctions = interfaceData.functions ? Object.keys(interfaceData.functions) : []
+          for (const interfaceKey of interfaceFunctions) {
+            if (SIGNATURE_RE.test(interfaceKey)) {
+              const bareName = extractName(interfaceKey)
+              if (Object.prototype.hasOwnProperty.call(data.functions, bareName) && !Object.prototype.hasOwnProperty.call(data.functions, interfaceKey)) {
+                warnings.push(`functions.${bareName} overrides included "${interfaceKey}" using a different key form; shallow include merge will keep both entries`)
+              }
+            }
+          }
         }
       }
     }

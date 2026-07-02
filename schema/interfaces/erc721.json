@@ -1,144 +1,315 @@
 {
+  "display": {
+    "definitions": {
+      "erc721Token": {
+        "label": "Token",
+        "format": "nftName",
+        "params": {
+          "collectionPath": "@.to"
+        }
+      }
+    }
+  },
   "groups": {
-    "erc721": { "label": "ERC-721", "order": 99 }
+    "erc721": {
+      "label": "ERC-721",
+      "order": 99
+    }
   },
   "functions": {
-    "name": {
+    "name()": {
       "title": "Name",
+      "signature": "name()",
       "description": "The name of the token collection.",
       "stateMutability": "view",
       "group": "erc721"
     },
-    "symbol": {
+    "symbol()": {
       "title": "Symbol",
+      "signature": "symbol()",
       "description": "The token symbol.",
       "stateMutability": "view",
       "group": "erc721"
     },
-    "totalSupply": {
+    "totalSupply()": {
       "title": "Total Supply",
+      "signature": "totalSupply()",
       "description": "Total number of tokens in existence.",
       "stateMutability": "view",
       "group": "erc721"
     },
-    "balanceOf": {
+    "balanceOf(address owner)": {
       "title": "Balance",
+      "signature": "balanceOf(address owner)",
       "description": "Check how many tokens an address owns.",
       "stateMutability": "view",
       "group": "erc721",
-      "params": {
-        "owner": { "label": "holder", "type": "address" }
-      }
+      "fields": [
+        {
+          "path": "owner",
+          "label": "Holder",
+          "format": "addressName"
+        }
+      ]
     },
-    "ownerOf": {
+    "ownerOf(uint256 tokenId)": {
       "title": "Owner",
+      "signature": "ownerOf(uint256 tokenId)",
       "description": "Look up the current owner of a specific token.",
       "stateMutability": "view",
       "group": "erc721",
-      "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      },
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        }
+      ],
       "returns": {
-        "_0": { "label": "owner", "type": "address" }
+        "_0": {
+          "label": "owner",
+          "type": "address"
+        }
       }
     },
-    "tokenURI": {
+    "tokenURI(uint256 tokenId)": {
       "title": "Token URI",
+      "signature": "tokenURI(uint256 tokenId)",
       "description": "Returns the metadata URI for a specific token.",
       "stateMutability": "view",
       "group": "erc721",
-      "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      }
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        }
+      ]
     },
-    "approve": {
+    "approve(address to,uint256 tokenId)": {
       "title": "Approve",
+      "signature": "approve(address to,uint256 tokenId)",
       "description": "Approve an address to transfer a specific token on your behalf.",
       "group": "erc721",
-      "intent": "Approve {to} to transfer token #{tokenId}",
-      "params": {
-        "to": { "label": "operator", "type": "address" },
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      }
+      "intent": "Approve NFT transfer",
+      "interpolatedIntent": "Approve {to} to transfer {tokenId}",
+      "fields": [
+        {
+          "path": "to",
+          "label": "Operator",
+          "format": "addressName"
+        },
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        }
+      ]
     },
-    "getApproved": {
+    "getApproved(uint256 tokenId)": {
       "title": "Get Approved",
+      "signature": "getApproved(uint256 tokenId)",
       "description": "Check which address is approved to transfer a specific token.",
       "stateMutability": "view",
       "group": "erc721",
-      "params": {
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      },
+      "fields": [
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        }
+      ],
       "returns": {
-        "_0": { "label": "approved operator", "type": "address" }
+        "_0": {
+          "label": "approved operator",
+          "type": "address"
+        }
       }
     },
-    "setApprovalForAll": {
+    "setApprovalForAll(address operator,bool approved)": {
       "title": "Set Approval for All",
+      "signature": "setApprovalForAll(address operator,bool approved)",
       "description": "Approve or revoke an operator to manage all your tokens.",
       "group": "erc721",
+      "intent": "Set NFT operator approval",
+      "interpolatedIntent": "Set {operator} approval for all tokens to {approved}",
       "warning": "Grants full control over all your tokens in this collection to this operator.",
-      "params": {
-        "operator": { "label": "operator", "type": "address" },
-        "approved": { "label": "approved" }
-      }
+      "fields": [
+        {
+          "path": "operator",
+          "label": "Operator",
+          "format": "addressName"
+        },
+        {
+          "path": "approved",
+          "label": "Approved",
+          "format": "raw"
+        }
+      ]
     },
-    "isApprovedForAll": {
+    "isApprovedForAll(address owner,address operator)": {
       "title": "Is Approved for All",
+      "signature": "isApprovedForAll(address owner,address operator)",
       "description": "Check whether an operator is approved to manage all tokens for an owner.",
       "stateMutability": "view",
       "group": "erc721",
-      "params": {
-        "owner": { "label": "owner", "type": "address" },
-        "operator": { "label": "operator", "type": "address" }
-      }
+      "fields": [
+        {
+          "path": "owner",
+          "label": "Owner",
+          "format": "addressName"
+        },
+        {
+          "path": "operator",
+          "label": "Operator",
+          "format": "addressName"
+        }
+      ]
     },
-    "transferFrom": {
+    "transferFrom(address from,address to,uint256 tokenId)": {
       "title": "Transfer",
+      "signature": "transferFrom(address from,address to,uint256 tokenId)",
       "description": "Transfer a token to another address.",
       "group": "erc721",
-      "intent": "Transfer token #{tokenId} from {from} to {to}",
-      "params": {
-        "from": { "label": "from", "type": "address" },
-        "to": { "label": "to", "type": "address" },
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      }
+      "intent": "Transfer NFT",
+      "interpolatedIntent": "Transfer {tokenId} from {from} to {to}",
+      "fields": [
+        {
+          "path": "from",
+          "label": "From",
+          "format": "addressName"
+        },
+        {
+          "path": "to",
+          "label": "To",
+          "format": "addressName"
+        },
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        }
+      ]
     },
-    "safeTransferFrom": {
+    "safeTransferFrom(address from,address to,uint256 tokenId)": {
       "title": "Safe Transfer",
       "description": "Transfer a token to another address, reverting if the recipient cannot receive ERC-721 tokens.",
       "group": "erc721",
-      "intent": "Transfer token #{tokenId} from {from} to {to}",
-      "params": {
-        "from": { "label": "from", "type": "address" },
-        "to": { "label": "to", "type": "address" },
-        "tokenId": { "label": "token ID", "type": "token-id" }
-      }
+      "intent": "Transfer NFT",
+      "interpolatedIntent": "Transfer {tokenId} from {from} to {to}",
+      "fields": [
+        {
+          "path": "from",
+          "label": "From",
+          "format": "addressName"
+        },
+        {
+          "path": "to",
+          "label": "To",
+          "format": "addressName"
+        },
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        }
+      ]
+    },
+    "safeTransferFrom(address from,address to,uint256 tokenId,bytes data)": {
+      "title": "Safe Transfer",
+      "description": "Transfer a token to another address with additional data, reverting if the recipient cannot receive ERC-721 tokens.",
+      "group": "erc721",
+      "intent": "Transfer NFT",
+      "interpolatedIntent": "Transfer {tokenId} from {from} to {to}",
+      "fields": [
+        {
+          "path": "from",
+          "label": "From",
+          "format": "addressName"
+        },
+        {
+          "path": "to",
+          "label": "To",
+          "format": "addressName"
+        },
+        {
+          "path": "tokenId",
+          "label": "Token",
+          "format": "nftName",
+          "params": {
+            "collectionPath": "@.to"
+          }
+        },
+        {
+          "path": "data",
+          "label": "Data",
+          "format": "raw",
+          "visible": "optional"
+        }
+      ]
     }
   },
   "events": {
     "Transfer": {
       "description": "Emitted when a token is transferred.",
       "params": {
-        "from": { "label": "from" },
-        "to": { "label": "to" },
-        "tokenId": { "label": "token ID", "type": "token-id" }
+        "from": {
+          "label": "from"
+        },
+        "to": {
+          "label": "to"
+        },
+        "tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
       }
     },
     "Approval": {
       "description": "Emitted when an approval is set for a specific token.",
       "params": {
-        "owner": { "label": "owner" },
-        "approved": { "label": "approved operator" },
-        "tokenId": { "label": "token ID", "type": "token-id" }
+        "owner": {
+          "label": "owner"
+        },
+        "approved": {
+          "label": "approved operator"
+        },
+        "tokenId": {
+          "label": "token ID",
+          "type": "token-id"
+        }
       }
     },
     "ApprovalForAll": {
       "description": "Emitted when an operator is approved or revoked for all tokens.",
       "params": {
-        "owner": { "label": "owner" },
-        "operator": { "label": "operator" },
-        "approved": { "label": "approved" }
+        "owner": {
+          "label": "owner"
+        },
+        "operator": {
+          "label": "operator"
+        },
+        "approved": {
+          "label": "approved"
+        }
       }
     }
   }

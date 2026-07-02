@@ -17,23 +17,47 @@
     "ETH withdrawal pattern — sale proceeds and outbid returns must be manually withdrawn via pendingWithdrawals"
   ],
   "category": "nft",
-  "tags": ["nft", "collectible", "pfp", "pixel-art", "og"],
+  "tags": [
+    "nft",
+    "collectible",
+    "pfp",
+    "pixel-art",
+    "og"
+  ],
   "links": [
     {
       "label": "Etherscan",
       "url": "https://etherscan.io/address/0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB"
     },
-    { "label": "Larva Labs", "url": "https://larvalabs.com/cryptopunks" },
-    { "label": "Website", "url": "https://www.cryptopunks.app" }
+    {
+      "label": "Larva Labs",
+      "url": "https://larvalabs.com/cryptopunks"
+    },
+    {
+      "label": "Website",
+      "url": "https://www.cryptopunks.app"
+    }
   ],
   "theme": {
     "accent": "#ff04b4"
   },
   "groups": {
-    "info": { "label": "Contract Info", "order": 1 },
-    "ownership": { "label": "Ownership", "order": 2 },
-    "marketplace": { "label": "Marketplace", "order": 3 },
-    "genesis": { "label": "Original Assignment", "order": 4 }
+    "info": {
+      "label": "Contract Info",
+      "order": 1
+    },
+    "ownership": {
+      "label": "Ownership",
+      "order": 2
+    },
+    "marketplace": {
+      "label": "Marketplace",
+      "order": 3
+    },
+    "genesis": {
+      "label": "Original Assignment",
+      "order": 4
+    }
   },
   "functions": {
     "name": {
@@ -96,13 +120,45 @@
           "label": "punk index",
           "description": "The punk ID (0–9999)",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
-      "returns": { "_0": { "label": "owner", "type": "address" } },
+      "returns": {
+        "_0": {
+          "label": "owner",
+          "type": "address"
+        }
+      },
       "examples": [
-        { "label": "Check owner of Punk #0", "params": { "_0": "0" } },
-        { "label": "Check owner of Punk #7804", "params": { "_0": "7804" } }
+        {
+          "label": "Check owner of Punk #0",
+          "params": {
+            "_0": "0"
+          }
+        },
+        {
+          "label": "Check owner of Punk #7804",
+          "params": {
+            "_0": "7804"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "path": "_0",
+          "label": "punk index",
+          "description": "The punk ID (0–9999)",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
       ]
     },
     "balanceOf": {
@@ -111,25 +167,65 @@
       "description": "Check how many punks an address owns.",
       "stateMutability": "view",
       "group": "ownership",
-      "params": { "_0": { "label": "holder", "type": "address" } }
+      "params": {
+        "_0": {
+          "label": "holder",
+          "type": "address"
+        }
+      },
+      "fields": [
+        {
+          "path": "_0",
+          "label": "holder",
+          "format": "addressName"
+        }
+      ]
     },
     "transferPunk": {
       "order": 2,
       "title": "Transfer Punk",
       "description": "Transfer a punk you own to another address. Does not go through the marketplace.",
-      "intent": "Transfer Punk #{punkIndex} to {to}",
+      "intent": "Transfer Punk",
       "group": "ownership",
       "warning": "This is a direct transfer with no payment involved. Make sure you intend to send the punk for free.",
       "params": {
-        "to": { "label": "recipient", "type": "address" },
+        "to": {
+          "label": "recipient",
+          "type": "address"
+        },
         "punkIndex": {
           "label": "punk index",
           "description": "The punk ID to transfer (0–9999)",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
-      "related": ["punkIndexToAddress"]
+      "related": [
+        "punkIndexToAddress"
+      ],
+      "interpolatedIntent": "Transfer Punk #{punkIndex} to {to}",
+      "fields": [
+        {
+          "path": "to",
+          "label": "recipient",
+          "format": "addressName"
+        },
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "description": "The punk ID to transfer (0–9999)",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "punksOfferedForSale": {
       "order": 0,
@@ -141,16 +237,47 @@
         "_0": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
       "returns": {
-        "isForSale": { "label": "for sale", "type": "boolean" },
-        "punkIndex": { "label": "punk", "type": "token-id" },
-        "seller": { "label": "seller", "type": "address" },
-        "minValue": { "label": "min price", "type": "eth" },
-        "onlySellTo": { "label": "Only sell to", "type": "address" }
-      }
+        "isForSale": {
+          "label": "for sale",
+          "type": "boolean"
+        },
+        "punkIndex": {
+          "label": "punk",
+          "type": "token-id"
+        },
+        "seller": {
+          "label": "seller",
+          "type": "address"
+        },
+        "minValue": {
+          "label": "min price",
+          "type": "eth"
+        },
+        "onlySellTo": {
+          "label": "Only sell to",
+          "type": "address"
+        }
+      },
+      "fields": [
+        {
+          "path": "_0",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "punkBids": {
       "order": 1,
@@ -162,43 +289,94 @@
         "_0": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
       "returns": {
-        "hasBid": { "label": "has bid", "type": "boolean" },
-        "punkIndex": { "label": "punk", "type": "token-id" },
-        "bidder": { "label": "bidder", "type": "address" },
-        "value": { "label": "bid amount", "type": "eth" }
-      }
+        "hasBid": {
+          "label": "has bid",
+          "type": "boolean"
+        },
+        "punkIndex": {
+          "label": "punk",
+          "type": "token-id"
+        },
+        "bidder": {
+          "label": "bidder",
+          "type": "address"
+        },
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        }
+      },
+      "fields": [
+        {
+          "path": "_0",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "buyPunk": {
       "order": 2,
       "title": "Buy Punk",
       "description": "Buy a punk that is currently listed for sale. Send ETH equal to or greater than the asking price.",
-      "intent": "Buy Punk #{punkIndex}",
+      "intent": "Buy Punk",
       "group": "marketplace",
       "warning": "Sends ETH — make sure msg.value meets the asking price.",
       "params": {
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
-      "related": ["punksOfferedForSale", "offerPunkForSale"]
+      "related": [
+        "punksOfferedForSale",
+        "offerPunkForSale"
+      ],
+      "interpolatedIntent": "Buy Punk #{punkIndex}",
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "offerPunkForSale": {
       "order": 3,
       "title": "List Punk for Sale",
       "description": "List a punk you own for sale on the built-in marketplace at a minimum price.",
-      "intent": "List Punk #{punkIndex} for sale at {minSalePriceInWei} minimum",
+      "intent": "List Punk for Sale",
       "group": "marketplace",
       "params": {
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         },
         "minSalePriceInWei": {
           "label": "minimum price",
@@ -206,7 +384,30 @@
           "type": "eth"
         }
       },
-      "related": ["punkNoLongerForSale", "buyPunk"]
+      "related": [
+        "punkNoLongerForSale",
+        "buyPunk"
+      ],
+      "interpolatedIntent": "List Punk #{punkIndex} for sale at {minSalePriceInWei} minimum",
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        },
+        {
+          "path": "minSalePriceInWei",
+          "label": "minimum price",
+          "description": "Minimum sale price",
+          "format": "amount"
+        }
+      ]
     },
     "offerPunkForSaleToAddress": {
       "order": 4,
@@ -217,16 +418,49 @@
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         },
-        "minSalePriceInWei": { "label": "minimum price", "type": "eth" },
+        "minSalePriceInWei": {
+          "label": "minimum price",
+          "type": "eth"
+        },
         "toAddress": {
           "label": "buyer",
           "description": "Only this address can buy the punk",
           "type": "address"
         }
       },
-      "related": ["offerPunkForSale", "buyPunk"]
+      "related": [
+        "offerPunkForSale",
+        "buyPunk"
+      ],
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        },
+        {
+          "path": "minSalePriceInWei",
+          "label": "minimum price",
+          "format": "amount"
+        },
+        {
+          "path": "toAddress",
+          "label": "buyer",
+          "description": "Only this address can buy the punk",
+          "format": "addressName"
+        }
+      ]
     },
     "punkNoLongerForSale": {
       "order": 5,
@@ -237,26 +471,65 @@
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
-      "related": ["offerPunkForSale"]
+      "related": [
+        "offerPunkForSale"
+      ],
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "enterBidForPunk": {
       "order": 6,
       "title": "Place Bid",
       "description": "Place a bid on a punk by sending ETH. Your ETH is held in the contract until the bid is accepted or you withdraw it.",
-      "intent": "Place bid on Punk #{punkIndex}",
+      "intent": "Place Bid",
       "group": "marketplace",
       "warning": "Your ETH will be locked in the contract until the bid is accepted or withdrawn.",
       "params": {
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
-      "related": ["withdrawBidForPunk", "acceptBidForPunk", "punkBids"]
+      "related": [
+        "withdrawBidForPunk",
+        "acceptBidForPunk",
+        "punkBids"
+      ],
+      "interpolatedIntent": "Place bid on Punk #{punkIndex}",
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "acceptBidForPunk": {
       "order": 7,
@@ -267,7 +540,10 @@
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         },
         "minPrice": {
           "label": "minimum price",
@@ -275,7 +551,29 @@
           "type": "eth"
         }
       },
-      "related": ["enterBidForPunk", "punkBids"]
+      "related": [
+        "enterBidForPunk",
+        "punkBids"
+      ],
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        },
+        {
+          "path": "minPrice",
+          "label": "minimum price",
+          "description": "Minimum bid amount you will accept (protects against front-running)",
+          "format": "amount"
+        }
+      ]
     },
     "withdrawBidForPunk": {
       "order": 8,
@@ -286,10 +584,29 @@
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
       },
-      "related": ["enterBidForPunk", "punkBids"]
+      "related": [
+        "enterBidForPunk",
+        "punkBids"
+      ],
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "pendingWithdrawals": {
       "order": 9,
@@ -297,16 +614,36 @@
       "description": "Check the amount of ETH an address can withdraw from sales or returned bids.",
       "stateMutability": "view",
       "group": "marketplace",
-      "params": { "_0": { "label": "address", "type": "address" } },
-      "returns": { "_0": { "type": "eth" } },
-      "related": ["withdraw"]
+      "params": {
+        "_0": {
+          "label": "address",
+          "type": "address"
+        }
+      },
+      "returns": {
+        "_0": {
+          "type": "eth"
+        }
+      },
+      "related": [
+        "withdraw"
+      ],
+      "fields": [
+        {
+          "path": "_0",
+          "label": "address",
+          "format": "addressName"
+        }
+      ]
     },
     "withdraw": {
       "order": 10,
       "title": "Withdraw ETH",
       "description": "Withdraw ETH owed to you from punk sales or outbid returns.",
       "group": "marketplace",
-      "related": ["pendingWithdrawals"]
+      "related": [
+        "pendingWithdrawals"
+      ]
     },
     "getPunk": {
       "order": 0,
@@ -318,9 +655,25 @@
         "punkIndex": {
           "label": "punk index",
           "type": "token-id",
-          "validation": { "min": "0", "max": "9999" }
+          "validation": {
+            "min": "0",
+            "max": "9999"
+          }
         }
-      }
+      },
+      "fields": [
+        {
+          "path": "punkIndex",
+          "label": "punk index",
+          "format": "tokenId",
+          "input": {
+            "validation": {
+              "min": "0",
+              "max": "9999"
+            }
+          }
+        }
+      ]
     },
     "allPunksAssigned": {
       "order": 1,
@@ -348,63 +701,118 @@
     "PunkTransfer": {
       "description": "Emitted when a punk is transferred between addresses.",
       "params": {
-        "from": { "label": "from" },
-        "to": { "label": "to" },
-        "punkIndex": { "label": "punk index", "type": "token-id" }
+        "from": {
+          "label": "from"
+        },
+        "to": {
+          "label": "to"
+        },
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        }
       }
     },
     "PunkOffered": {
       "description": "Emitted when a punk is listed for sale.",
       "params": {
-        "punkIndex": { "label": "punk index", "type": "token-id" },
-        "minValue": { "label": "minimum price", "type": "eth" },
-        "toAddress": { "label": "exclusive buyer" }
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        },
+        "minValue": {
+          "label": "minimum price",
+          "type": "eth"
+        },
+        "toAddress": {
+          "label": "exclusive buyer"
+        }
       }
     },
     "PunkBidEntered": {
       "description": "Emitted when a bid is placed on a punk.",
       "params": {
-        "punkIndex": { "label": "punk index", "type": "token-id" },
-        "value": { "label": "bid amount", "type": "eth" },
-        "fromAddress": { "label": "bidder" }
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        },
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "bidder"
+        }
       }
     },
     "PunkBidWithdrawn": {
       "description": "Emitted when a bid is withdrawn.",
       "params": {
-        "punkIndex": { "label": "punk index", "type": "token-id" },
-        "value": { "label": "bid amount", "type": "eth" },
-        "fromAddress": { "label": "bidder" }
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        },
+        "value": {
+          "label": "bid amount",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "bidder"
+        }
       }
     },
     "PunkBought": {
       "description": "Emitted when a punk is sold.",
       "params": {
-        "punkIndex": { "label": "punk index", "type": "token-id" },
-        "value": { "label": "sale price", "type": "eth" },
-        "fromAddress": { "label": "seller" },
-        "toAddress": { "label": "buyer" }
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        },
+        "value": {
+          "label": "sale price",
+          "type": "eth"
+        },
+        "fromAddress": {
+          "label": "seller"
+        },
+        "toAddress": {
+          "label": "buyer"
+        }
       }
     },
     "PunkNoLongerForSale": {
       "description": "Emitted when a punk is delisted from the marketplace.",
       "params": {
-        "punkIndex": { "label": "punk index", "type": "token-id" }
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        }
       }
     },
     "Assign": {
       "description": "Emitted during the initial claim phase when a punk was assigned to an address.",
       "params": {
-        "to": { "label": "claimer" },
-        "punkIndex": { "label": "punk index", "type": "token-id" }
+        "to": {
+          "label": "claimer"
+        },
+        "punkIndex": {
+          "label": "punk index",
+          "type": "token-id"
+        }
       }
     },
     "Transfer": {
       "description": "Emitted on punk transfer (legacy event, predates ERC-721).",
       "params": {
-        "from": { "label": "from" },
-        "to": { "label": "to" },
-        "value": { "label": "count" }
+        "from": {
+          "label": "from"
+        },
+        "to": {
+          "label": "to"
+        },
+        "value": {
+          "label": "count"
+        }
       }
     }
   }

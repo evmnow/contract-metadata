@@ -1,116 +1,204 @@
 {
+  "metadata": {
+    "constants": {
+      "maxUint256": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  },
+  "display": {
+    "definitions": {
+      "erc20Amount": {
+        "label": "Amount",
+        "format": "tokenAmount",
+        "params": {
+          "tokenPath": "@.to"
+        }
+      }
+    }
+  },
   "groups": {
-    "erc20": { "label": "ERC-20", "order": 99 }
+    "erc20": {
+      "label": "ERC-20",
+      "order": 99
+    }
   },
   "functions": {
-    "name": {
+    "name()": {
       "title": "Token Name",
+      "signature": "name()",
       "description": "The name of the token.",
       "stateMutability": "view",
       "group": "erc20"
     },
-    "symbol": {
+    "symbol()": {
       "title": "Token Symbol",
+      "signature": "symbol()",
       "description": "The token symbol.",
       "stateMutability": "view",
       "group": "erc20"
     },
-    "decimals": {
+    "decimals()": {
       "title": "Decimals",
+      "signature": "decimals()",
       "description": "Number of decimal places used by the token.",
       "stateMutability": "view",
       "group": "erc20"
     },
-    "totalSupply": {
+    "totalSupply()": {
       "title": "Total Supply",
+      "signature": "totalSupply()",
       "description": "Total amount of tokens in existence.",
       "stateMutability": "view",
       "group": "erc20"
     },
-    "balanceOf": {
+    "balanceOf(address account)": {
       "title": "Balance",
+      "signature": "balanceOf(address account)",
       "description": "Check the token balance of an address.",
       "stateMutability": "view",
       "group": "erc20",
-      "params": {
-        "_0": { "label": "holder", "type": "address" }
-      }
+      "fields": [
+        {
+          "path": "account",
+          "label": "Holder",
+          "format": "addressName"
+        }
+      ]
     },
-    "allowance": {
+    "allowance(address owner,address spender)": {
       "title": "Allowance",
+      "signature": "allowance(address owner,address spender)",
       "description": "Check how many tokens an address has approved another address to spend.",
       "stateMutability": "view",
       "group": "erc20",
-      "params": {
-        "_0": { "label": "owner", "type": "address" },
-        "_1": { "label": "spender", "type": "address" }
-      }
+      "fields": [
+        {
+          "path": "owner",
+          "label": "Owner",
+          "format": "addressName"
+        },
+        {
+          "path": "spender",
+          "label": "Spender",
+          "format": "addressName"
+        }
+      ]
     },
-    "approve": {
+    "approve(address spender,uint256 value)": {
       "title": "Approve",
+      "signature": "approve(address spender,uint256 value)",
       "description": "Approve a spender to transfer up to the given amount of your tokens.",
       "group": "erc20",
-      "intent": "Approve {_0} to spend {_1} tokens",
+      "intent": "Approve",
+      "interpolatedIntent": "Approve {spender} to spend {value}",
       "warning": "Approving unlimited amounts is common but carries risk if the spender contract is compromised.",
-      "params": {
-        "_0": { "label": "spender", "type": "address" },
-        "_1": { "label": "amount" }
-      },
-      "related": ["allowance", "transferFrom"]
+      "fields": [
+        {
+          "path": "spender",
+          "label": "Spender",
+          "format": "addressName"
+        },
+        {
+          "path": "value",
+          "label": "Amount",
+          "format": "tokenAmount",
+          "params": {
+            "tokenPath": "@.to",
+            "threshold": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "message": "Unlimited"
+          }
+        }
+      ],
+      "related": [
+        "allowance",
+        "transferFrom"
+      ]
     },
-    "transfer": {
+    "transfer(address to,uint256 value)": {
       "title": "Transfer",
+      "signature": "transfer(address to,uint256 value)",
       "description": "Transfer tokens to another address.",
       "group": "erc20",
-      "intent": "Transfer {_1} tokens to {_0}",
-      "params": {
-        "_0": { "label": "recipient", "type": "address" },
-        "_1": { "label": "amount" }
-      },
-      "related": ["balanceOf"]
+      "intent": "Send",
+      "interpolatedIntent": "Send {value} to {to}",
+      "fields": [
+        {
+          "path": "value",
+          "label": "Amount",
+          "format": "tokenAmount",
+          "params": {
+            "tokenPath": "@.to"
+          }
+        },
+        {
+          "path": "to",
+          "label": "To",
+          "format": "addressName"
+        }
+      ],
+      "related": [
+        "balanceOf"
+      ]
     },
-    "transferFrom": {
+    "transferFrom(address from,address to,uint256 value)": {
       "title": "Transfer From",
+      "signature": "transferFrom(address from,address to,uint256 value)",
       "description": "Transfer tokens from one address to another, using a previously set allowance.",
       "group": "erc20",
-      "params": {
-        "_0": { "label": "from", "type": "address" },
-        "_1": { "label": "to", "type": "address" },
-        "_2": { "label": "amount" }
-      },
-      "related": ["approve", "allowance"]
-    }
-  },
-  "messages": {
-    "Permit": {
-      "title": "Token Permit (EIP-2612)",
-      "description": "Approve a spender to transfer your tokens via an off-chain signature, avoiding a separate approve transaction.",
-      "warning": "This grants token spending permission. Verify the spender address and amount carefully. Phishing sites commonly request Permit signatures to drain wallets.",
-      "intent": "Permit {spender} to spend {value} of your tokens until {deadline}",
-      "fields": {
-        "owner": { "label": "owner", "description": "The token holder granting the approval", "type": "address" },
-        "spender": { "label": "spender", "description": "The address being approved to spend tokens", "type": "address" },
-        "value": { "label": "amount", "description": "Maximum amount the spender can transfer" },
-        "nonce": { "label": "nonce", "description": "Sequential nonce preventing signature replay" },
-        "deadline": { "label": "deadline", "description": "Unix timestamp after which the permit expires", "type": "timestamp" }
-      }
+      "intent": "Transfer from allowance",
+      "interpolatedIntent": "Transfer {value} from {from} to {to}",
+      "fields": [
+        {
+          "path": "from",
+          "label": "From",
+          "format": "addressName"
+        },
+        {
+          "path": "to",
+          "label": "To",
+          "format": "addressName"
+        },
+        {
+          "path": "value",
+          "label": "Amount",
+          "format": "tokenAmount",
+          "params": {
+            "tokenPath": "@.to"
+          }
+        }
+      ],
+      "related": [
+        "approve",
+        "allowance"
+      ]
     }
   },
   "events": {
     "Transfer": {
       "description": "Emitted when tokens are transferred.",
       "params": {
-        "from": { "label": "from" },
-        "to": { "label": "to" },
-        "value": { "label": "amount" }
+        "from": {
+          "label": "from"
+        },
+        "to": {
+          "label": "to"
+        },
+        "value": {
+          "label": "amount"
+        }
       }
     },
     "Approval": {
       "description": "Emitted when an approval is set.",
       "params": {
-        "owner": { "label": "owner" },
-        "spender": { "label": "spender" },
-        "value": { "label": "amount" }
+        "owner": {
+          "label": "owner"
+        },
+        "spender": {
+          "label": "spender"
+        },
+        "value": {
+          "label": "amount"
+        }
       }
     }
   }

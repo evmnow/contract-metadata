@@ -59,7 +59,21 @@
     "listForSale": {
       "title": "List for Sale",
       "description": "List the artwork for sale at a fixed ETH price, open to anyone or reserved for one buyer; owner only.",
-      "intent": "List the artwork for {salePriceInWei}",
+      "intent": "List the artwork for sale",
+      "interpolatedIntent": "List the artwork for {salePriceInWei}",
+      "fields": [
+        {
+          "path": "salePriceInWei",
+          "label": "Price",
+          "format": "amount"
+        },
+        {
+          "path": "toAddress",
+          "label": "Reserved buyer",
+          "description": "Restrict the sale to this address, or use the zero address to sell to anyone.",
+          "format": "addressName"
+        }
+      ],
       "group": "market",
       "order": 2,
       "warning": "Owner only. The price must be greater than zero. Listing replaces any existing offer.",
@@ -109,7 +123,15 @@
     "transferOwnership": {
       "title": "Transfer Ownership",
       "description": "Hand the artwork to another address off-market with no payment, clearing any active listing; owner only.",
-      "intent": "Give the artwork to {newOwner}",
+      "intent": "Give the artwork away",
+      "interpolatedIntent": "Give the artwork to {newOwner}",
+      "fields": [
+        {
+          "path": "newOwner",
+          "label": "New owner",
+          "format": "addressName"
+        }
+      ],
       "group": "ownership",
       "order": 2,
       "warning": "Owner only. This is a gift — no ETH changes hands — and it cancels any active listing.",

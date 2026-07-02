@@ -52,7 +52,16 @@
     "deployBinary": {
       "title": "Ask a Question",
       "description": "Ask the computer a question for a flat 0.01 ETH fee, deploying it as its own Binary contract that joins the queue.",
-      "intent": "Ask: {question}",
+      "intent": "Ask a question",
+      "interpolatedIntent": "Ask: {question}",
+      "fields": [
+        {
+          "path": "question",
+          "label": "Question",
+          "description": "The yes/no question to ask. Its words are reduced to features the computer can learn from.",
+          "format": "raw"
+        }
+      ],
       "group": "interact",
       "order": 1,
       "featured": true,
@@ -95,7 +104,16 @@
     "ask": {
       "title": "Read the Mind",
       "description": "Run a message through the trained perceptron to see which way it leans and its confidence — a read-only query.",
-      "intent": "What do you make of: {message}",
+      "intent": "Ask the computer",
+      "interpolatedIntent": "What do you make of: {message}",
+      "fields": [
+        {
+          "path": "message",
+          "label": "Message",
+          "description": "Any text to classify against what the computer has learned.",
+          "format": "raw"
+        }
+      ],
       "stateMutability": "view",
       "group": "mind",
       "order": 1,

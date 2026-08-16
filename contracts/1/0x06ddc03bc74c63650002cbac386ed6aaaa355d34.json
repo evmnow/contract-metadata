@@ -1,0 +1,659 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x06ddc03bc74c63650002cbac386ed6aaaa355d34",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-16T12:45:03Z"
+  },
+  "name": "VesselPortal",
+  "description": "A networked.art renderer that builds a token's metadata from artwork already stored on The Vessel.",
+  "about": "VesselPortal is an `IRenderer` for the [networked.art](https://networked.art) protocol. Instead of storing an artwork's bytes in the token, a token stores a *reference* to bytes that already live on-chain in [The Vessel](https://thevessel.fun), and this contract assembles the metadata at view time.\n\nA token is two `Source`s — a poster (the still `image`) and an animation (`animation_url`) — resolved the same way:\n\n| kind | meaning |\n| --- | --- |\n| 0 | The Vessel. Pinned entries (0-based) concatenate in the order given; empty follows the holder's live payload. |\n| 1 | The Relics contract. Pinned relic entries are 1-based and vault-relics only. |\n| 2 | Inline bytes carried in the artifact itself. |\n\nBecause either half can be a reference, a fully referenced mint is a few hundred bytes of artifact serving an artwork of any size, and a work sharded across many vault slots reassembles in the order its entries are listed.\n\n**`uri()` can never revert.** On networked.art, renderer registration is append-only and a token's renderer index is fixed at mint, so a renderer that can fail is a renderer that can brick a collector's token permanently. The poster and animation degrade independently and the metadata carries `\"unresolved\":true` when either fails. The strict entry points (`animationURI`, `resolveSource`, `resolveArtifact`) revert loudly instead, so minting tools discover problems before signing.\n\nMetadata carries `\"mutable\":true` whenever a source resolves through a path a third party can change — a live vault payload follows the *holder's* chosen slot, and the holder need not be the collector.\n\nThe contract is immutable, ownerless and stateless: no admin, no upgrade path, no storage, and every function is `view` or `pure`. It holds nothing and can move nothing. One deployment serves every collection and every artist; registering it costs one transaction per collection.",
+  "category": "nft",
+  "tags": [
+    "renderer",
+    "onchain-art",
+    "generative-art",
+    "networked.art",
+    "the-vessel",
+    "sstore2"
+  ],
+  "links": [
+    {
+      "label": "Source & audit",
+      "url": "https://github.com/lessthanjake/kiln"
+    },
+    {
+      "label": "networked.art",
+      "url": "https://networked.art"
+    },
+    {
+      "label": "The Vessel",
+      "url": "https://thevessel.fun"
+    },
+    {
+      "label": "Sourcify",
+      "url": "https://repo.sourcify.dev/1/0x06dDc03Bc74c63650002cBAc386Ed6aaAA355d34"
+    }
+  ],
+  "risks": [
+    "Immutable and unowned — no admin, no upgrade path, and nothing can be corrected after deployment.",
+    "A live (unpinned) source follows the vessel holder's chosen entry, so its artwork can change after mint.",
+    "Relic entries stay curator-editable; pinning one pins the index, not the bytes.",
+    "Poster and animation share a 128 KB content budget; past it a token renders its thumbnail only.",
+    "Registering a renderer on a collection is append-only and the index is fixed at mint."
+  ],
+  "groups": {
+    "render": {
+      "label": "Rendering",
+      "description": "What a wallet or marketplace calls to display a token.",
+      "order": 0
+    },
+    "inspect": {
+      "label": "Inspection",
+      "description": "Resolve or decode an artifact without minting it.",
+      "order": 1
+    },
+    "limits": {
+      "label": "Limits",
+      "description": "The bounds this renderer enforces while reading.",
+      "order": 2
+    },
+    "wiring": {
+      "label": "Wiring",
+      "description": "The contracts and identity this renderer is fixed to.",
+      "order": 3
+    }
+  },
+  "actions": {
+    "uri": {
+      "title": "Token Metadata",
+      "description": "The token's full metadata JSON as a data URI. Never reverts.",
+      "intent": "Read the metadata for token {_0}",
+      "group": "render",
+      "stateMutability": "view",
+      "featured": true,
+      "params": {
+        "_0": {
+          "label": "Token ID",
+          "type": "token-id"
+        },
+        "token": {
+          "label": "Token data",
+          "description": "The collection's stored record for this token, passed by the collection contract."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Metadata",
+          "description": "A base64 data URI containing the token's JSON metadata."
+        }
+      },
+      "related": [
+        "imageURI",
+        "animationURI",
+        "previewURI"
+      ]
+    },
+    "imageURI": {
+      "title": "Thumbnail",
+      "description": "The still image as a data URI. Returns an empty string rather than reverting.",
+      "intent": "Read the thumbnail for token {_0}",
+      "group": "render",
+      "stateMutability": "view",
+      "params": {
+        "_0": {
+          "label": "Token ID",
+          "type": "token-id"
+        },
+        "token": {
+          "label": "Token data",
+          "description": "The collection's stored record for this token."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Image",
+          "description": "A data URI, or an empty string if the poster could not be resolved."
+        }
+      },
+      "related": [
+        "uri",
+        "animationURI"
+      ]
+    },
+    "animationURI": {
+      "title": "Artwork",
+      "description": "The artwork as a data URI. Reverts if it cannot be resolved.",
+      "intent": "Read the artwork for token {_0}",
+      "group": "render",
+      "stateMutability": "view",
+      "warning": "Unlike uri() and imageURI(), this is a strict path and reverts on failure.",
+      "params": {
+        "_0": {
+          "label": "Token ID",
+          "type": "token-id"
+        },
+        "token": {
+          "label": "Token data",
+          "description": "The collection's stored record for this token."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Animation",
+          "description": "A data URI holding the artwork's bytes under its pinned media type."
+        }
+      },
+      "related": [
+        "uri",
+        "imageURI"
+      ]
+    },
+    "previewURI": {
+      "title": "Preview an Artifact",
+      "description": "Render metadata from artifact bytes before minting, reporting the gas the read costs.",
+      "intent": "Preview an artifact and measure its render cost",
+      "group": "inspect",
+      "stateMutability": "view",
+      "featured": true,
+      "params": {
+        "artifact": {
+          "label": "Artifact",
+          "description": "ABI-encoded (Source poster, Source animation)."
+        },
+        "token": {
+          "label": "Token data",
+          "description": "A token record to render against; name and description are read from it."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Metadata",
+          "description": "The metadata this artifact would produce."
+        },
+        "_1": {
+          "label": "Gas used",
+          "description": "Gas the read consumed. Wallets cap eth_call around 50,000,000."
+        },
+        "_2": {
+          "label": "Unresolved",
+          "type": "boolean",
+          "description": "True if either source failed to resolve."
+        }
+      },
+      "related": [
+        "resolveArtifact",
+        "decodeArtifact"
+      ]
+    },
+    "resolveArtifact": {
+      "title": "Resolve an Artifact",
+      "description": "Return the artwork bytes and media type an artifact points at. Reverts on failure.",
+      "intent": "Resolve the artwork an artifact references",
+      "group": "inspect",
+      "stateMutability": "view",
+      "params": {
+        "artifact": {
+          "label": "Artifact",
+          "description": "ABI-encoded (Source poster, Source animation)."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Content",
+          "description": "The assembled bytes."
+        },
+        "_1": {
+          "label": "Media type",
+          "description": "The media type the bytes will be served under."
+        }
+      },
+      "related": [
+        "resolveSource",
+        "previewURI"
+      ]
+    },
+    "resolveSource": {
+      "title": "Resolve One Source",
+      "description": "Read a single source — vessel, relic or inline — and return its bytes and media type.",
+      "intent": "Resolve one source to its bytes",
+      "group": "inspect",
+      "stateMutability": "view",
+      "params": {
+        "source": {
+          "label": "Source",
+          "description": "A (kind, tokenId, entries, mime, data) tuple."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Content",
+          "description": "The assembled bytes."
+        },
+        "_1": {
+          "label": "Media type",
+          "description": "The validated media type."
+        }
+      },
+      "related": [
+        "resolveArtifact"
+      ]
+    },
+    "decodeArtifact": {
+      "title": "Decode an Artifact",
+      "description": "Decode artifact bytes into the poster and animation sources without reading any of them.",
+      "intent": "Decode an artifact into its two sources",
+      "group": "inspect",
+      "stateMutability": "pure",
+      "params": {
+        "artifact": {
+          "label": "Artifact",
+          "description": "ABI-encoded (Source poster, Source animation)."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Poster",
+          "description": "The source behind the still image."
+        },
+        "_1": {
+          "label": "Animation",
+          "description": "The source behind the artwork."
+        }
+      },
+      "related": [
+        "decodeArtifactFromToken",
+        "previewURI"
+      ]
+    },
+    "decodeArtifactFromToken": {
+      "title": "Decode a Token's Artifact",
+      "description": "Read a token's artifact out of its SSTORE2 chunks and decode it into two sources.",
+      "intent": "Decode the artifact stored for a token",
+      "group": "inspect",
+      "stateMutability": "view",
+      "params": {
+        "token": {
+          "label": "Token data",
+          "description": "The collection's stored record, whose artifact points at SSTORE2 chunks."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Poster",
+          "description": "The source behind the still image."
+        },
+        "_1": {
+          "label": "Animation",
+          "description": "The source behind the artwork."
+        }
+      },
+      "related": [
+        "decodeArtifact"
+      ]
+    },
+    "renderForTotal": {
+      "title": "Render Within a Budget",
+      "description": "Internal helper used while assembling metadata; callable only by this contract.",
+      "group": "inspect",
+      "stateMutability": "view",
+      "hidden": true,
+      "warning": "Reverts NotSelf for any external caller. Gating it keeps an unbounded read off the public surface.",
+      "params": {
+        "source": {
+          "label": "Source",
+          "description": "The source to render."
+        },
+        "budget": {
+          "label": "Budget",
+          "description": "Bytes this source may spend from the shared content budget."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Data URI",
+          "description": "The rendered data URI."
+        },
+        "_1": {
+          "label": "Spent",
+          "description": "Bytes consumed from the budget."
+        }
+      }
+    },
+    "selfTest": {
+      "title": "Self Test",
+      "description": "Prove this deployment can read live Vessel and Relics data through a known token.",
+      "intent": "Check this renderer against vessel {vesselTokenId}",
+      "group": "inspect",
+      "stateMutability": "view",
+      "params": {
+        "vesselTokenId": {
+          "label": "Vessel token",
+          "type": "token-id",
+          "description": "Any claimed vessel; its payload is read and discarded."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Healthy",
+          "type": "boolean",
+          "description": "True when both contracts answered as expected."
+        }
+      },
+      "related": [
+        "vessel",
+        "relics"
+      ]
+    },
+    "vessel": {
+      "title": "The Vessel",
+      "description": "The Vessel contract this renderer reads. Fixed at deployment.",
+      "group": "wiring",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Address",
+          "type": "address"
+        }
+      },
+      "related": [
+        "relics",
+        "selfTest"
+      ]
+    },
+    "relics": {
+      "title": "Relics",
+      "description": "The Relics contract this renderer reads. Fixed at deployment.",
+      "group": "wiring",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Address",
+          "type": "address"
+        }
+      },
+      "related": [
+        "vessel",
+        "selfTest"
+      ]
+    },
+    "name": {
+      "title": "Name",
+      "description": "The renderer's name, used to identify it among a collection's registered renderers.",
+      "group": "wiring",
+      "stateMutability": "pure",
+      "returns": {
+        "_0": {
+          "label": "Name",
+          "description": "Always \"VesselPortal\"."
+        }
+      },
+      "related": [
+        "version"
+      ]
+    },
+    "version": {
+      "title": "Version",
+      "description": "The renderer's version number.",
+      "group": "wiring",
+      "stateMutability": "pure",
+      "returns": {
+        "_0": {
+          "label": "Version"
+        }
+      },
+      "related": [
+        "name"
+      ]
+    },
+    "supportsInterface": {
+      "title": "Supports Interface",
+      "description": "ERC-165 interface detection.",
+      "intent": "Check support for interface {interfaceId}",
+      "group": "wiring",
+      "stateMutability": "pure",
+      "params": {
+        "interfaceId": {
+          "label": "Interface ID"
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Supported",
+          "type": "boolean"
+        }
+      }
+    },
+    "uriFromArtifact": {
+      "title": "Metadata From Artifact",
+      "description": "Build metadata from artifact bytes directly, without reading a token's storage.",
+      "intent": "Build metadata from an artifact",
+      "group": "inspect",
+      "stateMutability": "view",
+      "params": {
+        "artifact": {
+          "label": "Artifact",
+          "description": "ABI-encoded (Source poster, Source animation)."
+        },
+        "token": {
+          "label": "Token data",
+          "description": "Supplies the name and description carried into the metadata."
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "Metadata",
+          "description": "A base64 data URI containing the token's JSON metadata."
+        }
+      },
+      "related": [
+        "uri",
+        "previewURI"
+      ]
+    },
+    "MAX_CONTENT_BYTES": {
+      "title": "Content Budget",
+      "description": "Total bytes the poster and animation may resolve to between them.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Bytes"
+        }
+      },
+      "related": [
+        "MAX_ENTRIES",
+        "MAX_READ_BYTES"
+      ]
+    },
+    "MAX_ENTRIES": {
+      "title": "Entry Limit",
+      "description": "Most vault entries a single source may concatenate.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Entries"
+        }
+      },
+      "related": [
+        "MAX_CONTENT_BYTES"
+      ]
+    },
+    "MAX_CHUNKS": {
+      "title": "Chunk Limit",
+      "description": "Most SSTORE2 pointers a token's artifact may span.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Chunks"
+        }
+      }
+    },
+    "MAX_READ_BYTES": {
+      "title": "Read Limit",
+      "description": "Most bytes copied from any single external read.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Bytes"
+        }
+      },
+      "related": [
+        "MAX_CONTENT_BYTES"
+      ]
+    },
+    "MAX_TEXT_BYTES": {
+      "title": "Text Limit",
+      "description": "Most bytes accepted for a token's name or description.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Bytes"
+        }
+      }
+    },
+    "READ_GAS": {
+      "title": "Read Gas Cap",
+      "description": "Gas allowed for a general external read, so a hostile callee cannot burn the caller's gas.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Gas"
+        }
+      },
+      "related": [
+        "SOURCE_READ_GAS"
+      ]
+    },
+    "SOURCE_READ_GAS": {
+      "title": "Source Read Gas Cap",
+      "description": "Gas allowed for a single entry or payload read.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Gas"
+        }
+      },
+      "related": [
+        "READ_GAS"
+      ]
+    },
+    "FALLBACK_MIME": {
+      "title": "Fallback Media Type",
+      "description": "Media type substituted when a source declares one this renderer will not serve.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Media type"
+        }
+      }
+    },
+    "KIND_VESSEL": {
+      "title": "Kind: Vessel",
+      "description": "The source kind that reads The Vessel.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Kind"
+        }
+      },
+      "related": [
+        "KIND_RELICS",
+        "KIND_INLINE"
+      ]
+    },
+    "KIND_RELICS": {
+      "title": "Kind: Relics",
+      "description": "The source kind that reads the Relics contract.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Kind"
+        }
+      },
+      "related": [
+        "KIND_VESSEL",
+        "KIND_INLINE"
+      ]
+    },
+    "KIND_INLINE": {
+      "title": "Kind: Inline",
+      "description": "The source kind whose bytes are carried in the artifact itself.",
+      "group": "limits",
+      "stateMutability": "view",
+      "returns": {
+        "_0": {
+          "label": "Kind"
+        }
+      },
+      "related": [
+        "KIND_VESSEL",
+        "KIND_RELICS"
+      ]
+    }
+  },
+  "errors": {
+    "MalformedReference": {
+      "title": "Malformed Reference",
+      "description": "The artifact could not be decoded as a poster and animation source pair."
+    },
+    "UnknownKind": {
+      "title": "Unknown Source Kind",
+      "description": "The source kind is not vessel, relics or inline."
+    },
+    "NotAVault": {
+      "title": "Not a Vault",
+      "description": "Pinned entries were requested from a vessel that is not a vault."
+    },
+    "EntryOutOfRange": {
+      "title": "Entry Out of Range",
+      "description": "A pinned entry index is past the end of that token's entries."
+    },
+    "TooManyEntries": {
+      "title": "Too Many Entries",
+      "description": "The source lists more entries than a single reference may concatenate."
+    },
+    "TooManyChunks": {
+      "title": "Too Many Chunks",
+      "description": "The token's artifact spans more SSTORE2 pointers than this renderer reads."
+    },
+    "ContentTooLarge": {
+      "title": "Content Too Large",
+      "description": "The resolved content exceeds the budget shared by the poster and animation."
+    },
+    "EmptyContent": {
+      "title": "Empty Content",
+      "description": "The source resolved to no bytes at all."
+    },
+    "EmptyPointer": {
+      "title": "Empty Pointer",
+      "description": "An SSTORE2 pointer in the artifact holds no code."
+    },
+    "NotAContract": {
+      "title": "Not a Contract",
+      "description": "A read was attempted against an address holding no code."
+    },
+    "ReadFailed": {
+      "title": "Read Failed",
+      "description": "An external read reverted or returned nothing."
+    },
+    "ReadBudgetExhausted": {
+      "title": "Read Budget Exhausted",
+      "description": "A read returned more bytes than this renderer will copy."
+    },
+    "NotSelf": {
+      "title": "Not Self",
+      "description": "This function is internal to the renderer and rejects external callers."
+    }
+  }
+}

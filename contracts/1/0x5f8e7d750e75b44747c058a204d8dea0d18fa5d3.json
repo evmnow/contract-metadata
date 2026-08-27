@@ -1,0 +1,78 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x5f8e7d750e75b44747c058a204d8dea0d18fa5d3",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "OnChainLMv2",
+  "description": "A fully on-chain language model that generates the aphorism text for Automate Attention tokens.",
+  "about": "## OnChainLMv2\n\nA transformer language model that runs inference entirely onchain, using INT8 per-channel quantized weights and Q16.16 fixed-point scales. Its architecture (layers, dimensions, vocabulary) is configured at deployment, and the model weights are held in a set of separate SSTORE2 data-storage contracts that this contract reads.\n\nIt is the text engine in the **Automate Attention** render pipeline: the collection (`0x12fd3db5ae10615873a4eadbe4085d0698965139`) renders through a Renderer (`0x6e8f02f70939ad8fa1497c6b3be5007c9100384e`), which calls this model to produce each token's aphorism and then pairs it with art from ArtGenerator (`0xcd84bc27d62e335cea20d1dff70d53f815489e16`).\n\nAll functions are read-only view calls. Inference is gas-intensive and intended to be run via `eth_call`, not in a transaction.",
+  "category": "nft",
+  "tags": ["onchain", "llm", "ai", "inference", "transformer"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x5f8e7d750e75b44747c058a204d8dea0d18fa5d3"
+    },
+    {
+      "label": "Collection (Automate Attention)",
+      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
+    }
+  ],
+  "actions": {
+    "generate": {
+      "title": "Generate",
+      "description": "Run inference from a prompt and return the prompt plus generated tokens.",
+      "stateMutability": "view",
+      "params": {
+        "_0": { "label": "prompt tokens" },
+        "_1": { "label": "max new tokens" },
+        "_2": { "label": "temperature", "description": "Sampling temperature; 0 is greedy, 230 is the default." },
+        "_3": { "label": "seed" }
+      },
+      "returns": { "_0": { "label": "tokens" } },
+      "related": ["generateWithCache", "decode"]
+    },
+    "generateWithCache": {
+      "title": "Generate With Cache",
+      "description": "Generate using a precomputed KV cache to skip reprocessing the prompt.",
+      "stateMutability": "view",
+      "params": {
+        "_0": { "label": "cache", "type": "address", "description": "SSTORE2 address holding the precomputed KV cache." },
+        "_1": { "label": "prompt length" },
+        "_2": { "label": "prompt tokens" },
+        "_3": { "label": "max new tokens" },
+        "_4": { "label": "temperature", "description": "Sampling temperature; 0 is greedy, 230 is the default." },
+        "_5": { "label": "seed" }
+      },
+      "returns": { "_0": { "label": "tokens" } },
+      "related": ["generate", "computeKVCache", "decode"]
+    },
+    "computeKVCache": {
+      "title": "Compute KV Cache",
+      "description": "Compute the key-value cache bytes for all but the last prompt token.",
+      "stateMutability": "view",
+      "params": { "_0": { "label": "prompt tokens" } },
+      "returns": { "_0": { "label": "cache bytes" } },
+      "related": ["generateWithCache"]
+    },
+    "decode": {
+      "title": "Decode",
+      "description": "Decode a sequence of token IDs into a text string.",
+      "stateMutability": "view",
+      "params": { "_0": { "label": "tokens" } },
+      "returns": { "_0": { "label": "text" } },
+      "related": ["generate"]
+    },
+    "logits": {
+      "title": "Logits",
+      "description": "Return the raw next-token logits for a sequence of tokens.",
+      "stateMutability": "view",
+      "params": { "_0": { "label": "tokens" } },
+      "returns": { "_0": { "label": "logits" } }
+    }
+  }
+}

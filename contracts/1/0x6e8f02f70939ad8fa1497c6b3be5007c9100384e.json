@@ -1,0 +1,93 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x6e8f02f70939ad8fa1497c6b3be5007c9100384e",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Automate Attention Renderer",
+  "description": "Builds each Automate Attention token's metadata onchain from the LLM and art generator.",
+  "about": "## Renderer\n\nThis is the metadata renderer for the **Automate Attention** NFT collection (`AutomateAttention`, `0x12fd3db5ae10615873a4eadbe4085d0698965139`). The collection's `tokenURI` delegates here.\n\nGiven a token ID plus its state and wealth traits, `tokenURI`:\n\n1. Generates an aphorism by calling the on-chain LLM **OnChainLMv2** (`0x5f8e7d750e75b44747c058a204d8dea0d18fa5d3`) with a precomputed per-state KV cache.\n2. Generates an SVG by calling **ArtGenerator** (`0xcd84bc27d62e335cea20d1dff70d53f815489e16`).\n3. Assembles a base64 `data:application/json` metadata URI with the text, image, and traits.\n\nText is seeded from the token ID and a fixed salt, so an aphorism is stable for the life of the token; the art seed also mixes in the wealth trait. All functions are read-only.",
+  "category": "nft",
+  "tags": ["onchain", "renderer", "metadata", "svg", "llm"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x6e8f02f70939ad8fa1497c6b3be5007c9100384e"
+    },
+    {
+      "label": "Collection (Automate Attention)",
+      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
+    }
+  ],
+  "actions": {
+    "tokenURI": {
+      "title": "Token URI",
+      "description": "Build the full base64 metadata URI for a token from its state and wealth traits.",
+      "stateMutability": "view",
+      "featured": true,
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" },
+        "_1": {
+          "label": "state",
+          "type": {
+            "type": "enum",
+            "values": { "0": "Scarce", "1": "Rising", "2": "Falling", "3": "Crowded" }
+          }
+        },
+        "_2": {
+          "label": "wealth",
+          "type": {
+            "type": "enum",
+            "values": { "0": "Dust", "1": "Modest", "2": "Holder", "3": "Whale" }
+          }
+        }
+      },
+      "returns": { "_0": { "label": "metadata URI" } }
+    },
+    "lm": {
+      "title": "Language Model",
+      "description": "The OnChainLMv2 contract used to generate the aphorism text.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "LLM", "type": "address" } }
+    },
+    "artGen": {
+      "title": "Art Generator",
+      "description": "The ArtGenerator contract used to build the SVG.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "art generator", "type": "address" } }
+    },
+    "SALT": {
+      "title": "Salt",
+      "description": "The fixed salt mixed with the token ID to seed text and art.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "salt" } }
+    },
+    "kvCache0": {
+      "title": "KV Cache (Scarce)",
+      "description": "Precomputed LLM key-value cache for the scarce-state prompt.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "cache", "type": "address" } }
+    },
+    "kvCache1": {
+      "title": "KV Cache (Rising)",
+      "description": "Precomputed LLM key-value cache for the rising-state prompt.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "cache", "type": "address" } }
+    },
+    "kvCache2": {
+      "title": "KV Cache (Falling)",
+      "description": "Precomputed LLM key-value cache for the falling-state prompt.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "cache", "type": "address" } }
+    },
+    "kvCache3": {
+      "title": "KV Cache (Crowded)",
+      "description": "Precomputed LLM key-value cache for the crowded-state prompt.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "cache", "type": "address" } }
+    }
+  }
+}

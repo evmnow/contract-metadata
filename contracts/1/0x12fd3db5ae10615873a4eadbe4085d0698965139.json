@@ -1,0 +1,244 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x12fd3db5ae10615873a4eadbe4085d0698965139",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-27T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Automate Attention",
+  "symbol": "AATTN",
+  "description": "A fully on-chain generative NFT whose art and text are computed live by an on-chain LLM and SVG generator.",
+  "about": "## Automate Attention\n\nAutomate Attention (`AATTN`) is a fully on-chain ERC-721 collection. Nothing about a token is stored as a static file: each `tokenURI` is computed live from other contracts every time it is read.\n\n### Render pipeline\n\n`AutomateAttention.tokenURI` delegates to a **Renderer** (`0x6e8f02f70939ad8fa1497c6b3be5007c9100384e`), which:\n\n1. Runs an on-chain large language model, **OnChainLMv2** (`0x5f8e7d750e75b44747c058a204d8dea0d18fa5d3`), to generate a short aphorism for the token.\n2. Calls **ArtGenerator** (`0xcd84bc27d62e335cea20d1dff70d53f815489e16`), which dispatches across 23 art types to three sub-generators — **ArtGenA** (`0xd1f1d32aada5d09c602cf87e69d1d6d4fa6fa520`), **ArtGenB** (`0xa181e023e476a759f2423f02d61713db606fb45c`), and **ArtGenC** (`0x368934224d01230de6d6005fce4fe85ab37cee8c`) — to build an SVG.\n3. Packs the aphorism, SVG, and traits into a base64 `data:application/json` metadata URI.\n\n### Minting\n\nMinting is a flat 0.01 ETH via `mint()`. The first mint arms a rolling 24-hour window; every subsequent mint resets it. Once the 24-hour deadline passes with no mint, minting closes permanently and can never reopen.\n\n### Traits\n\nTwo traits are fixed at mint time and packed into one byte per token:\n\n- **State / prefix** — derived from the time since the previous mint: `crowded` (< 5 min), `rising` (< 1 h), `falling` (< 6 h), or `scarce` (≥ 6 h). It selects the LLM prompt and the art pool.\n- **Wealth** — derived from the minter's ETH balance at mint time: `dust`, `modest` (≥ 0.1 ETH), `holder` (≥ 1 ETH), or `whale` (≥ 10 ETH). It shifts the generated art.\n\nThe project source describes itself as \"a vv inspired project by diid.\"",
+  "category": "nft",
+  "tags": ["art", "generative", "onchain", "llm", "ai", "svg"],
+  "risks": [
+    "Rolling 24h window — once the deadline passes with no mint, minting closes permanently and cannot reopen",
+    "mint() requires exactly 0.01 ETH — any other amount reverts",
+    "The current owner is the Dopamine contract; its public withdrawal flow pulls and splits collected ETH, and its creator can transfer Automate Attention ownership to any nonzero address without a timelock",
+    "The wealth trait records the minter's approximate ETH balance at mint time onchain"
+  ],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
+    }
+  ],
+  "includes": ["interface:erc721", "interface:erc721-metadata"],
+  "groups": {
+    "mint": { "label": "Mint", "order": 1 },
+    "art": { "label": "Art & Traits", "order": 2 },
+    "info": { "label": "Collection Info", "order": 3 },
+    "admin": { "label": "Admin", "order": 4 }
+  },
+  "actions": {
+    "mint": {
+      "title": "Mint",
+      "description": "Mint one token at the flat 0.01 ETH price while minting is open.",
+      "intent": "Mint an Automate Attention token for 0.01 ETH",
+      "stateMutability": "payable",
+      "group": "mint",
+      "featured": true,
+      "warning": "Sends exactly 0.01 ETH. Any other amount reverts, and minting closes forever once the 24-hour deadline passes.",
+      "returns": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      },
+      "related": ["currentPrice", "mintEnded", "mintDeadline"]
+    },
+    "currentPrice": {
+      "title": "Current Price",
+      "description": "The flat mint price. Always 0.01 ETH.",
+      "stateMutability": "pure",
+      "group": "mint",
+      "returns": { "_0": { "label": "price", "type": "eth" } }
+    },
+    "mintDeadline": {
+      "title": "Mint Deadline",
+      "description": "Last Unix timestamp at which minting remains open. Returns 0 before the first mint.",
+      "stateMutability": "view",
+      "group": "mint",
+      "returns": { "_0": { "label": "deadline", "type": "timestamp" } },
+      "related": ["mintEnded"]
+    },
+    "mintEnded": {
+      "title": "Mint Ended",
+      "description": "True once the rolling 24h window has lapsed. Permanent once true.",
+      "stateMutability": "view",
+      "group": "mint",
+      "returns": { "_0": { "label": "ended", "type": "boolean" } },
+      "related": ["mintDeadline"]
+    },
+    "MINT_PRICE": {
+      "title": "Mint Price Constant",
+      "description": "The fixed per-token mint price (0.01 ETH).",
+      "stateMutability": "view",
+      "group": "mint",
+      "returns": { "_0": { "label": "price", "type": "eth" } }
+    },
+    "MINT_WINDOW": {
+      "title": "Mint Window",
+      "description": "The rolling window length that keeps minting open (24 hours).",
+      "stateMutability": "view",
+      "group": "mint",
+      "returns": { "_0": { "label": "window", "type": "duration" } }
+    },
+    "tokenPrefix": {
+      "title": "Token State",
+      "description": "The market-state trait a token was minted into.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } },
+      "returns": {
+        "_0": {
+          "label": "state",
+          "type": {
+            "type": "enum",
+            "values": { "0": "Scarce", "1": "Rising", "2": "Falling", "3": "Crowded" }
+          }
+        }
+      },
+      "related": ["tokenWealth", "tokenData"]
+    },
+    "tokenWealth": {
+      "title": "Token Wealth",
+      "description": "The wealth tier derived from the minter's ETH balance at mint time.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } },
+      "returns": {
+        "_0": {
+          "label": "wealth",
+          "type": {
+            "type": "enum",
+            "values": { "0": "Dust", "1": "Modest", "2": "Holder", "3": "Whale" }
+          }
+        }
+      },
+      "related": ["tokenPrefix", "tokenData"]
+    },
+    "tokenData": {
+      "title": "Token Data",
+      "description": "Raw packed trait byte: low 2 bits are state, next 2 bits are wealth.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } },
+      "returns": { "_0": { "label": "packed byte" } },
+      "related": ["tokenPrefix", "tokenWealth"]
+    },
+    "renderer": {
+      "title": "Renderer",
+      "description": "The Renderer contract that builds each token's metadata onchain.",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "renderer", "type": "address" } }
+    },
+    "CROWDED_THRESHOLD": {
+      "title": "Crowded Threshold",
+      "description": "Below this gap since the last mint, a token is tagged crowded.",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "threshold", "type": "duration" } }
+    },
+    "RISING_THRESHOLD": {
+      "title": "Rising Threshold",
+      "description": "Below this gap since the last mint, a token is tagged rising.",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "threshold", "type": "duration" } }
+    },
+    "FALLING_THRESHOLD": {
+      "title": "Falling Threshold",
+      "description": "Below this gap since the last mint, a token is tagged falling.",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "threshold", "type": "duration" } }
+    },
+    "MODEST_THRESHOLD": {
+      "title": "Modest Threshold",
+      "description": "Minimum minter balance for the modest wealth tier (0.1 ETH).",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "threshold", "type": "eth" } }
+    },
+    "HOLDER_THRESHOLD": {
+      "title": "Holder Threshold",
+      "description": "Minimum minter balance for the holder wealth tier (1 ETH).",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "threshold", "type": "eth" } }
+    },
+    "WHALE_THRESHOLD": {
+      "title": "Whale Threshold",
+      "description": "Minimum minter balance for the whale wealth tier (10 ETH).",
+      "stateMutability": "view",
+      "group": "art",
+      "returns": { "_0": { "label": "threshold", "type": "eth" } }
+    },
+    "nextTokenId": {
+      "title": "Next Token ID",
+      "description": "The token ID the next mint will assign.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "next token ID" } }
+    },
+    "lastMintTimestamp": {
+      "title": "Last Mint Time",
+      "description": "Unix time of the most recent mint. Zero before the first mint.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "last mint", "type": "timestamp" } }
+    },
+    "owner": {
+      "title": "Owner",
+      "description": "The address that can withdraw ETH and transfer ownership.",
+      "stateMutability": "view",
+      "group": "admin",
+      "returns": { "_0": { "label": "owner", "type": "address" } }
+    },
+    "withdraw": {
+      "title": "Withdraw",
+      "description": "Send the full contract ETH balance to the owner. Only the owner can call this.",
+      "group": "admin",
+      "warning": "Owner-only. Transfers the entire collected mint balance to the owner address.",
+      "related": ["owner"]
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer contract ownership to a new address. Only the owner can call this.",
+      "intent": "Transfer ownership to {_0}",
+      "group": "admin",
+      "warning": "Owner-only. The new owner gains full admin control, including ETH withdrawal.",
+      "params": { "_0": { "label": "new owner", "type": "address" } },
+      "related": ["owner"]
+    }
+  },
+  "events": {
+    "Minted": {
+      "title": "Minted",
+      "description": "Emitted when a token is minted, recording its state and wealth traits.",
+      "params": {
+        "tokenId": { "label": "token ID", "type": "token-id" },
+        "minter": { "label": "minter", "type": "address" },
+        "prefixIndex": { "label": "state" },
+        "wealthIndex": { "label": "wealth" }
+      }
+    },
+    "Withdrawn": {
+      "title": "Withdrawn",
+      "description": "Emitted when the owner withdraws the contract's ETH balance.",
+      "params": {
+        "to": { "label": "to", "type": "address" },
+        "amount": { "label": "amount", "type": "eth" }
+      }
+    },
+    "OwnershipTransferred": {
+      "title": "Ownership Transferred",
+      "description": "Emitted when contract ownership changes.",
+      "params": {
+        "previousOwner": { "label": "from", "type": "address" },
+        "newOwner": { "label": "to", "type": "address" }
+      }
+    }
+  }
+}

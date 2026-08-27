@@ -1,0 +1,37 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0xa181e023e476a759f2423f02d61713db606fb45c",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Automate Attention ArtGenB",
+  "description": "Sub-generator producing art types 8-15 for Automate Attention SVGs.",
+  "about": "## ArtGenB\n\nThe second of three SVG sub-generators for the **Automate Attention** NFT collection (`0x12fd3db5ae10615873a4eadbe4085d0698965139`). It is called by ArtGenerator (`0xcd84bc27d62e335cea20d1dff70d53f815489e16`), which routes art types 8–15 here: Staircase, Mini Charts, Subdivision, Cascade, Wave, Network, Radial, and Balance. Its siblings ArtGenA (`0xd1f1d32aada5d09c602cf87e69d1d6d4fa6fa520`) and ArtGenC (`0x368934224d01230de6d6005fce4fe85ab37cee8c`) cover the remaining types. The full pipeline is collection -> Renderer (`0x6e8f02f70939ad8fa1497c6b3be5007c9100384e`) -> OnChainLMv2 + ArtGenerator -> A/B/C.\n\n`generate(type, state)` is a pure function returning raw SVG element bytes.",
+  "category": "nft",
+  "tags": ["onchain", "generative", "svg", "art"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0xa181e023e476a759f2423f02d61713db606fb45c"
+    },
+    {
+      "label": "Collection (Automate Attention)",
+      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
+    }
+  ],
+  "actions": {
+    "generate": {
+      "title": "Generate",
+      "description": "Build the SVG elements for one of art types 8-15 from a type index and PRNG state.",
+      "stateMutability": "pure",
+      "params": {
+        "_0": { "label": "art type", "description": "Type index 8-15 (Staircase, Mini Charts, Subdivision, Cascade, Wave, Network, Radial, Balance)." },
+        "_1": { "label": "state", "description": "PRNG state seeding the drawing." }
+      },
+      "returns": { "_0": { "label": "SVG elements" } }
+    }
+  }
+}

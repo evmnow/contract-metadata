@@ -1,0 +1,64 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0xcd84bc27d62e335cea20d1dff70d53f815489e16",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Automate Attention ArtGenerator",
+  "description": "Generates the SVG art for Automate Attention tokens across 23 types via three sub-generators.",
+  "about": "## ArtGenerator\n\nThe SVG art engine for the **Automate Attention** NFT collection (`0x12fd3db5ae10615873a4eadbe4085d0698965139`). The collection's Renderer (`0x6e8f02f70939ad8fa1497c6b3be5007c9100384e`) calls it while assembling each token's metadata.\n\nGiven a seed and a market-state prefix, it picks one of 23 art types from a per-state pool and dispatches to the sub-generator that owns it:\n\n- **ArtGenA** (`0xd1f1d32aada5d09c602cf87e69d1d6d4fa6fa520`) — types 0–7 (Grid, Progression, Chart, Concentric, Binary, Arrows, Bars, Maze).\n- **ArtGenB** (`0xa181e023e476a759f2423f02d61713db606fb45c`) — types 8–15 (Staircase, Mini Charts, Subdivision, Cascade, Wave, Network, Radial, Balance).\n- **ArtGenC** (`0x368934224d01230de6d6005fce4fe85ab37cee8c`) — types 16–22 (Parallel, Fade, Bubbles, Rising Arrows, Orbit, Spine, Half Circles).\n\nIt returns the SVG elements plus the chosen type name. All functions are read-only.",
+  "category": "nft",
+  "tags": ["onchain", "generative", "svg", "art", "renderer"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0xcd84bc27d62e335cea20d1dff70d53f815489e16"
+    },
+    {
+      "label": "Collection (Automate Attention)",
+      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
+    }
+  ],
+  "actions": {
+    "generate": {
+      "title": "Generate",
+      "description": "Pick and build an art type for a seed and market-state prefix, returning SVG and its type name.",
+      "stateMutability": "view",
+      "params": {
+        "_0": { "label": "seed" },
+        "_1": {
+          "label": "state",
+          "type": {
+            "type": "enum",
+            "values": { "0": "Scarce", "1": "Rising", "2": "Falling", "3": "Crowded" }
+          }
+        }
+      },
+      "returns": {
+        "_0": { "label": "SVG elements" },
+        "_1": { "label": "art type" }
+      }
+    },
+    "subA": {
+      "title": "Sub-generator A",
+      "description": "The ArtGenA contract handling art types 0-7.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "ArtGenA", "type": "address" } }
+    },
+    "subB": {
+      "title": "Sub-generator B",
+      "description": "The ArtGenB contract handling art types 8-15.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "ArtGenB", "type": "address" } }
+    },
+    "subC": {
+      "title": "Sub-generator C",
+      "description": "The ArtGenC contract handling art types 16-22.",
+      "stateMutability": "view",
+      "returns": { "_0": { "label": "ArtGenC", "type": "address" } }
+    }
+  }
+}

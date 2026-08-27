@@ -646,11 +646,11 @@
     },
     "ReadFailed": {
       "title": "Read Failed",
-      "description": "An external read reverted or returned nothing."
+      "description": "An external read failed or returned more bytes than the renderer's read limit permits."
     },
     "ReadBudgetExhausted": {
       "title": "Read Budget Exhausted",
-      "description": "A read returned more bytes than this renderer will copy."
+      "description": "A source's external reads consumed more gas than the source read budget permits."
     },
     "NotSelf": {
       "title": "Not Self",

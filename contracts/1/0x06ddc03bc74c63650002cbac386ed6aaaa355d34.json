@@ -606,7 +606,7 @@
   "errors": {
     "MalformedReference": {
       "title": "Malformed Reference",
-      "description": "The artifact could not be decoded as a poster and animation source pair."
+      "description": "The artifact or external return data could not be decoded in the expected format."
     },
     "UnknownKind": {
       "title": "Unknown Source Kind",
@@ -618,7 +618,7 @@
     },
     "EntryOutOfRange": {
       "title": "Entry Out of Range",
-      "description": "A pinned entry index is past the end of that token's entries."
+      "description": "A pinned entry index falls outside that token's available entry range."
     },
     "TooManyEntries": {
       "title": "Too Many Entries",

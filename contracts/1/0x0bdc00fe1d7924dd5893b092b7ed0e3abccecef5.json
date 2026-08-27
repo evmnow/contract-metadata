@@ -1,0 +1,212 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x0bdc00fe1d7924dd5893b092b7ed0e3abccecef5",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "The Market Is Talking Renderer",
+  "description": "The on-chain renderer that builds the metadata and HTML for the 1-of-1 NFT \"Silence, the market is talking\".",
+  "about": "## Role\n\nThis is the companion renderer for the 1-of-1 NFT \"Silence, the market is talking\" (art contract `TheMarketIsTalking`, `0xd6d8555e131c0c431601af62141a61a9b1aa6b13`). The art contract's `tokenURI` and `tokenHTML` delegate here to build the token's metadata and HTML on demand.\n\n## How it assembles the piece\n\nThe renderer reads the art contract's live state — the latest inputs, mood and RPC provider defaults — and stitches it with gzip-compressed `engine.js` and `renderer.js` scripts stored on-chain via scripty.sol (ScriptyStorageV2 and ScriptyBuilderV2). `tokenURI` returns base64 JSON metadata; `getHTML` returns the full, self-contained HTML document. `getVariablesAt` combines the historical inputs and mood for a block with the current RPC provider defaults and whitepaper configuration.\n\n## Ownership\n\nThe renderer is Ownable. The owner sets which art contract it reads (`setTMIT`), the stored script/asset names, and the website and whitepaper links surfaced in the metadata.",
+  "category": "nft",
+  "tags": ["renderer", "onchain", "metadata", "scripty", "art", "generative"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0x0bdc00fe1d7924dd5893b092b7ed0e3abccecef5" },
+    { "label": "Art Contract (Etherscan)", "url": "https://etherscan.io/address/0xd6d8555e131c0c431601af62141a61a9b1aa6b13" },
+    { "label": "Website", "url": "https://felixfelixfelix.com" },
+    { "label": "Whitepaper", "url": "https://www.arweave.net/nC4nwFwC4Y2bMi9a31K2Lgm9bS7yES69bHmnRQEb2bs" }
+  ],
+  "risks": [
+    "Ownable: the owner can change the art contract this renderer reads and every stored script/asset name, altering the output.",
+    "Rendered HTML interpolates art-contract inputs, mood and RPC provider strings, plus the renderer owner's whitepaper, into inline JavaScript without escaping. A malicious or compromised role can inject arbitrary code; consumers should sandbox the HTML.",
+    "Output depends on the scripty.sol contracts and external RPC endpoints, and can break if those become unavailable.",
+    "The art contract's owner can swap to a different renderer entirely via setRenderer, retiring this one."
+  ],
+  "groups": {
+    "render": { "label": "Rendering", "order": 1 },
+    "info": { "label": "Information", "order": 2 },
+    "admin": { "label": "Configuration & Admin", "order": 3 }
+  },
+  "actions": {
+    "getHTML": {
+      "title": "View Piece (HTML)",
+      "description": "Returns the full self-contained HTML piece, stitched from on-chain scripts and the oracle's live state.",
+      "stateMutability": "view",
+      "group": "render",
+      "featured": true,
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      },
+      "related": ["tokenURI", "getVariablesAt"]
+    },
+    "tokenURI": {
+      "title": "Token URI",
+      "description": "Returns the base64-encoded JSON metadata for the token, assembled from the art contract's live state.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      },
+      "related": ["getHTML"]
+    },
+    "getVariablesAt": {
+      "title": "Variables At Block",
+      "description": "Returns historical inputs and mood for a block with the current RPC providers and whitepaper.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": {
+        "_0": { "label": "block", "type": "blocknumber" }
+      },
+      "returns": { "_0": { "label": "variables" } },
+      "related": ["getHTML"]
+    },
+    "tmit": {
+      "title": "Art Contract",
+      "description": "The art contract this renderer reads its state from.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "art contract", "type": "address" } },
+      "related": ["tmitAddress", "setTMIT"]
+    },
+    "tmitAddress": {
+      "title": "Art Contract Address",
+      "description": "The art contract address, as stored for injection into the rendered HTML.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "address", "type": "address" } },
+      "related": ["tmit"]
+    },
+    "website": {
+      "title": "Website",
+      "description": "The project website URL, surfaced in the token metadata.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "website" } },
+      "related": ["setWebsite"]
+    },
+    "whitepaper": {
+      "title": "Whitepaper",
+      "description": "The Arweave URL of the project whitepaper.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "whitepaper" } },
+      "related": ["setWhitepaper"]
+    },
+    "engineScript": {
+      "title": "Engine Script",
+      "description": "The name of the engine.js asset stored on scripty storage.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "name" } },
+      "related": ["setEngineScript", "rendererScript"]
+    },
+    "rendererScript": {
+      "title": "Renderer Script",
+      "description": "The name of the renderer.js asset stored on scripty storage.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "name" } },
+      "related": ["setRendererScript", "engineScript"]
+    },
+    "introImageScript": {
+      "title": "Intro Image Script",
+      "description": "The name of the intro image asset stored on scripty storage.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "name" } },
+      "related": ["setIntroImageScript"]
+    },
+    "setTMIT": {
+      "title": "Set Art Contract",
+      "description": "Point the renderer at the art contract it reads state from. Only the owner may call this.",
+      "group": "admin",
+      "intent": "Set art contract to {_0}",
+      "params": {
+        "_0": { "label": "art contract", "type": "address" }
+      },
+      "related": ["tmit", "owner"]
+    },
+    "setEngineScript": {
+      "title": "Set Engine Script",
+      "description": "Set the name of the engine.js asset on scripty storage. Only the owner may call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "name" }
+      },
+      "related": ["engineScript"]
+    },
+    "setRendererScript": {
+      "title": "Set Renderer Script",
+      "description": "Set the name of the renderer.js asset on scripty storage. Only the owner may call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "name" }
+      },
+      "related": ["rendererScript"]
+    },
+    "setIntroImageScript": {
+      "title": "Set Intro Image Script",
+      "description": "Set the name of the intro image asset on scripty storage. Only the owner may call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "name" }
+      },
+      "related": ["introImageScript"]
+    },
+    "setWhitepaper": {
+      "title": "Set Whitepaper",
+      "description": "Set the whitepaper URL surfaced in the metadata. Only the owner may call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "whitepaper" }
+      },
+      "related": ["whitepaper"]
+    },
+    "setWebsite": {
+      "title": "Set Website",
+      "description": "Set the project website URL surfaced in the metadata. Only the owner may call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "website" }
+      },
+      "related": ["website"]
+    },
+    "owner": {
+      "title": "Owner",
+      "description": "The renderer owner, who manages its scripts and configuration.",
+      "stateMutability": "view",
+      "group": "admin",
+      "returns": { "_0": { "label": "owner", "type": "address" } },
+      "related": ["transferOwnership"]
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer renderer ownership to a new address. Only the current owner may call this.",
+      "group": "admin",
+      "intent": "Transfer ownership to {_0}",
+      "warning": "The new owner gains full control of the renderer's scripts and configuration.",
+      "params": {
+        "_0": { "label": "new owner", "type": "address" }
+      },
+      "related": ["owner", "renounceOwnership"]
+    },
+    "renounceOwnership": {
+      "title": "Renounce Ownership",
+      "description": "Permanently give up renderer ownership, freezing its scripts and configuration.",
+      "group": "admin",
+      "warning": "This is irreversible. No one will be able to change the renderer's scripts or configuration afterward.",
+      "related": ["owner", "transferOwnership"]
+    }
+  },
+  "events": {
+    "TMITSet": {
+      "title": "Art Contract Set",
+      "description": "Emitted when the art contract this renderer reads is changed.",
+      "params": {
+        "tmit": { "label": "art contract", "type": "address" }
+      }
+    }
+  }
+}

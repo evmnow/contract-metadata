@@ -1,0 +1,310 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0xd6d8555e131c0c431601af62141a61a9b1aa6b13",
+  "includes": ["interface:erc721", "interface:erc721-metadata"],
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Silence, the market is talking",
+  "symbol": "TMIT",
+  "description": "A 1-of-1 on-chain generative oracle that turns live Ethereum block activity into an ever-changing stream of language.",
+  "about": "## The piece\n\n\"Silence, the market is talking\" is a single-edition (1-of-1) generative work by FelixFelixFelix. It listens to live Ethereum block activity and exhales it as language — a never-repeating stream of spoken and typed sentences whose rhythm, breadth and mood are driven by on-chain volume and flow. Everything renders on-chain, in the browser.\n\n## Two append-only logs\n\nThe contract keeps two block-keyed logs. Each write is stored under the current block number, and `stateAt(block)` returns the value in force at any block (the value stored at the greatest block ≤ the query), so the inputs and mood can be re-derived exactly as they stood at that moment. A historical render still uses the renderer and its current provider, script and link configuration.\n\n- **inputs** — the ERC-20 contracts the work watches, stored as one concatenated string. Written only by *the hosioi*.\n- **mood** — the oracle's tone knobs, stored as one concatenated string. Written only by *the prophet*.\n\n## Roles\n\n- **The hosioi** (\"the holy ones\") are addresses the owner appoints via `setHosioi`; they alone set the watched inputs and the RPC provider defaults the live piece reads chain over.\n- **The prophet** is whoever currently holds the unique token; the holder alone sets the mood. Transferring the token passes the role on.\n\nAt genesis the watched inputs were the ApeCoin (APE), Maker (MKR), The Graph (GRT) and Ethereum Name Service (ENS) token contracts, but this set is hosioi-mutable and may change over time.\n\n## Renderer\n\nMetadata and HTML are produced by a separate renderer contract, `TheMarketIsTalkingRenderer` (`0x0bdc00fe1d7924dd5893b092b7ed0e3abccecef5`). `tokenURI` and `tokenHTML` delegate to it, and the owner can repoint the token at a new renderer via `setRenderer`.",
+  "category": "nft",
+  "tags": ["art", "generative", "onchain", "1-of-1", "oracle", "interactive", "market-data", "scripty"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0xd6d8555e131c0c431601af62141a61a9b1aa6b13" },
+    { "label": "Website", "url": "https://felixfelixfelix.com" },
+    { "label": "Whitepaper", "url": "https://www.arweave.net/nC4nwFwC4Y2bMi9a31K2Lgm9bS7yES69bHmnRQEb2bs" },
+    { "label": "Renderer (Etherscan)", "url": "https://etherscan.io/address/0x0bdc00fe1d7924dd5893b092b7ed0e3abccecef5" }
+  ],
+  "risks": [
+    "The renderer is owner-swappable via setRenderer, so the displayed artwork and metadata can be changed at any time.",
+    "Centralized roles: the owner controls the hosioi set and the renderer, and the token holder (prophet) controls the mood.",
+    "The renderer interpolates hosioi-controlled inputs and providers, prophet-controlled mood, and renderer-owner-controlled configuration into inline JavaScript without escaping. A malicious or compromised role can inject arbitrary code into tokenHTML and animation_url; consumers should sandbox the HTML.",
+    "The live piece depends on external RPC endpoints and the scripty.sol contracts to assemble and render, and can break if those change."
+  ],
+  "groups": {
+    "oracle": { "label": "Oracle State", "order": 1 },
+    "info": { "label": "Information", "order": 2 },
+    "admin": { "label": "Roles & Admin", "order": 3 }
+  },
+  "actions": {
+    "storeInputs": {
+      "title": "Store Inputs",
+      "description": "Record the ERC-20 contracts the oracle watches, logged at the current block. Only the hosioi may call this.",
+      "group": "oracle",
+      "intent": "Store the oracle input contracts",
+      "params": {
+        "_0": { "label": "inputs", "description": "JS array literal of the ERC-20 addresses the piece watches." }
+      },
+      "related": ["latestInputs", "inputsAt", "isHosioi"]
+    },
+    "storeMood": {
+      "title": "Store Mood",
+      "description": "Record the tone knobs that color the oracle's voice, logged at the current block. Only the prophet may call this.",
+      "group": "oracle",
+      "intent": "Store the oracle mood",
+      "params": {
+        "_0": { "label": "mood", "description": "Pipe-delimited mood / knob values driving the oracle's tone." }
+      },
+      "related": ["latestMood", "moodAt", "prophet"]
+    },
+    "storeHttpProviders": {
+      "title": "Store HTTP Providers",
+      "description": "Set the default HTTP RPC endpoints the live piece reads chain over. Only the hosioi may call this.",
+      "group": "oracle",
+      "params": {
+        "_0": { "label": "providers", "description": "JS array literal of HTTP RPC endpoint URLs." }
+      },
+      "related": ["httpProvidersJs", "storeWssProviders"]
+    },
+    "storeWssProviders": {
+      "title": "Store WSS Providers",
+      "description": "Set the default WebSocket RPC endpoints the live piece reads chain over. Only the hosioi may call this.",
+      "group": "oracle",
+      "params": {
+        "_0": { "label": "providers", "description": "JS array literal of WebSocket (wss) RPC endpoint URLs." }
+      },
+      "related": ["wssProvidersJs", "storeHttpProviders"]
+    },
+    "stateAt": {
+      "title": "State At Block",
+      "description": "The inputs and mood in force at a given block, for reconstructing the piece as it stood at that moment.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "params": {
+        "_0": { "label": "block", "type": "blocknumber" }
+      },
+      "returns": {
+        "inputBlock": { "label": "input block", "type": "blocknumber" },
+        "inputs": { "label": "inputs" },
+        "moodBlock": { "label": "mood block", "type": "blocknumber" },
+        "mood": { "label": "mood" }
+      },
+      "related": ["latestInputs", "latestMood"]
+    },
+    "latestInputs": {
+      "title": "Latest Inputs",
+      "description": "The most recently stored input contracts and the block at which they were set.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "returns": {
+        "blockNumber": { "label": "block", "type": "blocknumber" },
+        "value": { "label": "inputs" }
+      },
+      "related": ["storeInputs", "inputsAt", "inputUpdateCount"]
+    },
+    "latestMood": {
+      "title": "Latest Mood",
+      "description": "The most recently stored mood values and the block at which they were set.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "returns": {
+        "blockNumber": { "label": "block", "type": "blocknumber" },
+        "value": { "label": "mood" }
+      },
+      "related": ["storeMood", "moodAt", "moodUpdateCount"]
+    },
+    "inputsAt": {
+      "title": "Inputs At Block",
+      "description": "The input contracts stored exactly at a given block, or empty if none were stored there.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "params": {
+        "_0": { "label": "block", "type": "blocknumber" }
+      },
+      "returns": { "_0": { "label": "inputs" } },
+      "related": ["latestInputs", "stateAt"]
+    },
+    "moodAt": {
+      "title": "Mood At Block",
+      "description": "The mood values stored exactly at a given block, or empty if none were stored there.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "params": {
+        "_0": { "label": "block", "type": "blocknumber" }
+      },
+      "returns": { "_0": { "label": "mood" } },
+      "related": ["latestMood", "stateAt"]
+    },
+    "inputUpdateCount": {
+      "title": "Input Update Count",
+      "description": "How many distinct blocks contain a stored input snapshot.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "returns": { "_0": { "label": "count" } },
+      "related": ["latestInputs"]
+    },
+    "moodUpdateCount": {
+      "title": "Mood Update Count",
+      "description": "How many distinct blocks contain a stored mood snapshot.",
+      "stateMutability": "view",
+      "group": "oracle",
+      "returns": { "_0": { "label": "count" } },
+      "related": ["latestMood"]
+    },
+    "tokenHTML": {
+      "title": "View Piece (HTML)",
+      "description": "Returns the full self-contained HTML document that renders the piece. Open in a browser to experience it.",
+      "stateMutability": "view",
+      "group": "info",
+      "featured": true,
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      },
+      "related": ["tokenURI", "renderer"]
+    },
+    "prophet": {
+      "title": "Prophet",
+      "description": "The current holder of the unique token — the prophet, who alone can set the mood.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "prophet", "type": "address" } },
+      "related": ["storeMood", "ownerOf"]
+    },
+    "isHosioi": {
+      "title": "Is Hosioi",
+      "description": "Check whether an address is one of the hosioi, permitted to set inputs and RPC endpoints.",
+      "stateMutability": "view",
+      "group": "info",
+      "params": {
+        "_0": { "label": "address", "type": "address" }
+      },
+      "returns": { "_0": { "label": "is hosioi", "type": "boolean" } },
+      "related": ["setHosioi", "storeInputs"]
+    },
+    "renderer": {
+      "title": "Renderer",
+      "description": "The renderer contract that builds the token metadata and HTML from the oracle's on-chain state.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "renderer", "type": "address" } },
+      "related": ["setRenderer", "tokenHTML", "tokenURI"]
+    },
+    "httpProvidersJs": {
+      "title": "HTTP Providers",
+      "description": "The default HTTP RPC endpoints the live piece reads chain over.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "providers" } },
+      "related": ["storeHttpProviders", "wssProvidersJs"]
+    },
+    "wssProvidersJs": {
+      "title": "WSS Providers",
+      "description": "The default WebSocket RPC endpoints the live piece reads chain over.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "providers" } },
+      "related": ["storeWssProviders", "httpProvidersJs"]
+    },
+    "TOKEN_ID": {
+      "title": "Token ID",
+      "description": "The single, unique token ID (always 1).",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "label": "token ID", "type": "token-id" } }
+    },
+    "setHosioi": {
+      "title": "Set Hosioi",
+      "description": "Add or remove one of the hosioi. Only the contract owner may call this.",
+      "group": "admin",
+      "intent": "Set hosioi {_0} to {_1}",
+      "params": {
+        "_0": { "label": "address", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      },
+      "related": ["isHosioi", "owner"]
+    },
+    "setRenderer": {
+      "title": "Set Renderer",
+      "description": "Point the token at a new renderer contract. Only the contract owner may call this.",
+      "group": "admin",
+      "intent": "Set renderer to {_0}",
+      "warning": "Changing the renderer changes the artwork and metadata the token displays. Verify the new renderer carefully.",
+      "params": {
+        "_0": { "label": "renderer", "type": "address" }
+      },
+      "related": ["renderer", "owner"]
+    },
+    "owner": {
+      "title": "Owner",
+      "description": "The contract owner, who manages the hosioi set and the renderer.",
+      "stateMutability": "view",
+      "group": "admin",
+      "returns": { "_0": { "label": "owner", "type": "address" } },
+      "related": ["transferOwnership", "setHosioi", "setRenderer"]
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer contract ownership to a new address. Only the current owner may call this.",
+      "group": "admin",
+      "intent": "Transfer ownership to {_0}",
+      "warning": "The new owner gains full control of the hosioi set and the renderer. This is not the artwork's owner (the prophet).",
+      "params": {
+        "_0": { "label": "new owner", "type": "address" }
+      },
+      "related": ["owner", "renounceOwnership"]
+    },
+    "renounceOwnership": {
+      "title": "Renounce Ownership",
+      "description": "Permanently give up contract ownership, freezing the hosioi set and the renderer.",
+      "group": "admin",
+      "warning": "This is irreversible. No one will be able to change the hosioi or the renderer afterward.",
+      "related": ["owner", "transferOwnership"]
+    }
+  },
+  "events": {
+    "InputsStored": {
+      "title": "Inputs Stored",
+      "description": "Emitted when a hosioi records new input contracts at a block.",
+      "params": {
+        "blockNumber": { "label": "block", "type": "blocknumber" },
+        "by": { "label": "by", "type": "address" },
+        "value": { "label": "inputs" }
+      }
+    },
+    "MoodStored": {
+      "title": "Mood Stored",
+      "description": "Emitted when the prophet records a new mood at a block.",
+      "params": {
+        "blockNumber": { "label": "block", "type": "blocknumber" },
+        "by": { "label": "by", "type": "address" },
+        "value": { "label": "mood" }
+      }
+    },
+    "HttpProvidersStored": {
+      "title": "HTTP Providers Stored",
+      "description": "Emitted when a hosioi sets the default HTTP RPC endpoints.",
+      "params": {
+        "by": { "label": "by", "type": "address" },
+        "value": { "label": "providers" }
+      }
+    },
+    "WssProvidersStored": {
+      "title": "WSS Providers Stored",
+      "description": "Emitted when a hosioi sets the default WebSocket RPC endpoints.",
+      "params": {
+        "by": { "label": "by", "type": "address" },
+        "value": { "label": "providers" }
+      }
+    },
+    "HosioiSet": {
+      "title": "Hosioi Set",
+      "description": "Emitted when an address is added to or removed from the hosioi.",
+      "params": {
+        "who": { "label": "address", "type": "address" },
+        "allowed": { "label": "allowed", "type": "boolean" }
+      }
+    },
+    "RendererSet": {
+      "title": "Renderer Set",
+      "description": "Emitted when the renderer contract is changed.",
+      "params": {
+        "renderer": { "label": "renderer", "type": "address" }
+      }
+    }
+  }
+}

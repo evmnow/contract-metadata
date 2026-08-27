@@ -157,6 +157,7 @@
       "group": "inspect",
       "stateMutability": "view",
       "featured": true,
+      "warning": "Give this preview several times the target render gas because it renders sources again after measuring metadata.",
       "params": {
         "artifact": {
           "label": "Artifact",
@@ -174,12 +175,12 @@
         },
         "_1": {
           "label": "Gas used",
-          "description": "Lower-bound assembly gas, excluding the collection's tokenURI wrapper; many wallets cap eth_call near 50M."
+          "description": "Lower-bound assembly gas excluding the collection wrapper; meaningful only with several times the target render gas."
         },
         "_2": {
           "label": "Unresolved",
           "type": "boolean",
-          "description": "True if either source failed to resolve."
+          "description": "True if either source failed; a gas-starved second render pass can also make this true."
         }
       },
       "related": [

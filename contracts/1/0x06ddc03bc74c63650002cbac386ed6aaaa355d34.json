@@ -269,10 +269,11 @@
     },
     "decodeArtifactFromToken": {
       "title": "Decode a Token's Artifact",
-      "description": "Read a token's artifact out of its SSTORE2 chunks and decode it into two sources.",
-      "intent": "Decode the artifact stored for a token",
+      "description": "Internal helper that reassembles a token's SSTORE2 artifact and decodes it into two sources.",
       "group": "inspect",
       "stateMutability": "view",
+      "hidden": true,
+      "warning": "Callable only by this contract. Every external call reverts with NotSelf.",
       "params": {
         "token": {
           "label": "Token data",

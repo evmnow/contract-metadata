@@ -124,7 +124,7 @@
     },
     "animationURI": {
       "title": "Artwork",
-      "description": "The artwork as a data URI. Reverts if it cannot be resolved.",
+      "description": "The artwork as a data URI, or an empty string if absent. Reverts if resolution fails.",
       "intent": "Read the artwork for token {_0}",
       "group": "render",
       "stateMutability": "view",
@@ -142,7 +142,7 @@
       "returns": {
         "_0": {
           "label": "Animation",
-          "description": "A data URI holding the artwork's bytes under its pinned media type."
+          "description": "A data URI holding the artwork bytes, or an empty string if no animation is present."
         }
       },
       "related": [

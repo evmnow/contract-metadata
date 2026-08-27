@@ -152,7 +152,7 @@
     },
     "previewURI": {
       "title": "Preview an Artifact",
-      "description": "Render metadata from artifact bytes before minting, reporting the gas the read costs.",
+      "description": "Render metadata from artifact bytes before minting and estimate the gas needed to assemble it.",
       "intent": "Preview an artifact and measure its render cost",
       "group": "inspect",
       "stateMutability": "view",
@@ -174,7 +174,7 @@
         },
         "_1": {
           "label": "Gas used",
-          "description": "Gas the read consumed. Wallets cap eth_call around 50,000,000."
+          "description": "Lower-bound assembly gas, excluding the collection's tokenURI wrapper; many wallets cap eth_call near 50M."
         },
         "_2": {
           "label": "Unresolved",

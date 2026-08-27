@@ -189,7 +189,7 @@
     },
     "resolveArtifact": {
       "title": "Resolve an Artifact",
-      "description": "Return the artwork bytes and media type an artifact points at. Reverts on failure.",
+      "description": "Resolve an artifact's poster and animation into data URIs. Reverts on failure.",
       "intent": "Resolve the artwork an artifact references",
       "group": "inspect",
       "stateMutability": "view",
@@ -201,12 +201,12 @@
       },
       "returns": {
         "_0": {
-          "label": "Content",
-          "description": "The assembled bytes."
+          "label": "Image",
+          "description": "A data URI containing the resolved poster, or an empty string when no poster is present."
         },
         "_1": {
-          "label": "Media type",
-          "description": "The media type the bytes will be served under."
+          "label": "Animation",
+          "description": "A data URI containing the resolved artwork, or an empty string when no animation is present."
         }
       },
       "related": [
@@ -216,7 +216,7 @@
     },
     "resolveSource": {
       "title": "Resolve One Source",
-      "description": "Read a single source — vessel, relic or inline — and return its bytes and media type.",
+      "description": "Read a single source — vessel, relic or inline — and return its bytes and data URI.",
       "intent": "Resolve one source to its bytes",
       "group": "inspect",
       "stateMutability": "view",
@@ -232,8 +232,8 @@
           "description": "The assembled bytes."
         },
         "_1": {
-          "label": "Media type",
-          "description": "The validated media type."
+          "label": "Data URI",
+          "description": "A data URI containing the assembled bytes under the source's validated media type."
         }
       },
       "related": [

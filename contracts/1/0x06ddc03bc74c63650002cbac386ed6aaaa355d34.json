@@ -509,7 +509,7 @@
     },
     "MAX_TEXT_BYTES": {
       "title": "Text Limit",
-      "description": "Most bytes accepted for a token's name or description.",
+      "description": "Bytes emitted from a token's name or description before longer values are truncated.",
       "group": "limits",
       "stateMutability": "view",
       "returns": {
@@ -534,7 +534,7 @@
     },
     "SOURCE_READ_GAS": {
       "title": "Source Read Gas Cap",
-      "description": "Gas allowed for a single entry or payload read.",
+      "description": "Aggregate gas allowed for pinned-entry reads while resolving one source.",
       "group": "limits",
       "stateMutability": "view",
       "returns": {

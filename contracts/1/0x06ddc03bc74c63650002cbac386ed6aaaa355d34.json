@@ -643,7 +643,7 @@
     },
     "NotAContract": {
       "title": "Not a Contract",
-      "description": "A read was attempted against an address holding no code."
+      "description": "The Vessel or Relics deployment address held no contract code during construction."
     },
     "ReadFailed": {
       "title": "Read Failed",

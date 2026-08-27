@@ -1,0 +1,190 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x2a648cb23d3adf1bb171fabc0119ea3eb951841f",
+  "includes": [
+    "interface:erc721",
+    "interface:erc721-metadata"
+  ],
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "XOR by Nahiko",
+  "symbol": "XOR",
+  "description": "A single on-chain NFT running a neural-network XOR gate, visualized as a Yin-Yang.",
+  "image": "ipfs://QmZt7NSVo8WJjtrxknASqjNYMN7FfLnL3WZf7FvijAsJir/black_white.png",
+  "external_link": "https://xn--xor-4e9jb.eth.link",
+  "category": "nft",
+  "tags": [
+    "nft",
+    "onchain",
+    "generative-art",
+    "neural-network"
+  ],
+  "about": "## The first fully on-chain neural network\n\nXOR by Nahiko is a single ERC-721 (token ID 0) that holds a neural network entirely on-chain — a small XOR gate visualized as a Yin-Yang. The image has two spheres, or \"hearts.\" The person who owns the NFT controls the left heart; the artist (Nahiko) controls the right heart.\n\n## How it works\n\nEach sphere is either on or off. `changeLeftSphere` (owner-only) and `changeRightSphere` (artist-only) flip their respective sphere. The network — three sigmoid neurons with fixed weights and biases — takes the two sphere states as inputs and computes an XOR: `isYingYang` returns true only when exactly one of the two spheres is on. Based on that state, `tokenURI` selects one of four PNGs hosted on IPFS; the state and URI selection are on-chain, but the image bytes are not stored in the contract.\n\nThe neural-network architecture references a source article, pinned on IPFS and returned by `sourceArticle`.",
+  "risks": [
+    "The artist (Nahiko) permanently controls the right sphere and can reassign that control to any address via setNahikoAddress",
+    "Only a single token (ID 0) exists and there is no minting function; the collection cannot grow",
+    "The token images are externally hosted PNGs addressed by IPFS URIs, so display depends on the files remaining available through IPFS",
+    "The contract is not upgradeable, so its behavior is fixed permanently"
+  ],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x2A648cb23D3ADf1BB171Fabc0119eA3eb951841f"
+    }
+  ],
+  "theme": {
+    "background": "#000000",
+    "text": "#ffffff"
+  },
+  "groups": {
+    "yinyang": {
+      "label": "Yin-Yang",
+      "order": 1
+    },
+    "info": {
+      "label": "Info",
+      "order": 2
+    }
+  },
+  "actions": {
+    "changeLeftSphere": {
+      "title": "Toggle Left Sphere",
+      "description": "Flip the left sphere of the Yin-Yang on or off.",
+      "group": "yinyang",
+      "order": 1,
+      "intent": "Toggle the left sphere",
+      "warning": "Only the current NFT owner can call this.",
+      "returns": {
+        "_0": {
+          "label": "new left state",
+          "type": "boolean"
+        }
+      },
+      "related": [
+        "changeRightSphere",
+        "getCurrentState",
+        "isYingYang"
+      ]
+    },
+    "changeRightSphere": {
+      "title": "Toggle Right Sphere",
+      "description": "Flip the right sphere of the Yin-Yang on or off.",
+      "group": "yinyang",
+      "order": 2,
+      "intent": "Toggle the right sphere",
+      "warning": "Only the artist (Nahiko) address can call this.",
+      "returns": {
+        "_0": {
+          "label": "new right state",
+          "type": "boolean"
+        }
+      },
+      "related": [
+        "changeLeftSphere",
+        "getCurrentState",
+        "isYingYang"
+      ]
+    },
+    "getCurrentState": {
+      "title": "Current State",
+      "description": "Returns whether the left and right spheres are currently on or off.",
+      "stateMutability": "view",
+      "group": "yinyang",
+      "order": 3,
+      "returns": {
+        "_0": {
+          "label": "left sphere",
+          "type": "boolean"
+        },
+        "_1": {
+          "label": "right sphere",
+          "type": "boolean"
+        }
+      },
+      "related": [
+        "changeLeftSphere",
+        "changeRightSphere",
+        "isYingYang"
+      ]
+    },
+    "isYingYang": {
+      "title": "Is Yin-Yang?",
+      "description": "Runs the on-chain neural network and returns true when the two spheres form a Yin-Yang (XOR).",
+      "stateMutability": "view",
+      "group": "yinyang",
+      "order": 4,
+      "returns": {
+        "_0": {
+          "label": "is Yin-Yang",
+          "type": "boolean"
+        }
+      },
+      "related": [
+        "getCurrentState",
+        "changeLeftSphere",
+        "changeRightSphere"
+      ]
+    },
+    "getNahikoAddress": {
+      "title": "Artist Address",
+      "description": "Returns the artist (Nahiko) address that controls the right sphere.",
+      "stateMutability": "view",
+      "group": "info",
+      "order": 1,
+      "returns": {
+        "_0": {
+          "label": "artist",
+          "type": "address"
+        }
+      },
+      "related": [
+        "setNahikoAddress"
+      ]
+    },
+    "setNahikoAddress": {
+      "title": "Set Artist Address",
+      "description": "Reassign the artist address that controls the right sphere.",
+      "group": "info",
+      "order": 2,
+      "intent": "Set artist address to {newNahiko}",
+      "warning": "Only the current artist can call this; setting the zero address permanently freezes both artist-only actions.",
+      "params": {
+        "newNahiko": {
+          "label": "new artist",
+          "type": "address"
+        }
+      },
+      "related": [
+        "getNahikoAddress"
+      ]
+    },
+    "sourceArticle": {
+      "title": "Source Article",
+      "description": "Returns the IPFS URI of the article behind the neural network's design.",
+      "stateMutability": "view",
+      "group": "info",
+      "order": 3,
+      "returns": {
+        "_0": {
+          "label": "article URI"
+        }
+      }
+    },
+    "contractURI": {
+      "title": "Contract URI",
+      "description": "Returns on-chain collection metadata (ERC-7572), including name, image, and royalty info.",
+      "stateMutability": "view",
+      "group": "info",
+      "order": 4,
+      "returns": {
+        "_0": {
+          "label": "metadata JSON"
+        }
+      }
+    }
+  }
+}

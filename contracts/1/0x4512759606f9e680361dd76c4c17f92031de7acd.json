@@ -1,0 +1,425 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x4512759606f9e680361dd76c4c17f92031de7acd",
+  "includes": [
+    "interface:erc721",
+    "interface:erc721-metadata"
+  ],
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Concrete",
+  "symbol": "CONCRETE",
+  "description": "A 512-piece generative NFT collection whose fallback art is a fingerprint rendered by an onchain neural network.",
+  "about": "## Concrete\n\nConcrete is a 512-piece generative NFT collection (an ERC-721A contract) presented by DIID and Higgs. Each token carries a `uint128` seed input, chosen at mint or derived pseudo-randomly from the block timestamp and token ID when left at zero. Every seed is single-use, so no two tokens share the same input.\n\n## Onchain neural network\n\nThe contract embeds a small GAN-style generator (`NeuralNetwork.sol`) that runs entirely onchain using fixed-point int16 math: a dense layer, batch normalization, ReLU, and a transposed convolution with a tanh activation. From a seed it produces a tiny 8x12, 24-bit BMP \"fingerprint,\" which is wrapped and upscaled into an 800x1200 pixelated SVG. The model weights are stored via Solady SSTORE2 and are loaded by the owner through `setWeights`.\n\n## Hybrid storage and reveal\n\nA token's `tokenURI` returns an inline JSON data URI. Its image resolves in one of three ways: if the token is unrevealed or has no stored artwork, it shows the fully onchain generative fingerprint; if the owner has stored image chunks via `updateToken`, it serves an onchain SVG built from SSTORE2 data; otherwise it falls back to an off-chain PNG hosted on Firebase Storage, addressed by a stored hash. Token holders can call `setUnrevealed` to switch their own token back to the fingerprint view.\n\n## Dutch-auction mint\n\nMinting used a declining Dutch auction starting at 0.25 ETH and dropping 0.0025 ETH every two hours down to a 0.1 ETH floor, with a hard cap of 512 tokens. The collection is now fully minted (512/512), so `mint` is no longer available.",
+  "risks": [
+    "Owner can call updateToken to change any token's stored image, title, and description at any time",
+    "Owner can alter the fingerprint model via setWeights and reschedule the mint via setStartTime",
+    "Revealed tokens using the hash path serve their image from centralized Firebase Storage, an availability risk",
+    "Contract logic is not upgradeable, and renouncing ownership permanently disables all admin and reveal functions"
+  ],
+  "category": "nft",
+  "tags": [
+    "nft",
+    "generative-art",
+    "onchain",
+    "neural-network",
+    "gan",
+    "ai",
+    "svg",
+    "dutch-auction"
+  ],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x4512759606f9E680361DD76C4c17F92031De7AcD"
+    }
+  ],
+  "groups": {
+    "info": {
+      "label": "Collection Info",
+      "order": 1
+    },
+    "art": {
+      "label": "Artwork",
+      "order": 2
+    },
+    "mint": {
+      "label": "Minting",
+      "order": 3
+    },
+    "admin": {
+      "label": "Admin",
+      "order": 4
+    }
+  },
+  "actions": {
+    "totalSupply": {
+      "title": "Total Supply",
+      "description": "The total number of tokens minted in the collection.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": {
+        "_0": {
+          "label": "token count"
+        }
+      }
+    },
+    "getPrice": {
+      "title": "Former Mint Price",
+      "description": "The former Dutch-auction price getter; elapsed-time arithmetic now underflows and the call reverts.",
+      "stateMutability": "view",
+      "group": "info",
+      "deprecated": "The auction is long over; elapsed-time arithmetic underflows, so this call now reverts.",
+      "returns": {
+        "_0": {
+          "label": "price",
+          "type": "eth"
+        }
+      },
+      "related": [
+        "mint",
+        "mintStarted"
+      ]
+    },
+    "mintStarted": {
+      "title": "Mint Started",
+      "description": "Whether the configured mint start time has been reached.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": {
+        "_0": {
+          "label": "started",
+          "type": "boolean"
+        }
+      },
+      "related": [
+        "getPrice",
+        "mint"
+      ]
+    },
+    "tokens": {
+      "title": "Token Details",
+      "description": "Look up a token's seed input, artwork hash, title, description, and reveal state.",
+      "stateMutability": "view",
+      "group": "info",
+      "params": {
+        "_0": {
+          "label": "token ID",
+          "type": "token-id"
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "seed input"
+        },
+        "_1": {
+          "label": "artwork hash"
+        },
+        "_2": {
+          "label": "title"
+        },
+        "_3": {
+          "label": "description"
+        },
+        "_4": {
+          "label": "unrevealed",
+          "type": "boolean"
+        }
+      }
+    },
+    "inputTaken": {
+      "title": "Input Taken",
+      "description": "Check whether a given seed input has already been used by a mint.",
+      "stateMutability": "view",
+      "group": "info",
+      "params": {
+        "_0": {
+          "label": "seed input"
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "taken",
+          "type": "boolean"
+        }
+      }
+    },
+    "owner": {
+      "title": "Owner",
+      "description": "The current owner address with administrative control over the contract.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": {
+        "_0": {
+          "label": "owner",
+          "type": "address"
+        }
+      }
+    },
+    "fingerprintSvg": {
+      "title": "Fingerprint SVG",
+      "description": "Render the onchain neural-network fingerprint for a seed as an SVG document.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": {
+        "_0": {
+          "label": "seed input"
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "svg"
+        }
+      },
+      "related": [
+        "fingerprintUri"
+      ]
+    },
+    "fingerprintUri": {
+      "title": "Fingerprint URI",
+      "description": "Return the onchain fingerprint for a seed as a base64-encoded SVG data URI.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": {
+        "_0": {
+          "label": "seed input"
+        }
+      },
+      "returns": {
+        "_0": {
+          "label": "data URI"
+        }
+      },
+      "related": [
+        "fingerprintSvg"
+      ]
+    },
+    "setUnrevealed": {
+      "title": "Set Unrevealed",
+      "description": "Toggle your token between its generative fingerprint and the revealed artwork.",
+      "group": "art",
+      "intent": "Set token #{_0} unrevealed to {_1}",
+      "warning": "Only the token's owner can call this; it changes which image the token displays.",
+      "params": {
+        "_0": {
+          "label": "token ID",
+          "type": "token-id"
+        },
+        "_1": {
+          "label": "unrevealed",
+          "type": "boolean"
+        }
+      }
+    },
+    "mint": {
+      "title": "Mint",
+      "description": "Mint a token, generating its onchain fingerprint from the seed input you provide.",
+      "group": "mint",
+      "intent": "Mint a Concrete token",
+      "deprecated": "The collection is fully minted (512/512); minting is no longer available.",
+      "warning": "Sends ETH equal to the current price; a zero seed derives a pseudo-random one, and each seed is single-use.",
+      "params": {
+        "_0": {
+          "label": "seed input"
+        }
+      },
+      "value": {
+        "label": "price"
+      },
+      "related": [
+        "getPrice",
+        "mintStarted"
+      ]
+    },
+    "updateToken": {
+      "title": "Update Token",
+      "description": "Set a token's onchain image chunks, title, description, or off-chain artwork hash.",
+      "group": "admin",
+      "warning": "Only the owner can call this; it can change any token's stored image and metadata.",
+      "params": {
+        "_0": {
+          "label": "token ID",
+          "type": "token-id"
+        },
+        "_1": {
+          "label": "image chunks"
+        },
+        "_2": {
+          "label": "title"
+        },
+        "_3": {
+          "label": "description"
+        },
+        "_4": {
+          "label": "artwork hash"
+        }
+      }
+    },
+    "setWeights": {
+      "title": "Set Weights",
+      "description": "Store a slice of the onchain neural-network weights used to render fingerprints.",
+      "group": "admin",
+      "warning": "Only the owner can call this; it alters the model that generates every fingerprint.",
+      "params": {
+        "_0": {
+          "label": "weights"
+        },
+        "_1": {
+          "label": "index"
+        }
+      }
+    },
+    "setStartTime": {
+      "title": "Set Start Time",
+      "description": "Set the Unix timestamp when minting begins and the Dutch auction starts.",
+      "group": "admin",
+      "intent": "Set mint start time to {_0}",
+      "warning": "Only the owner can call this.",
+      "params": {
+        "_0": {
+          "label": "start time",
+          "type": "timestamp"
+        }
+      }
+    },
+    "withdraw": {
+      "title": "Withdraw",
+      "description": "Withdraw the contract's entire ETH balance to the owner.",
+      "group": "admin",
+      "warning": "Only the owner can call this."
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer contract ownership and its admin rights to another address.",
+      "group": "admin",
+      "intent": "Transfer ownership to {_0}",
+      "warning": "Only the owner can call this; the new owner gains full admin control.",
+      "params": {
+        "_0": {
+          "label": "new owner",
+          "type": "address"
+        }
+      },
+      "related": [
+        "renounceOwnership"
+      ]
+    },
+    "renounceOwnership": {
+      "title": "Renounce Ownership",
+      "description": "Permanently give up ownership, leaving the contract without an owner.",
+      "group": "admin",
+      "warning": "This is irreversible and disables all admin functions, including future reveals.",
+      "related": [
+        "transferOwnership"
+      ]
+    }
+  },
+  "events": {
+    "ConsecutiveTransfer": {
+      "title": "Consecutive Transfer",
+      "description": "Emitted for batch mints, covering a consecutive range of token IDs (ERC-2309).",
+      "params": {
+        "_0": {
+          "label": "from token ID",
+          "type": "token-id"
+        },
+        "_1": {
+          "label": "to token ID",
+          "type": "token-id"
+        },
+        "_2": {
+          "label": "from",
+          "type": "address"
+        },
+        "_3": {
+          "label": "to",
+          "type": "address"
+        }
+      }
+    },
+    "OwnershipTransferred": {
+      "title": "Ownership Transferred",
+      "description": "Emitted when contract ownership is transferred to a new address.",
+      "params": {
+        "_0": {
+          "label": "previous owner",
+          "type": "address"
+        },
+        "_1": {
+          "label": "new owner",
+          "type": "address"
+        }
+      }
+    }
+  },
+  "errors": {
+    "OwnableUnauthorizedAccount": {
+      "title": "Unauthorized Account",
+      "description": "The caller is not the owner and cannot perform this admin action.",
+      "params": {
+        "_0": {
+          "label": "account",
+          "type": "address"
+        }
+      }
+    },
+    "OwnableInvalidOwner": {
+      "title": "Invalid Owner",
+      "description": "The provided owner address is not valid, such as the zero address.",
+      "params": {
+        "_0": {
+          "label": "owner",
+          "type": "address"
+        }
+      }
+    },
+    "ApprovalCallerNotOwnerNorApproved": {
+      "title": "Approval Not Authorized",
+      "description": "The caller is not the token owner nor an approved operator."
+    },
+    "ApprovalQueryForNonexistentToken": {
+      "title": "Approval Query for Nonexistent Token",
+      "description": "Cannot query the approval of a token that does not exist."
+    },
+    "BalanceQueryForZeroAddress": {
+      "title": "Balance Query for Zero Address",
+      "description": "Cannot query the token balance of the zero address."
+    },
+    "MintToZeroAddress": {
+      "title": "Mint to Zero Address",
+      "description": "Cannot mint a token to the zero address."
+    },
+    "MintZeroQuantity": {
+      "title": "Mint Zero Quantity",
+      "description": "Cannot mint zero tokens."
+    },
+    "OwnerQueryForNonexistentToken": {
+      "title": "Owner Query for Nonexistent Token",
+      "description": "Cannot query the owner of a token that does not exist."
+    },
+    "TransferCallerNotOwnerNorApproved": {
+      "title": "Transfer Not Authorized",
+      "description": "The caller is not the token owner nor approved to transfer it."
+    },
+    "TransferFromIncorrectOwner": {
+      "title": "Transfer From Incorrect Owner",
+      "description": "The from address is not the current owner of the token."
+    },
+    "TransferToNonERC721ReceiverImplementer": {
+      "title": "Recipient Cannot Receive",
+      "description": "The recipient contract cannot receive ERC-721 tokens."
+    },
+    "TransferToZeroAddress": {
+      "title": "Transfer to Zero Address",
+      "description": "Cannot transfer a token to the zero address."
+    },
+    "URIQueryForNonexistentToken": {
+      "title": "URI Query for Nonexistent Token",
+      "description": "Cannot query the metadata URI of a token that does not exist."
+    }
+  }
+}

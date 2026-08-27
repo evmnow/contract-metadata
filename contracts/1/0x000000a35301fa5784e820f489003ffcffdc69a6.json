@@ -1,0 +1,420 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x000000a35301fa5784e820f489003ffcffdc69a6",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Art Blocks Studio | 56",
+  "symbol": "ABSTUDIO_56",
+  "description": "Art Blocks Engine core: an ERC-721 contract for the on-chain generative art collection Art Blocks Studio | 56.",
+  "about": "## About\n\nThis is an Art Blocks Engine V3 core contract (`GenArt721CoreV3_Engine`, coreVersion `v3.2.4`) for the collection **Art Blocks Studio | 56** (symbol `ABSTUDIO_56`). It is an ERC-721 collection whose artworks are generated from scripts stored on-chain; each token carries a unique hash that seeds its deterministic, generative output.\n\n## Proxy pattern\n\nThis address is an **EIP-1167 minimal proxy (clone)**. It holds this collection's own storage but delegates all logic to a shared implementation contract at `0x00000000559ca3f3f1279c0ec121c302ed010457`, which many Art Blocks Engine cores clone. The verified source shown for this address is that of the implementation.\n\n## Surrounding platform contracts\n\nThis core does not sell tokens itself. Minting, randomness, administration, and royalties run through separate Art Blocks platform contracts that the core points at:\n\n- **MinterFilterV2** (`0xa2ccfe293bc2cdd78d8166a82d1e18cd2148122b`) — routes purchases; the only address allowed to call `mint_Ecf`. The active minter for this collection is a fixed-price minter, `MinterSetPriceV5` (`0x0635e2f2926b306356b5b3f5cb6489107796b085`).\n- **SharedRandomizerV0** (`0x13178a7a8a1a9460dbe39f7eccebd91b31752b91`) — assigns each token's hash seed after mint; the only address allowed to call `setTokenHash_8PT`.\n- **AdminACLV0** (`0xdb35874a04d3135fb4839b8b042c04b9f7686032`) — the super-admin gate; it is also this core's `owner`/`admin` and controls every admin action.\n- **CoreRegistryV1** (`0x2ee7b9bb2e038be7323a119701a191c030a61ec6`), **SplitProviderV0** (`0x000000000ef75c77f6bd0b2ee166501fbbdb40c8`, wraps 0xSplits for royalties), and **UniversalBytecodeStorageReader** (`0x000000000000a791abed33872c44a3d215a3743b`, reads on-chain script storage).\n\n## Royalties\n\nThe contract implements ERC-2981 (`royaltyInfo`), with secondary-sale splits handled through the split provider.",
+  "category": "nft",
+  "tags": ["art", "generative", "onchain", "art-blocks", "engine"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0x000000a35301fa5784e820f489003ffcffdc69a6"
+    },
+    { "label": "Art Blocks", "url": "https://www.artblocks.io" }
+  ],
+  "risks": [
+    "EIP-1167 clone — all logic is delegated to the shared implementation at 0x0000...0457",
+    "The AdminACL super-admin can swap the minter, randomizer, split provider, bytecode reader, and provider payout addresses at any time",
+    "Before a project is locked, its artist or authorized AdminACL callers can rewrite its scripts and name",
+    "Locking does not freeze every setting: the artist can still change its base URI and lower max invocations",
+    "Minting is gated entirely through the external MinterFilter; the core does not sell tokens directly",
+    "Token hash seeds that drive generative output are assigned post-mint by the external randomizer contract"
+  ],
+  "includes": ["interface:erc721", "interface:erc721-metadata"],
+  "groups": {
+    "collection": { "label": "Collection", "order": 1 },
+    "minting": { "label": "Minting", "order": 2 },
+    "artist": { "label": "Artist", "order": 3 },
+    "admin": { "label": "Admin", "order": 4 },
+    "info": { "label": "Contract Info", "order": 5 }
+  },
+  "actions": {
+    "projectDetails": {
+      "order": 0,
+      "title": "Project Details",
+      "description": "Returns a project's name, artist name, description, website, and license.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "project ID" }
+      }
+    },
+    "projectScriptDetails": {
+      "order": 1,
+      "title": "Project Script Details",
+      "description": "Returns a project's script type, version, aspect ratio, and number of stored script chunks.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "project ID" }
+      }
+    },
+    "projectStateData": {
+      "order": 2,
+      "title": "Project State",
+      "description": "Returns invocation counts, active and paused flags, completion time, and locked state.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "project ID" }
+      },
+      "returns": {
+        "invocations": { "label": "invocations" },
+        "maxInvocations": { "label": "max invocations" },
+        "active": { "label": "active", "type": "boolean" },
+        "paused": { "label": "paused", "type": "boolean" },
+        "completedTimestamp": {
+          "label": "completed at",
+          "description": "Zero until completion; otherwise the Unix timestamp when the project completed.",
+          "type": "timestamp"
+        },
+        "locked": { "label": "locked", "type": "boolean" }
+      }
+    },
+    "projectScriptByIndex": {
+      "order": 3,
+      "title": "Project Script Chunk",
+      "description": "Returns one stored chunk of a project's on-chain generative script by index.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "chunk index" }
+      }
+    },
+    "tokenIdToHash": {
+      "order": 4,
+      "title": "Token Hash",
+      "description": "Returns the unique hash that seeds a token's deterministic generative output.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      }
+    },
+    "tokenIdToProjectId": {
+      "order": 5,
+      "title": "Token's Project",
+      "description": "Returns the ID of the project a given token belongs to.",
+      "stateMutability": "pure",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      }
+    },
+    "royaltyInfo": {
+      "order": 6,
+      "title": "Royalty Info",
+      "description": "ERC-2981: returns the royalty recipient and amount owed for a token at a given sale price.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" },
+        "_1": { "label": "sale price" }
+      },
+      "returns": {
+        "receiver": { "label": "recipient", "type": "address" },
+        "royaltyAmount": { "label": "royalty" }
+      }
+    },
+    "mint_Ecf": {
+      "order": 0,
+      "title": "Mint",
+      "description": "Mints the next token of a project to a recipient. Callable only by the configured minter contract.",
+      "group": "minting",
+      "warning": "Only the core's minter contract (the MinterFilter) can call this; collectors mint through the active minter, not here.",
+      "params": {
+        "_0": { "label": "recipient", "type": "address" },
+        "_1": { "label": "project ID" },
+        "_2": { "label": "purchaser", "type": "address" }
+      },
+      "returns": {
+        "_0": { "label": "token ID", "type": "token-id" }
+      },
+      "related": ["minterContract"]
+    },
+    "minterContract": {
+      "order": 1,
+      "title": "Minter Contract",
+      "description": "The address (an Art Blocks MinterFilter) authorized to mint tokens for this core.",
+      "stateMutability": "view",
+      "group": "minting",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "isMintWhitelisted": {
+      "order": 2,
+      "title": "Is Minter Allowed",
+      "description": "Check whether an address is authorized as this core's minter.",
+      "stateMutability": "view",
+      "group": "minting",
+      "params": {
+        "_0": { "label": "address", "type": "address" }
+      },
+      "returns": { "_0": { "type": "boolean" } }
+    },
+    "addProjectScript": {
+      "order": 0,
+      "title": "Add Script Chunk",
+      "description": "Appends a chunk to a project's on-chain script. Artist or admin, only while the project is unlocked.",
+      "group": "artist",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "script chunk" }
+      }
+    },
+    "updateProjectScript": {
+      "order": 1,
+      "title": "Update Script Chunk",
+      "description": "Replaces one chunk of a project's script. Artist or admin, only while the project is unlocked.",
+      "group": "artist",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "chunk index" },
+        "_2": { "label": "script chunk" }
+      }
+    },
+    "updateProjectMaxInvocations": {
+      "order": 2,
+      "title": "Set Max Invocations",
+      "description": "Lowers a project's maximum number of mintable tokens. Callable by the project's artist.",
+      "group": "artist",
+      "warning": "Max invocations can only be decreased and never set below the number already minted.",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "max invocations" }
+      }
+    },
+    "toggleProjectIsPaused": {
+      "order": 3,
+      "title": "Toggle Paused",
+      "description": "Pauses or unpauses purchasing for a project. Callable by the project's artist.",
+      "group": "artist",
+      "params": {
+        "_0": { "label": "project ID" }
+      }
+    },
+    "updateProjectBaseURI": {
+      "order": 4,
+      "title": "Set Project Base URI",
+      "description": "Sets the base URI used to build token metadata URLs for a project. Callable by the artist.",
+      "group": "artist",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "base URI" }
+      }
+    },
+    "updateProjectSecondaryMarketRoyaltyPercentage": {
+      "order": 5,
+      "title": "Set Secondary Royalty",
+      "description": "Sets a project's artist secondary-market royalty percentage. Callable by the project's artist.",
+      "group": "artist",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "royalty %", "type": "percentage" }
+      }
+    },
+    "proposeArtistPaymentAddressesAndSplits": {
+      "order": 6,
+      "title": "Update Artist and Payment Splits",
+      "description": "Updates the controlling artist address and payment splits; this clone applies every change immediately.",
+      "group": "artist",
+      "warning": "Changing the artist address immediately transfers every artist-only permission to the new address and removes the caller's artist access.",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "artist and controller", "type": "address" },
+        "_2": { "label": "additional payee (primary)", "type": "address" },
+        "_3": { "label": "additional payee % (primary)", "type": "percentage" },
+        "_4": { "label": "additional payee (secondary)", "type": "address" },
+        "_5": { "label": "additional payee % (secondary)", "type": "percentage" }
+      }
+    },
+    "addProject": {
+      "order": 0,
+      "title": "Add Project",
+      "description": "Creates a new project with a name and artist address. Callable only through the AdminACL.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "project name" },
+        "_1": { "label": "artist address", "type": "address" }
+      }
+    },
+    "toggleProjectIsActive": {
+      "order": 7,
+      "title": "Toggle Active",
+      "description": "Activates or deactivates a project. The project artist or an authorized AdminACL caller can use this clone.",
+      "group": "artist",
+      "params": {
+        "_0": { "label": "project ID" }
+      }
+    },
+    "adminAcceptArtistAddressesAndSplits": {
+      "order": 2,
+      "title": "Accept Payment Splits",
+      "description": "Unavailable on this clone because artist payment changes are automatically accepted.",
+      "group": "admin",
+      "hidden": true,
+      "warning": "This clone never retains a pending proposal for the AdminACL to accept, so this call reverts.",
+      "params": {
+        "_0": { "label": "project ID" },
+        "_1": { "label": "artist address", "type": "address" },
+        "_2": { "label": "additional payee (primary)", "type": "address" },
+        "_3": { "label": "additional payee % (primary)", "type": "percentage" },
+        "_4": { "label": "additional payee (secondary)", "type": "address" },
+        "_5": { "label": "additional payee % (secondary)", "type": "percentage" }
+      }
+    },
+    "updateMinterContract": {
+      "order": 3,
+      "title": "Set Minter Contract",
+      "description": "Changes the minter (MinterFilter) authorized to mint for this core. Callable only through the AdminACL.",
+      "group": "admin",
+      "warning": "The new minter gains full control over which tokens are minted and to whom.",
+      "params": {
+        "_0": { "label": "minter contract", "type": "address" }
+      },
+      "related": ["minterContract"]
+    },
+    "updateRandomizerAddress": {
+      "order": 4,
+      "title": "Set Randomizer",
+      "description": "Changes the randomizer that assigns token hash seeds. Callable only through the AdminACL.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "randomizer contract", "type": "address" }
+      },
+      "related": ["randomizerContract"]
+    },
+    "forbidNewProjects": {
+      "order": 5,
+      "title": "Forbid New Projects",
+      "description": "Permanently blocks creation of any further projects on this core. Callable through the AdminACL.",
+      "group": "admin",
+      "warning": "This is irreversible — no new projects can ever be added afterward."
+    },
+    "setTokenHash_8PT": {
+      "order": 6,
+      "title": "Set Token Hash",
+      "description": "Assigns a token's generative hash seed. Callable only by the configured randomizer contract.",
+      "group": "admin",
+      "warning": "Only the randomizer contract can call this; a token's hash can be set only once.",
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" },
+        "_1": { "label": "hash seed" }
+      },
+      "related": ["randomizerContract", "tokenIdToHash"]
+    },
+    "coreType": {
+      "order": 0,
+      "title": "Core Type",
+      "description": "The Art Blocks core contract type identifier for this contract.",
+      "stateMutability": "pure",
+      "group": "info"
+    },
+    "coreVersion": {
+      "order": 1,
+      "title": "Core Version",
+      "description": "The Art Blocks core contract version string.",
+      "stateMutability": "pure",
+      "group": "info"
+    },
+    "randomizerContract": {
+      "order": 2,
+      "title": "Randomizer",
+      "description": "The randomizer contract that assigns token hash seeds for this core.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "adminACLContract": {
+      "order": 3,
+      "title": "Admin ACL",
+      "description": "The AdminACL contract whose super-admin controls this core's admin actions.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "splitProvider": {
+      "order": 4,
+      "title": "Split Provider",
+      "description": "The provider that creates royalty splitter contracts for secondary sales.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "nextProjectId": {
+      "order": 5,
+      "title": "Next Project ID",
+      "description": "The ID that will be assigned to the next project added to this core.",
+      "stateMutability": "view",
+      "group": "info"
+    }
+  },
+  "events": {
+    "Mint": {
+      "title": "Mint",
+      "description": "Emitted when a token is minted to an address.",
+      "params": {
+        "_to": { "label": "recipient", "type": "address" },
+        "_tokenId": { "label": "token ID", "type": "token-id" }
+      }
+    },
+    "ProjectUpdated": {
+      "title": "Project Updated",
+      "description": "Emitted when a project's data or state changes, tagged with the type of update.",
+      "params": {
+        "_projectId": { "label": "project ID" },
+        "_update": { "label": "update type" }
+      }
+    },
+    "PlatformUpdated": {
+      "title": "Platform Updated",
+      "description": "Emitted when a core-level configuration value changes, tagged with the field.",
+      "params": {
+        "_field": { "label": "field" }
+      }
+    },
+    "MinterUpdated": {
+      "title": "Minter Updated",
+      "description": "Emitted when the core's minter contract is changed.",
+      "params": {
+        "_currentMinter": { "label": "minter", "type": "address" }
+      }
+    },
+    "ProposedArtistAddressesAndSplits": {
+      "title": "Proposed Payment Splits",
+      "description": "Emitted when an artist proposes new payout addresses and splits for a project.",
+      "params": {
+        "_projectId": { "label": "project ID" },
+        "_artistAddress": { "label": "artist", "type": "address" },
+        "_additionalPayeePrimarySales": { "label": "primary payee", "type": "address" },
+        "_additionalPayeePrimarySalesPercentage": { "label": "primary payee %", "type": "percentage" },
+        "_additionalPayeeSecondarySales": { "label": "secondary payee", "type": "address" },
+        "_additionalPayeeSecondarySalesPercentage": { "label": "secondary payee %", "type": "percentage" }
+      }
+    },
+    "AcceptedArtistAddressesAndSplits": {
+      "title": "Accepted Payment Splits",
+      "description": "Emitted when an artist's proposed payout addresses and splits are accepted.",
+      "params": {
+        "_projectId": { "label": "project ID" }
+      }
+    }
+  },
+  "errors": {
+    "GenArt721Error": {
+      "title": "Core Error",
+      "description": "Enum-coded revert covering ~38 reasons: owner/artist/ACL/minter/randomizer gating, invocation limits, and validation.",
+      "params": {
+        "_0": { "label": "error code" }
+      }
+    }
+  }
+}

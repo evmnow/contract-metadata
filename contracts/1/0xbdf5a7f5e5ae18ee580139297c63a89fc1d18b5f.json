@@ -1,0 +1,235 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0xbdf5a7f5e5ae18ee580139297c63a89fc1d18b5f",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Artificial",
+  "symbol": "A",
+  "description": "A generative artwork with a compressed neural network and inference engine onchain, plus a built-in marketplace.",
+  "about": "## About the artpiece\n\nArtificial (2026) is a generative work by Han in which a small neural network is stored, compressed, and executed entirely within an Ethereum smart contract. Each piece holds an immutable seed; calling `artificial()` runs the onchain inference engine over the trained weights to produce a 32x32 grayscale image, and `artificialHTML()` returns a self-contained HTML document that renders it on a canvas. The network, its quantized weights, and the renderer all live onchain, so the work needs no external infrastructure.\n\n## One of 256\n\nArtificial is one of 256 sovereign contracts minted by the `ArtificialAfterAll` factory (0xa7a3022249415e25752c4cf8696c2418defdf2db). Each edition is its own independent contract with its own owner, seed, and marketplace. The factory that created this piece is recorded permanently in the immutable `parent` field.\n\n## Built-in marketplace\n\nThe contract includes a native fixed-price marketplace. The owner can list the piece for sale at a set price, open to anyone, and any buyer can purchase it by sending the exact asking amount. Sale proceeds are credited to pending withdrawals and must be claimed manually via `withdraw()`. There are no royalties and no bidding.",
+  "risks": [
+    "No upgradeability — contract logic is permanent and cannot be patched",
+    "ETH withdrawal pattern — sale proceeds must be manually withdrawn via withdraw()",
+    "No royalties — sales pay the seller in full and earn the artist nothing on resale",
+    "transferOwnership moves the piece off-market for free with no payment involved"
+  ],
+  "category": "nft",
+  "tags": ["art", "generative", "onchain", "neural-network", "ai", "edition"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0xbdf5a7f5e5ae18ee580139297c63a89fc1d18b5f"
+    },
+    {
+      "label": "Factory (Artificial After All)",
+      "url": "https://etherscan.io/address/0xa7a3022249415e25752c4cf8696c2418defdf2db"
+    },
+    { "label": "Artist", "url": "https://han.io" },
+    { "label": "X (Twitter)", "url": "https://x.com/hanrgb" }
+  ],
+  "groups": {
+    "artwork": { "label": "Artwork", "order": 1 },
+    "marketplace": { "label": "Marketplace", "order": 2 },
+    "admin": { "label": "Admin", "order": 3 }
+  },
+  "actions": {
+    "name": {
+      "order": 0,
+      "title": "Name",
+      "description": "The name of the artwork (Artificial).",
+      "stateMutability": "pure",
+      "group": "artwork"
+    },
+    "symbol": {
+      "order": 1,
+      "title": "Symbol",
+      "description": "The token symbol (A).",
+      "stateMutability": "pure",
+      "group": "artwork"
+    },
+    "artificialHTML": {
+      "order": 2,
+      "title": "View Artpiece",
+      "description": "Returns a self-contained HTML document that renders the generated image. Open in a browser to view the piece.",
+      "stateMutability": "view",
+      "group": "artwork",
+      "featured": true
+    },
+    "artificial": {
+      "order": 3,
+      "title": "Generate Pixels",
+      "description": "Runs the onchain neural network over this piece's seed and returns the raw 32x32 grayscale pixel bytes.",
+      "stateMutability": "view",
+      "group": "artwork",
+      "returns": { "_0": { "label": "pixels" } }
+    },
+    "seed": {
+      "order": 4,
+      "title": "Seed",
+      "description": "The immutable seed that determines the generated image for this piece.",
+      "stateMutability": "view",
+      "group": "artwork",
+      "returns": { "_0": { "label": "seed" } }
+    },
+    "owner": {
+      "order": 0,
+      "title": "Owner",
+      "description": "The current owner of the artwork.",
+      "stateMutability": "view",
+      "group": "marketplace",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "currentOffer": {
+      "title": "Current Offer",
+      "description": "Check whether the artwork is currently listed for sale and at what price.",
+      "stateMutability": "view",
+      "group": "marketplace",
+      "returns": {
+        "active": { "label": "for sale", "type": "boolean" },
+        "value": { "label": "price", "type": "eth" }
+      },
+      "related": ["buyNow", "listForSale"]
+    },
+    "buyNow": {
+      "title": "Buy Now",
+      "description": "Purchase the artwork at its listed price by sending the exact asking amount in ETH while it is for sale.",
+      "intent": "Buy Artificial for the listed price",
+      "group": "marketplace",
+      "featured": true,
+      "warning": "Sends ETH. The exact listed price must be sent — no more, no less.",
+      "related": ["currentOffer", "listForSale"]
+    },
+    "listForSale": {
+      "title": "List for Sale",
+      "description": "List the artwork for sale at a fixed price, open to anyone. Only the owner can call this.",
+      "intent": "List Artificial for sale at {salePriceInWei}",
+      "group": "marketplace",
+      "warning": "Owner only. A zero-price listing lets anyone take the artwork for free; use at least 1 wei.",
+      "params": {
+        "salePriceInWei": {
+          "label": "price",
+          "type": "eth",
+          "validation": {
+            "min": "1",
+            "message": "Price must be at least 1 wei; zero would let anyone take the artwork for free."
+          }
+        }
+      },
+      "related": ["cancelFromSale", "buyNow"]
+    },
+    "cancelFromSale": {
+      "title": "Cancel Sale",
+      "description": "Remove the artwork from sale. Only the owner can call this.",
+      "group": "marketplace",
+      "related": ["listForSale", "currentOffer"]
+    },
+    "withdraw": {
+      "title": "Withdraw ETH",
+      "description": "Withdraw ETH owed to you from a completed sale.",
+      "group": "marketplace",
+      "related": ["pendingWithdrawals"]
+    },
+    "pendingWithdrawals": {
+      "title": "Pending Withdrawals",
+      "description": "Check the amount of ETH an address can withdraw from a completed sale.",
+      "stateMutability": "view",
+      "group": "marketplace",
+      "params": {
+        "_0": { "label": "address", "type": "address" }
+      },
+      "returns": {
+        "_0": { "type": "eth" }
+      },
+      "related": ["withdraw"]
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer the artwork off-market to another address, canceling any active listing.",
+      "intent": "Transfer Artificial to {newOwner}",
+      "group": "admin",
+      "warning": "This is a direct transfer with no payment involved. Make sure you intend to send the artwork for free.",
+      "params": {
+        "newOwner": { "label": "new owner", "type": "address" }
+      }
+    },
+    "parent": {
+      "title": "Parent",
+      "description": "The factory contract (Artificial After All) that minted this piece.",
+      "stateMutability": "view",
+      "group": "admin",
+      "returns": { "_0": { "label": "factory", "type": "address" } }
+    }
+  },
+  "events": {
+    "ArtificialCreated": {
+      "title": "Artificial Created",
+      "description": "Emitted when the piece is created, recording its owner and seed.",
+      "params": {
+        "creator": { "label": "creator", "type": "address" },
+        "seed": { "label": "seed" }
+      }
+    },
+    "OwnershipTransferred": {
+      "title": "Ownership Transferred",
+      "description": "Emitted when ownership of the artwork changes.",
+      "params": {
+        "oldOwner": { "label": "from", "type": "address" },
+        "newOwner": { "label": "to", "type": "address" }
+      }
+    },
+    "ListedForSale": {
+      "description": "Emitted when the artwork is listed for sale.",
+      "params": {
+        "value": { "label": "price", "type": "eth" },
+        "fromAddress": { "label": "seller", "type": "address" }
+      }
+    },
+    "SaleCanceled": {
+      "description": "Emitted when a sale listing is canceled.",
+      "params": {
+        "fromAddress": { "label": "seller", "type": "address" }
+      }
+    },
+    "SaleCompleted": {
+      "description": "Emitted when the artwork is sold via buyNow.",
+      "params": {
+        "value": { "label": "sale price", "type": "eth" },
+        "fromAddress": { "label": "seller", "type": "address" },
+        "toAddress": { "label": "buyer", "type": "address" }
+      }
+    },
+    "Withdrawn": {
+      "description": "Emitted when an address withdraws ETH owed from a sale.",
+      "params": {
+        "wallet": { "label": "wallet", "type": "address" },
+        "amount": { "label": "amount", "type": "eth" }
+      }
+    }
+  },
+  "errors": {
+    "NotOwner": {
+      "title": "Not Owner",
+      "description": "Only the current owner can perform this action."
+    },
+    "TransferFailed": {
+      "title": "Transfer Failed",
+      "description": "ETH transfer failed. Ensure the recipient address can receive ETH."
+    },
+    "InsufficientFunds": {
+      "title": "Insufficient Funds",
+      "description": "The amount sent does not match the required sale price."
+    },
+    "NotForSale": {
+      "title": "Not for Sale",
+      "description": "The artwork is not currently listed for sale."
+    },
+    "NullAddress": {
+      "title": "Null Address",
+      "description": "Cannot transfer ownership to the zero address."
+    }
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0xa7a3022249415e25752c4cf8696c2418defdf2db",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-27T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Artificial After All",
+  "symbol": "AAA",
+  "description": "The sold-out factory that created 256 Artificial pieces, each a sovereign onchain generative artwork contract.",
+  "about": "## About\n\nArtificial After All (2026) is the factory contract by Han that created the Artificial series. Each mint deployed a new, fully independent `Artificial` contract — one of 256 sovereign pieces, each holding a compressed neural network, an inference engine, and its own built-in marketplace onchain (see 0xbdf5a7f5e5ae18ee580139297c63a89fc1d18b5f for one piece).\n\n## Minting\n\nThe 256-piece edition is sold out, so `createArtificial()` now reverts with `SoldOut`. The first 64 pieces were reserved for the artist and minted for free; the remaining pieces minted for a fixed 0.128 ETH each. On each mint the factory derived a seed from the block randomness, the minter, and the count, deployed a new `Artificial` contract owned by the minter, and recorded it in the `isArtificial` registry. Collected mint proceeds can be swept by the artist via `collect()`.",
+  "risks": [
+    "No upgradeability — contract logic is permanent and cannot be patched",
+    "The artist alone can call collect(), which sweeps the entire ETH balance to the artist"
+  ],
+  "category": "nft",
+  "tags": ["art", "generative", "onchain", "neural-network", "ai", "factory"],
+  "links": [
+    {
+      "label": "Etherscan",
+      "url": "https://etherscan.io/address/0xa7a3022249415e25752c4cf8696c2418defdf2db"
+    },
+    {
+      "label": "Example piece (Artificial)",
+      "url": "https://etherscan.io/address/0xbdf5a7f5e5ae18ee580139297c63a89fc1d18b5f"
+    },
+    { "label": "Artist", "url": "https://han.io" },
+    { "label": "X (Twitter)", "url": "https://x.com/hanrgb" }
+  ],
+  "groups": {
+    "collection": { "label": "Collection", "order": 1 },
+    "mint": { "label": "Mint", "order": 2 },
+    "admin": { "label": "Admin", "order": 3 }
+  },
+  "actions": {
+    "name": {
+      "order": 0,
+      "title": "Name",
+      "description": "The name of the collection (Artificial After All).",
+      "stateMutability": "pure",
+      "group": "collection"
+    },
+    "symbol": {
+      "order": 1,
+      "title": "Symbol",
+      "description": "The collection symbol (AAA).",
+      "stateMutability": "pure",
+      "group": "collection"
+    },
+    "thisMany": {
+      "title": "Edition Size",
+      "description": "The total number of Artificial pieces that can ever be minted (256).",
+      "stateMutability": "view",
+      "group": "collection",
+      "returns": { "_0": { "label": "total" } }
+    },
+    "thisMuch": {
+      "title": "Mint Price",
+      "description": "The historical fixed mint price charged after the artist reserve was exhausted.",
+      "stateMutability": "view",
+      "group": "collection",
+      "returns": { "_0": { "label": "price", "type": "eth" } }
+    },
+    "thisForArtist": {
+      "title": "Artist Reserve",
+      "description": "The number of pieces originally reserved for the artist to mint for free (64).",
+      "stateMutability": "view",
+      "group": "collection",
+      "returns": { "_0": { "label": "reserved" } }
+    },
+    "isArtificial": {
+      "title": "Is Artificial Piece",
+      "description": "Check whether an address is a piece deployed by this factory.",
+      "stateMutability": "view",
+      "group": "collection",
+      "params": {
+        "_0": { "label": "address", "type": "address" }
+      },
+      "returns": {
+        "_0": { "label": "is piece", "type": "boolean" }
+      }
+    },
+    "createArtificial": {
+      "title": "Mint Piece (Sold Out)",
+      "description": "Originally minted new Artificial pieces; all 256 now exist, so this function reverts with SoldOut.",
+      "intent": "Mint an Artificial piece",
+      "group": "mint",
+      "warning": "The collection is sold out. This action always reverts with SoldOut.",
+      "deprecated": "All 256 Artificial pieces have been created. This function will revert with SoldOut.",
+      "related": ["thisMuch", "thisMany"]
+    },
+    "artist": {
+      "title": "Artist",
+      "description": "The artist address that deployed the factory and receives mint proceeds.",
+      "stateMutability": "view",
+      "group": "admin",
+      "returns": { "_0": { "label": "artist", "type": "address" } }
+    },
+    "collect": {
+      "title": "Collect Proceeds",
+      "description": "Sweep the entire ETH balance of the factory to the artist. Only the artist can call this.",
+      "group": "admin",
+      "related": ["artist"]
+    }
+  },
+  "events": {
+    "Created": {
+      "title": "Piece Created",
+      "description": "Emitted when a new Artificial piece is minted, recording its address, minter, and seed.",
+      "params": {
+        "artpiece": { "label": "piece", "type": "address" },
+        "minter": { "label": "minter", "type": "address" },
+        "seed": { "label": "seed" }
+      }
+    }
+  },
+  "errors": {
+    "NotArtist": {
+      "title": "Not Artist",
+      "description": "Only the artist can perform this action."
+    },
+    "SoldOut": {
+      "title": "Sold Out",
+      "description": "All 256 pieces have already been minted."
+    },
+    "WrongAmount": {
+      "title": "Wrong Amount",
+      "description": "The ETH amount sent does not match the required mint price."
+    },
+    "TransferFailed": {
+      "title": "Transfer Failed",
+      "description": "ETH transfer failed. Ensure the recipient address can receive ETH."
+    }
+  }
+}

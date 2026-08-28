@@ -94,7 +94,7 @@
       "items": {
         "$ref": "#/$defs/Link"
       },
-      "description": "External links (website, documentation, block explorer, etc.)."
+      "description": "External project links (website, documentation, community, etc.)."
     },
     "risks": {
       "type": "array",

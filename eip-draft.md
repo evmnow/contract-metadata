@@ -86,7 +86,7 @@ The following fields provide context about the contract itself. The fields `name
 | `about`          | `string` | OPTIONAL | Long-form context, history, and explanations in Markdown                 |
 | `category`       | `string` | OPTIONAL | Primary category (token, nft, defi, governance, bridge, etc.)            |
 | `tags`           | `array`  | OPTIONAL | Free-form tags for search and categorization                             |
-| `links`          | `array`  | OPTIONAL | External links (website, documentation, block explorer, etc.)            |
+| `links`          | `array`  | OPTIONAL | External project links (website, documentation, community, etc.)        |
 | `risks`          | `array`  | OPTIONAL | Known risks or caveats users should be aware of                          |
 | `audits`         | `array`  | OPTIONAL | Security audit references                                                |
 | `theme`          | `object` | OPTIONAL | Visual theme for UI rendering                                            |

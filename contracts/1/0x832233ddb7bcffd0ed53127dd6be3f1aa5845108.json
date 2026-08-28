@@ -1,0 +1,341 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "includes": ["interface:erc721", "interface:erc721-metadata"],
+  "name": "Slonks",
+  "symbol": "SLONKS",
+  "description": "A 10,000-piece ERC-721 collection of CryptoPunks reconstructed on-chain by a neural model and rendered live.",
+  "about": "## About Slonks\n\nSlonks are on-chain neural reconstructions of CryptoPunks. A compact image model, trained on the full CryptoPunks set and stored on-chain, regenerates each 24x24 image directly from the contract — no image files are uploaded. The pixels where the model disagrees with the original punk are the artwork; that divergence is measured as a token's \"slop\" (0 to 576, the pixel count of the canvas). \"Slop is the art.\"\n\n## System of contracts\n\nThis contract is a SeaDrop-compatible ERC-721A shell holding ownership, minting, transfer, and the reveal that maps each token to its CryptoPunks source id. It delegates all metadata and imagery to an updatable renderer:\n\n- **SlonksRenderer** (`0x726383bd28fa1f95a7e3d300babf08f6444d0437`) assembles `tokenURI`, imagery, and attributes.\n- **SlonksImageModel** (`0xca116243a2013ed33015c776ee37310b199ee80c`) is the on-chain neural network.\n- **SlonksPixelCanvas** (`0x690d67bb6042c778c06ec9ba182a3032247893d4`) is an optional paint layer.\n- **SlopGameV2** (`0x76c61b6140600429f50de5ac987e41672047cc28`) runs the void / $SLOP game and active embedding state, and is an authorized metadata updater on this contract.\n- **SlonksMergeManager** (`0x7bda4820dbcfe471a2e23d3fa069c1cd261401e1`) records merges.\n\nMax supply is permanently fixed at 10,000, minting started at token id 0, and all 10,000 tokens have been minted. Burns reduce live `totalSupply` but do not reopen mint capacity.\n\n## Reveal\n\nThe one-time reveal has been finalized. Its seed permanently fixes the mapping from each token to its CryptoPunks source id; the reveal cannot be committed or finalized again.",
+  "category": "nft",
+  "tags": ["art", "onchain", "neural", "ai", "cryptopunks", "pixel-art", "generative", "seadrop", "erc721a"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" },
+    { "label": "Website", "url": "https://www.slonks.art/" },
+    { "label": "OpenSea", "url": "https://opensea.io/collection/slonks" },
+    { "label": "X (Twitter)", "url": "https://x.com/michaelhirsch" },
+    { "label": "Community", "url": "https://howdy.chat/c/slonks" },
+    { "label": "Studio", "url": "https://blockhash.xyz/" }
+  ],
+  "risks": [
+    "Swappable renderer — the owner can change the renderer, altering all displayed art and metadata",
+    "The owner can authorize arbitrary metadata-updater contracts that trigger ERC-4906 refreshes"
+  ],
+  "groups": {
+    "info": { "label": "Collection Info", "order": 1 },
+    "art": { "label": "Artwork", "order": 2 },
+    "reveal": { "label": "Reveal", "order": 3 },
+    "admin": { "label": "Admin", "order": 4 }
+  },
+  "actions": {
+    "totalSupply": {
+      "title": "Total Supply",
+      "description": "The number of Slonks currently in existence (minted minus burned).",
+      "stateMutability": "view",
+      "group": "info"
+    },
+    "MAX_SUPPLY": {
+      "title": "Max Supply",
+      "description": "The permanent maximum supply of 10,000 Slonks; this value can never change.",
+      "stateMutability": "view",
+      "group": "info"
+    },
+    "slonksRenderer": {
+      "title": "Renderer",
+      "description": "The renderer contract that produces metadata and imagery for every token.",
+      "stateMutability": "view",
+      "group": "info",
+      "returns": { "_0": { "type": "address" } },
+      "related": ["setSlonksRenderer"]
+    },
+    "remainingSourceIds": {
+      "title": "Remaining Source IDs",
+      "description": "How many source ids are still unassigned in the mint-time shuffle pool.",
+      "stateMutability": "view",
+      "group": "info"
+    },
+    "royaltyInfo": {
+      "title": "Royalty Info",
+      "description": "The ERC-2981 receiver and royalty amount, using the same currency units as the supplied sale price.",
+      "stateMutability": "view",
+      "group": "info",
+      "params": {
+        "_0": { "label": "token ID", "type": "token-id" },
+        "_1": { "label": "sale price (currency units)" }
+      },
+      "returns": {
+        "_0": { "label": "receiver", "type": "address" },
+        "_1": { "label": "royalty amount (same units)" }
+      }
+    },
+    "sourceIdFor": {
+      "title": "Source Punk ID",
+      "description": "The CryptoPunks source id a token reconstructs, available only after reveal.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } },
+      "returns": { "_0": { "label": "source id" } },
+      "related": ["revealed", "baseSourceIdFor"]
+    },
+    "baseSourceIdFor": {
+      "title": "Base Source ID",
+      "description": "The pre-shuffle base source id assigned to a token at mint time.",
+      "stateMutability": "view",
+      "group": "art",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } },
+      "returns": { "_0": { "label": "base source id" } },
+      "related": ["sourceIdFor"]
+    },
+    "revealed": {
+      "title": "Revealed",
+      "description": "Whether the one-time source-punk shuffle has been finalized.",
+      "stateMutability": "view",
+      "group": "reveal",
+      "returns": { "_0": { "label": "revealed", "type": "boolean" } },
+      "related": ["commitReveal", "finalizeReveal"]
+    },
+    "revealSeed": {
+      "title": "Reveal Seed",
+      "description": "The seed derived from the committed block hash that fixes the shuffle.",
+      "stateMutability": "view",
+      "group": "reveal"
+    },
+    "revealBlockNumber": {
+      "title": "Reveal Block",
+      "description": "The committed future block whose hash will seed the reveal.",
+      "stateMutability": "view",
+      "group": "reveal",
+      "returns": { "_0": { "type": "blocknumber" } }
+    },
+    "shuffleOffset": {
+      "title": "Shuffle Offset",
+      "description": "The global offset applied to map base source ids to final source punk ids.",
+      "stateMutability": "view",
+      "group": "reveal"
+    },
+    "commitReveal": {
+      "title": "Commit Reveal",
+      "description": "The one-time reveal is already finalized, so this call reverts.",
+      "group": "reveal",
+      "hidden": true,
+      "deprecated": "Unavailable: the collection has already been revealed.",
+      "returns": { "_0": { "label": "target block", "type": "blocknumber" } },
+      "related": ["finalizeReveal", "revealed"]
+    },
+    "finalizeReveal": {
+      "title": "Finalize Reveal",
+      "description": "The one-time reveal is already finalized, so this call reverts.",
+      "group": "reveal",
+      "hidden": true,
+      "deprecated": "Unavailable: the collection has already been revealed.",
+      "related": ["commitReveal", "revealed"]
+    },
+    "burn": {
+      "title": "Burn",
+      "description": "Permanently destroy a token you own or are approved for.",
+      "group": "admin",
+      "intent": "Burn token #{_0}",
+      "warning": "Burning is irreversible and permanently removes the token.",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } }
+    },
+    "setSlonksRenderer": {
+      "title": "Set Renderer",
+      "description": "Point the collection at a new renderer contract. Only the owner can call this.",
+      "group": "admin",
+      "intent": "Set renderer to {_0}",
+      "warning": "Changes the art and metadata shown for every token in the collection.",
+      "params": { "_0": { "label": "renderer", "type": "address" } },
+      "related": ["slonksRenderer"]
+    },
+    "setMetadataUpdater": {
+      "title": "Set Metadata Updater",
+      "description": "Authorize or revoke a contract allowed to emit ERC-4906 metadata updates. Only the owner can call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "updater", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      },
+      "related": ["metadataUpdaters"]
+    },
+    "metadataUpdaters": {
+      "title": "Is Metadata Updater",
+      "description": "Check whether an address is authorized to emit metadata updates.",
+      "stateMutability": "view",
+      "group": "admin",
+      "params": { "_0": { "label": "address", "type": "address" } },
+      "returns": { "_0": { "label": "authorized", "type": "boolean" } },
+      "related": ["setMetadataUpdater"]
+    },
+    "emitMetadataUpdate": {
+      "title": "Emit Metadata Update",
+      "description": "Signal an ERC-4906 refresh for one token. Only the owner or an authorized updater can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } },
+      "related": ["emitAllMetadataUpdate"]
+    },
+    "emitAllMetadataUpdate": {
+      "title": "Emit All Metadata Updates",
+      "description": "Signal an ERC-4906 refresh for every minted token. Only the owner or an authorized updater can call this.",
+      "group": "admin",
+      "related": ["emitMetadataUpdate"]
+    },
+    "setMaxSupply": {
+      "title": "Set Max Supply",
+      "description": "SeaDrop hook that only accepts 10,000; the supply is permanently immutable.",
+      "group": "admin",
+      "params": { "_0": { "label": "new max supply" } }
+    },
+    "setBaseURI": {
+      "title": "Set Base URI",
+      "description": "Set the base URI stored on the contract. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "base URI" } }
+    },
+    "setProvenanceHash": {
+      "title": "Set Provenance Hash",
+      "description": "Minting has already started, so the provenance hash can no longer be changed.",
+      "group": "admin",
+      "hidden": true,
+      "deprecated": "Unavailable: provenance is frozen after the first mint.",
+      "params": { "_0": { "label": "provenance hash" } }
+    },
+    "setRoyaltyInfo": {
+      "title": "Set Royalty Info",
+      "description": "Update the ERC-2981 royalty receiver and basis points. Only the owner can call this.",
+      "group": "admin",
+      "related": ["royaltyInfo"]
+    },
+    "mintSeaDrop": {
+      "title": "Mint (SeaDrop)",
+      "description": "All 10,000 tokens have already been minted, so further SeaDrop mints revert.",
+      "group": "admin",
+      "hidden": true,
+      "deprecated": "Unavailable: lifetime mint supply is exhausted.",
+      "params": {
+        "_0": { "label": "recipient", "type": "address" },
+        "_1": { "label": "quantity" }
+      }
+    },
+    "multiConfigure": {
+      "title": "Configure Drop",
+      "description": "Batch-configure SeaDrop drop parameters in one call. Only the owner can call this.",
+      "group": "admin"
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Begin a two-step transfer of contract ownership. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "new owner", "type": "address" } },
+      "related": ["acceptOwnership"]
+    },
+    "acceptOwnership": {
+      "title": "Accept Ownership",
+      "description": "Complete a two-step ownership transfer. Only the pending owner can call this.",
+      "group": "admin",
+      "related": ["transferOwnership"]
+    }
+  },
+  "events": {
+    "RevealCommitted": {
+      "title": "Reveal Committed",
+      "description": "Emitted when a future block is committed for the reveal.",
+      "params": { "_0": { "label": "target block", "type": "blocknumber" } }
+    },
+    "Revealed": {
+      "title": "Revealed",
+      "description": "Emitted when the reveal is finalized and the source-punk shuffle is fixed.",
+      "params": {
+        "_0": { "label": "seed" },
+        "_1": { "label": "offset" }
+      }
+    },
+    "SlonksRendererUpdated": {
+      "title": "Renderer Updated",
+      "description": "Emitted when the renderer contract is changed.",
+      "params": { "_0": { "label": "renderer", "type": "address" } }
+    },
+    "MetadataUpdaterUpdated": {
+      "title": "Metadata Updater Updated",
+      "description": "Emitted when a metadata updater is authorized or revoked.",
+      "params": {
+        "_0": { "label": "updater", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      }
+    },
+    "MetadataUpdate": {
+      "title": "Metadata Update",
+      "description": "ERC-4906 event signaling that one token's metadata changed.",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } }
+    },
+    "BatchMetadataUpdate": {
+      "title": "Batch Metadata Update",
+      "description": "ERC-4906 event signaling that a range of tokens' metadata changed.",
+      "params": {
+        "_0": { "label": "from token ID", "type": "token-id" },
+        "_1": { "label": "to token ID", "type": "token-id" }
+      }
+    }
+  },
+  "errors": {
+    "InvalidSlonkId": {
+      "title": "Invalid Slonk ID",
+      "description": "The token id is out of range or does not exist.",
+      "params": { "_0": { "label": "token ID", "type": "token-id" } }
+    },
+    "SlonksRendererNotSet": {
+      "title": "Renderer Not Set",
+      "description": "No renderer is configured, so metadata cannot be produced."
+    },
+    "NotRevealed": {
+      "title": "Not Revealed",
+      "description": "The source-punk shuffle has not been revealed yet."
+    },
+    "AlreadyRevealed": {
+      "title": "Already Revealed",
+      "description": "The reveal has already been finalized and cannot be repeated."
+    },
+    "RevealNotCommitted": {
+      "title": "Reveal Not Committed",
+      "description": "No reveal block has been committed yet."
+    },
+    "RevealAlreadyCommitted": {
+      "title": "Reveal Already Committed",
+      "description": "A reveal block is already committed and still usable.",
+      "params": { "_0": { "label": "target block", "type": "blocknumber" } }
+    },
+    "RevealBlockNotReady": {
+      "title": "Reveal Block Not Ready",
+      "description": "The committed block has not been mined yet.",
+      "params": { "_0": { "label": "target block", "type": "blocknumber" } }
+    },
+    "RevealBlockHashExpired": {
+      "title": "Reveal Block Hash Expired",
+      "description": "The committed block hash is older than 256 blocks and can no longer be used.",
+      "params": { "_0": { "label": "target block", "type": "blocknumber" } }
+    },
+    "RevealBlockHashUnavailable": {
+      "title": "Reveal Block Hash Unavailable",
+      "description": "The committed block hash is not available from the chain.",
+      "params": { "_0": { "label": "target block", "type": "blocknumber" } }
+    },
+    "MaxSupplyImmutable": {
+      "title": "Max Supply Immutable",
+      "description": "The max supply is permanently 10,000 and cannot be changed.",
+      "params": { "_0": { "label": "attempted value" } }
+    },
+    "NotMetadataUpdater": {
+      "title": "Not Metadata Updater",
+      "description": "The caller is not authorized to emit metadata updates.",
+      "params": { "_0": { "label": "caller", "type": "address" } }
+    },
+    "ZeroAddress": {
+      "title": "Zero Address",
+      "description": "A required address argument was the zero address."
+    }
+  }
+}

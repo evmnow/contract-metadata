@@ -1,0 +1,178 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x76c61b6140600429f50de5ac987e41672047cc28",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Slonks Slop Game",
+  "description": "The void and $SLOP game for Slonks: it locks tokens for claims, computes slop, and holds voided Slonks.",
+  "about": "## Role in the Slonks system\n\nThis contract (SlopGameV2) is the hub of the Slonks game economy. It computes each token's slop (the pixel divergence from the original punk, 0 to 576), lets holders lock Slonks before a successful proof moves them into the void and mints the **$SLOP** token (`0x999b49c0d1612e619a4a4f6280733184da025108`), and exposes the active merge and embedding state that the **SlonksRenderer** (`0x726383bd28fa1f95a7e3d300babf08f6444d0437`) reads.\n\nIt is an authorized metadata updater on the **Slonks** NFT (`0x832233ddb7bcffd0ed53127dd6be3f1aa5845108`), so it can trigger ERC-4906 refreshes when state changes. It is wired to the live **SlonksMergeManager** (`0x7bda4820dbcfe471a2e23d3fa069c1cd261401e1`).\n\n## Slop claim verification\n\nThe on-chain model-output verifier for `claimSlop` is currently a stub, `RejectingSlopVerifier` (`0x5e054061de6d79b7f52f6c23a55787a39f0169ce`), which rejects proofs; verification is not yet live. The owner can replace it via `setModelOutputVerifier`.",
+  "category": "game",
+  "tags": ["game", "void", "slop", "onchain", "slonks"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0x76c61b6140600429f50de5ac987e41672047cc28" },
+    { "label": "Website", "url": "https://www.slonks.art/" },
+    { "label": "Community", "url": "https://howdy.chat/c/slonks" }
+  ],
+  "risks": [
+    "The owner can change the model-output verifier, game extensions, and protocol voiders",
+    "The claimSlop verifier is currently a stub that rejects all proofs"
+  ],
+  "groups": {
+    "void": { "label": "Void & Slop", "order": 1 },
+    "state": { "label": "State", "order": 2 },
+    "admin": { "label": "Admin", "order": 3 }
+  },
+  "actions": {
+    "slop": {
+      "title": "Slop",
+      "description": "The pixel divergence of a token from its original punk, from 0 to 576.",
+      "stateMutability": "view",
+      "group": "void",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "returns": { "_0": { "label": "slop" } }
+    },
+    "isInVoid": {
+      "title": "Is In Void",
+      "description": "Whether a token is currently locked in the void.",
+      "stateMutability": "view",
+      "group": "void",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "returns": { "_0": { "label": "in void", "type": "boolean" } }
+    },
+    "voidedCount": {
+      "title": "Voided Count",
+      "description": "How many Slonks are currently in the void.",
+      "stateMutability": "view",
+      "group": "void"
+    },
+    "buyAndVoidSlonk": {
+      "title": "Buy and Void",
+      "description": "Spend accrued protocol ETH through a marketplace or router to buy a Slonk and place it in the void.",
+      "group": "void",
+      "warning": "Uses protocol funds and caller-supplied purchase calldata. The caller sends no ETH, and no $SLOP is minted.",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "marketplace or router", "type": "address" },
+        "_2": { "label": "ETH to send", "type": "eth" },
+        "_3": { "label": "purchase calldata" }
+      },
+      "related": ["isInVoid", "slopToken"]
+    },
+    "claimSlop": {
+      "title": "Claim Slop",
+      "description": "Submit a model-output proof for a locked Slonk, moving it into the void and minting $SLOP if valid.",
+      "group": "void",
+      "hidden": true,
+      "deprecated": "Unavailable: the currently configured verifier rejects every proof.",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "proof" },
+        "_2": { "label": "public inputs" }
+      },
+      "related": ["slopToken", "isSlopClaimPending"]
+    },
+    "isSlopClaimPending": {
+      "title": "Is Slop Claim Pending",
+      "description": "Whether a Slonk is locked in game custody and still awaits a successful claim proof.",
+      "stateMutability": "view",
+      "group": "void",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "returns": { "_0": { "label": "pending", "type": "boolean" } },
+      "related": ["claimSlop"]
+    },
+    "lockSlonk": {
+      "title": "Lock Slonk",
+      "description": "Transfer one of your Slonks into game custody while awaiting a model-output claim proof.",
+      "group": "void",
+      "warning": "The token can be unlocked only before a claim succeeds and moves it into the void.",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "related": ["unlockSlonk"]
+    },
+    "unlockSlonk": {
+      "title": "Unlock Slonk",
+      "description": "Unlock one of your previously locked Slonks.",
+      "group": "void",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "related": ["lockSlonk"]
+    },
+    "slopToken": {
+      "title": "Slop Token",
+      "description": "The $SLOP ERC-20 token minted by voiding Slonks.",
+      "stateMutability": "view",
+      "group": "state",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "mergeState": {
+      "title": "Merge Manager",
+      "description": "The live merge manager that records Slonk merges.",
+      "stateMutability": "view",
+      "group": "state",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "imageModel": {
+      "title": "Image Model",
+      "description": "The on-chain neural image model referenced by the game.",
+      "stateMutability": "view",
+      "group": "state",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "slonks": {
+      "title": "Slonks NFT",
+      "description": "The Slonks NFT contract this game operates on.",
+      "stateMutability": "view",
+      "group": "state",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "modelOutputVerifier": {
+      "title": "Model Output Verifier",
+      "description": "The contract that verifies model-output proofs for claimSlop.",
+      "stateMutability": "view",
+      "group": "state",
+      "returns": { "_0": { "type": "address" } },
+      "related": ["setModelOutputVerifier"]
+    },
+    "hasActiveEmbedding": {
+      "title": "Has Active Embedding",
+      "description": "Whether a token currently has an active merge embedding used for rendering.",
+      "stateMutability": "view",
+      "group": "state",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "returns": { "_0": { "label": "has embedding", "type": "boolean" } }
+    },
+    "setModelOutputVerifier": {
+      "title": "Set Model Output Verifier",
+      "description": "Set the model-output proof verifier used by claimSlop. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "verifier", "type": "address" } },
+      "related": ["modelOutputVerifier"]
+    },
+    "setGameExtension": {
+      "title": "Set Game Extension",
+      "description": "Authorize or revoke a game-extension contract. Only the owner can call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "extension", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      }
+    },
+    "setProtocolVoider": {
+      "title": "Set Protocol Voider",
+      "description": "Authorize or revoke an address that can void on behalf of the protocol. Only the owner can call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "voider", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      }
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer ownership of the game contract. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "new owner", "type": "address" } }
+    }
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x999b49c0d1612e619a4a4f6280733184da025108",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "includes": ["interface:erc20"],
+  "name": "SLOP",
+  "symbol": "SLOP",
+  "description": "The $SLOP ERC-20 token, minted after a valid proof moves a locked Slonk into the void.",
+  "about": "## About $SLOP\n\n$SLOP is the ERC-20 token of the Slonks ecosystem. It has 18 decimals and supports EIP-2612 permit. It is minted by authorized minters — primarily **SlopGameV2** (`0x76c61b6140600429f50de5ac987e41672047cc28`), the void game — after a valid proof moves a holder's locked Slonk into the void, with the amount driven by that token's slop. It relates to the **Slonks** NFT (`0x832233ddb7bcffd0ed53127dd6be3f1aa5845108`).\n\nMinting is capped by a maximum supply, and the one-time launch inventory has already been minted. Authorized minters can also burn balances as part of Slonks game mechanics, so circulating and total supply change over time.",
+  "category": "token",
+  "tags": ["token", "erc20", "slop", "slonks"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0x999b49c0d1612e619a4a4f6280733184da025108" },
+    { "label": "Website", "url": "https://www.slonks.art/" }
+  ],
+  "risks": [
+    "The owner can authorize minters that may mint up to the supply cap and burn tokens from any specified holder without allowance"
+  ],
+  "groups": {
+    "supply": { "label": "Supply", "order": 1 },
+    "admin": { "label": "Admin", "order": 2 }
+  },
+  "actions": {
+    "MAX_SUPPLY": {
+      "title": "Max Supply",
+      "description": "The maximum amount of $SLOP that can ever exist.",
+      "stateMutability": "view",
+      "group": "supply",
+      "returns": { "_0": { "label": "max supply", "type": "token-amount" } }
+    },
+    "LAUNCH_SUPPLY": {
+      "title": "Launch Supply",
+      "description": "The size of the one-time launch inventory allocation.",
+      "stateMutability": "view",
+      "group": "supply",
+      "returns": { "_0": { "label": "launch supply", "type": "token-amount" } }
+    },
+    "launchInventoryMinted": {
+      "title": "Launch Inventory Minted",
+      "description": "Whether the one-time launch inventory has already been minted.",
+      "stateMutability": "view",
+      "group": "supply",
+      "returns": { "_0": { "label": "minted", "type": "boolean" } },
+      "related": ["mintLaunchInventory"]
+    },
+    "minters": {
+      "title": "Is Minter",
+      "description": "Whether an address is authorized to mint and burn $SLOP.",
+      "stateMutability": "view",
+      "group": "supply",
+      "params": { "_0": { "label": "address", "type": "address" } },
+      "returns": { "_0": { "label": "authorized", "type": "boolean" } },
+      "related": ["setMinter"]
+    },
+    "mint": {
+      "title": "Mint",
+      "description": "Mint $SLOP to an address. Only an authorized minter can call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "recipient", "type": "address" },
+        "_1": { "label": "amount", "type": "token-amount" }
+      }
+    },
+    "burn": {
+      "title": "Burn",
+      "description": "Burn $SLOP from an address. Only an authorized minter can call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "from", "type": "address" },
+        "_1": { "label": "amount", "type": "token-amount" }
+      }
+    },
+    "mintLaunchInventory": {
+      "title": "Mint Launch Inventory",
+      "description": "The one-time launch inventory has already been minted, so this call reverts.",
+      "group": "admin",
+      "hidden": true,
+      "deprecated": "Unavailable: the launch inventory was already minted.",
+      "params": { "_0": { "label": "recipient", "type": "address" } },
+      "related": ["launchInventoryMinted"]
+    },
+    "setMinter": {
+      "title": "Set Minter",
+      "description": "Authorize or revoke an address as a minter. Only the owner can call this.",
+      "group": "admin",
+      "params": {
+        "_0": { "label": "minter", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      },
+      "related": ["minters"]
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer ownership of the token contract. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "new owner", "type": "address" } }
+    }
+  },
+  "events": {
+    "MinterUpdated": {
+      "title": "Minter Updated",
+      "description": "Emitted when a minter is authorized or revoked.",
+      "params": {
+        "_0": { "label": "minter", "type": "address" },
+        "_1": { "label": "allowed", "type": "boolean" }
+      }
+    },
+    "LaunchInventoryMinted": {
+      "title": "Launch Inventory Minted",
+      "description": "Emitted when the one-time launch inventory is minted.",
+      "params": {
+        "_0": { "label": "recipient", "type": "address" },
+        "_1": { "label": "amount", "type": "token-amount" }
+      }
+    }
+  },
+  "errors": {
+    "NotMinter": {
+      "title": "Not Minter",
+      "description": "The caller is not an authorized minter."
+    },
+    "MaxSupplyExceeded": {
+      "title": "Max Supply Exceeded",
+      "description": "The mint would push total supply above the maximum."
+    },
+    "LaunchInventoryAlreadyMinted": {
+      "title": "Launch Inventory Already Minted",
+      "description": "The one-time launch inventory has already been minted."
+    },
+    "InsufficientBalance": {
+      "title": "Insufficient Balance",
+      "description": "The account does not have enough $SLOP for this operation."
+    },
+    "InsufficientAllowance": {
+      "title": "Insufficient Allowance",
+      "description": "The spender is not approved for this amount."
+    },
+    "PermitExpired": {
+      "title": "Permit Expired",
+      "description": "The permit deadline has passed."
+    },
+    "InvalidPermit": {
+      "title": "Invalid Permit",
+      "description": "The permit signature is invalid."
+    }
+  }
+}

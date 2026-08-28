@@ -1,0 +1,110 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0xca116243a2013ed33015c776ee37310b199ee80c",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Slonks Image Model",
+  "description": "The on-chain neural network for Slonks: it regenerates each 24x24 image from stored weights, pixel by pixel.",
+  "about": "## Role in the Slonks system\n\nThis contract holds the weights of a compact image model, trained on the full CryptoPunks set and stored fully on-chain, that reconstructs each Slonk image. It is read by the **SlonksRenderer** (`0x726383bd28fa1f95a7e3d300babf08f6444d0437`) which serves the **Slonks** NFT (`0x832233ddb7bcffd0ed53127dd6be3f1aa5845108`).\n\nThe owner permanently locked this deployment after supplying its weight pointers and configuration. The weights and model configuration can no longer be changed.",
+  "category": "utility",
+  "tags": ["neural", "onchain", "model", "cryptopunks", "slonks"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0xca116243a2013ed33015c776ee37310b199ee80c" },
+    { "label": "Website", "url": "https://www.slonks.art/" }
+  ],
+  "risks": [
+    "The model is permanently locked, so any defect in its weights or configuration cannot be corrected"
+  ],
+  "groups": {
+    "inference": { "label": "Inference", "order": 1 },
+    "admin": { "label": "Admin", "order": 2 }
+  },
+  "actions": {
+    "renderSourcePixels": {
+      "title": "Render Source Pixels",
+      "description": "Run the model for a CryptoPunks source id and return the generated pixels.",
+      "stateMutability": "view",
+      "group": "inference",
+      "params": { "_0": { "label": "source id" } },
+      "returns": { "_0": { "label": "pixels" } }
+    },
+    "predictSourcePixel": {
+      "title": "Predict Source Pixel",
+      "description": "Return the model's predicted palette index for a single pixel of a source id.",
+      "stateMutability": "view",
+      "group": "inference",
+      "params": {
+        "_0": { "label": "source id" },
+        "_1": { "label": "pixel index" }
+      },
+      "returns": { "_0": { "label": "palette index" } }
+    },
+    "renderEmbeddingPixels": {
+      "title": "Render Embedding Pixels",
+      "description": "Run the model on a raw embedding and return the generated pixels.",
+      "stateMutability": "view",
+      "group": "inference",
+      "params": { "_0": { "label": "embedding" } },
+      "returns": { "_0": { "label": "pixels" } }
+    },
+    "predictEmbeddingPixel": {
+      "title": "Predict Embedding Pixel",
+      "description": "Return the model's predicted palette index for one pixel of a raw embedding.",
+      "stateMutability": "view",
+      "group": "inference",
+      "params": {
+        "_0": { "label": "embedding" },
+        "_1": { "label": "pixel index" }
+      },
+      "returns": { "_0": { "label": "palette index" } }
+    },
+    "modelLocked": {
+      "title": "Model Locked",
+      "description": "Whether the model weights and configuration have been permanently frozen.",
+      "stateMutability": "view",
+      "group": "admin",
+      "returns": { "_0": { "label": "locked", "type": "boolean" } },
+      "related": ["setWeightChunks", "setConfig", "lockModel"]
+    },
+    "setWeightChunks": {
+      "title": "Set Weight Chunks",
+      "description": "Replace the weight pointer contracts. This deployment is already locked, so the call reverts.",
+      "group": "admin",
+      "hidden": true,
+      "deprecated": "Unavailable: the model is permanently locked.",
+      "params": { "_0": { "label": "weight chunks" } },
+      "related": ["lockModel"]
+    },
+    "setConfig": {
+      "title": "Set Config",
+      "description": "Replace the model configuration. This deployment is already locked, so the call reverts.",
+      "group": "admin",
+      "hidden": true,
+      "deprecated": "Unavailable: the model is permanently locked.",
+      "related": ["lockModel"]
+    },
+    "lockModel": {
+      "title": "Lock Model",
+      "description": "Permanently freeze the model. This deployment is already locked, so the call reverts.",
+      "group": "admin",
+      "hidden": true,
+      "deprecated": "Unavailable: the model is already permanently locked."
+    },
+    "setMetadataNotifier": {
+      "title": "Set Metadata Notifier",
+      "description": "Set the contract notified to emit metadata updates on model changes. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "notifier", "type": "address" } }
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer ownership of the model contract. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "new owner", "type": "address" } }
+    }
+  }
+}

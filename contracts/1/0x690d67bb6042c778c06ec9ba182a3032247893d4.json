@@ -1,0 +1,116 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x690d67bb6042c778c06ec9ba182a3032247893d4",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-21T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Slonks Pixel Canvas",
+  "description": "An optional paint layer whose pixels and animation frames are composited over generated Slonks.",
+  "about": "## Role in the Slonks system\n\nThis contract stores a per-token paint layer for Slonks. Token owners or approved operators can paint or clear individual pixels and animation frames; the **SlonksRenderer** (`0x726383bd28fa1f95a7e3d300babf08f6444d0437`) reads this layer and composites it over the model-generated image when serving the **Slonks** NFT (`0x832233ddb7bcffd0ed53127dd6be3f1aa5845108`).\n\nPainting or repainting a pixel burns 1 $SLOP and one Qualia token matching the chosen RGB color. Clearing a pixel burns 1 $SLOP, and duplicating a frame burns 100 $SLOP.",
+  "category": "utility",
+  "tags": ["paint", "canvas", "onchain", "pixel-art", "slonks"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0x690d67bb6042c778c06ec9ba182a3032247893d4" },
+    { "label": "Website", "url": "https://www.slonks.art/" }
+  ],
+  "risks": [
+    "Pixel edits irreversibly burn $SLOP and, when painting, a Qualia color token; frame duplication burns 100 $SLOP",
+    "The owner can replace the renderer used to calculate Qualia harvested when a donor Slonk is merged"
+  ],
+  "groups": {
+    "paint": { "label": "Paint", "order": 1 },
+    "read": { "label": "Read", "order": 2 },
+    "admin": { "label": "Admin", "order": 3 }
+  },
+  "actions": {
+    "paintPixel": {
+      "title": "Paint Pixel",
+      "description": "Paint a single pixel of your token with an RGB color.",
+      "group": "paint",
+      "warning": "Burns 1 $SLOP and one Qualia token matching the selected RGB color.",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "pixel index" },
+        "_2": { "label": "color (RGB)" }
+      },
+      "related": ["clearPixel"]
+    },
+    "clearPixel": {
+      "title": "Clear Pixel",
+      "description": "Remove the paint from a single pixel of your token.",
+      "group": "paint",
+      "warning": "Burns 1 $SLOP. The previously burned Qualia color token is not returned.",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "pixel index" }
+      },
+      "related": ["paintPixel"]
+    },
+    "paintFramePixel": {
+      "title": "Paint Frame Pixel",
+      "description": "Paint a single pixel on a specific animation frame of your token.",
+      "group": "paint",
+      "warning": "Burns 1 $SLOP and one Qualia token matching the selected RGB color.",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "frame index" },
+        "_2": { "label": "pixel index" },
+        "_3": { "label": "color (RGB)" }
+      }
+    },
+    "duplicateFrame": {
+      "title": "Duplicate Frame",
+      "description": "Copy an existing animation frame into a new frame on your token.",
+      "group": "paint",
+      "warning": "Burns 100 $SLOP.",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "source frame index" }
+      },
+      "returns": { "_0": { "label": "new frame index" } }
+    },
+    "paintedPixelCount": {
+      "title": "Painted Pixel Count",
+      "description": "How many pixels are currently painted on a token.",
+      "stateMutability": "view",
+      "group": "read",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "frameCount": {
+      "title": "Frame Count",
+      "description": "How many animation frames a token currently has.",
+      "stateMutability": "view",
+      "group": "read",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "paintedPixel": {
+      "title": "Painted Pixel",
+      "description": "Whether a given pixel is painted and, if so, its color.",
+      "stateMutability": "view",
+      "group": "read",
+      "params": {
+        "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } },
+        "_1": { "label": "pixel index" }
+      },
+      "returns": {
+        "_0": { "label": "painted", "type": "boolean" },
+        "_1": { "label": "color (RGB)" }
+      }
+    },
+    "setRenderer": {
+      "title": "Set Renderer",
+      "description": "Set the renderer used to calculate Qualia harvested after merges. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "renderer", "type": "address" } }
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer ownership of the paint-layer contract. Only the owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "new owner", "type": "address" } }
+    }
+  }
+}

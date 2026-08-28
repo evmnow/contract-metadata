@@ -1,0 +1,178 @@
+{
+  "$schema": "https://evmnow.github.io/contract-metadata/v1/schema.json",
+  "chainId": 1,
+  "address": "0x726383bd28fa1f95a7e3d300babf08f6444d0437",
+  "meta": {
+    "version": 1,
+    "lastUpdated": "2026-08-27T00:00:00Z",
+    "locale": "en"
+  },
+  "name": "Slonks Renderer",
+  "description": "The active renderer for Slonks: it assembles each token's metadata JSON, imagery, diff views, and attributes on-chain.",
+  "about": "## Role in the Slonks system\n\nThis is the renderer currently configured on the **Slonks** NFT (`0x832233ddb7bcffd0ed53127dd6be3f1aa5845108`). The NFT passes it only a token id; this contract owns all rendering context and produces the `tokenURI`.\n\nIt reads the on-chain neural network **SlonksImageModel** (`0xca116243a2013ed33015c776ee37310b199ee80c`) to regenerate each 24x24 image, the canonical CryptoPunksData contract for the original punk, an optional paint layer **SlonksPixelCanvas** (`0x690d67bb6042c778c06ec9ba182a3032247893d4`), and merge/void state from **SlopGameV2** (`0x76c61b6140600429f50de5ac987e41672047cc28`) as its active state. The renderer is swappable by the NFT owner, so a future version can replace it.",
+  "category": "utility",
+  "tags": ["renderer", "onchain", "svg", "slonks"],
+  "links": [
+    { "label": "Etherscan", "url": "https://etherscan.io/address/0x726383bd28fa1f95a7e3d300babf08f6444d0437" },
+    { "label": "Website", "url": "https://www.slonks.art/" },
+    { "label": "Collection", "url": "https://opensea.io/collection/slonks" }
+  ],
+  "risks": [
+    "The renderer owner can repoint the active-state and pixel-canvas sources, changing rendered output"
+  ],
+  "groups": {
+    "render": { "label": "Rendering", "order": 1 },
+    "sources": { "label": "Wired Contracts", "order": 2 },
+    "admin": { "label": "Admin", "order": 3 }
+  },
+  "actions": {
+    "tokenURI": {
+      "title": "Token URI",
+      "description": "Return the full metadata data-URI for a Slonk token.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "render": {
+      "title": "Render Image",
+      "description": "Return the current generated image for a token.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "renderOriginal": {
+      "title": "Render Original",
+      "description": "Return the original CryptoPunks image the token reconstructs.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "renderSlop": {
+      "title": "Render Slop",
+      "description": "Return the slop-mask view highlighting pixels where the current Slonk differs from its original punk.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "related": ["slop"]
+    },
+    "renderPreReveal": {
+      "title": "Render Pre-Reveal",
+      "description": "Return the placeholder image shown before the collection reveal.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "slop": {
+      "title": "Slop Pixel Count",
+      "description": "Return the number of pixels in the current Slonk that differ from the original punk (0 to 576).",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } },
+      "related": ["renderSlop"]
+    },
+    "attributesJSON": {
+      "function": "attributesJSON(uint256)",
+      "title": "Attributes (JSON)",
+      "description": "Return the token's on-chain attributes as a JSON array.",
+      "stateMutability": "view",
+      "group": "render",
+      "params": { "_0": { "label": "token ID", "type": { "type": "token-id", "tokenAddress": "0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" } } }
+    },
+    "slonks": {
+      "title": "Slonks NFT",
+      "description": "The Slonks NFT contract this renderer serves.",
+      "stateMutability": "view",
+      "group": "sources",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "imageModel": {
+      "title": "Image Model",
+      "description": "The on-chain neural image model used to regenerate images.",
+      "stateMutability": "view",
+      "group": "sources",
+      "returns": { "_0": { "type": "address" } }
+    },
+    "activeState": {
+      "title": "Active State",
+      "description": "The contract supplying live merge and void state (SlopGameV2).",
+      "stateMutability": "view",
+      "group": "sources",
+      "returns": { "_0": { "type": "address" } },
+      "related": ["setActiveState"]
+    },
+    "pixelCanvas": {
+      "title": "Pixel Canvas",
+      "description": "The optional paint-layer contract read during rendering.",
+      "stateMutability": "view",
+      "group": "sources",
+      "returns": { "_0": { "type": "address" } },
+      "related": ["setPixelCanvas"]
+    },
+    "setActiveState": {
+      "title": "Set Active State",
+      "description": "Point the renderer at a new active-state contract. Only the renderer owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "active state", "type": "address" } },
+      "related": ["activeState"]
+    },
+    "setPixelCanvas": {
+      "title": "Set Pixel Canvas",
+      "description": "Point the renderer at a new paint-layer contract. Only the renderer owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "pixel canvas", "type": "address" } },
+      "related": ["pixelCanvas"]
+    },
+    "setPreRevealImageUrl": {
+      "title": "Set Pre-Reveal Image",
+      "description": "Set the placeholder image URL used before reveal. Only the renderer owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "image URL" } }
+    },
+    "transferOwnership": {
+      "title": "Transfer Ownership",
+      "description": "Transfer ownership of the renderer. Only the renderer owner can call this.",
+      "group": "admin",
+      "params": { "_0": { "label": "new owner", "type": "address" } }
+    }
+  },
+  "events": {
+    "OwnershipTransferred": {
+      "title": "Ownership Transferred",
+      "description": "Emitted when renderer ownership changes.",
+      "params": {
+        "_0": { "label": "previous owner", "type": "address" },
+        "_1": { "label": "new owner", "type": "address" }
+      }
+    },
+    "ActiveStateUpdated": {
+      "title": "Active State Updated",
+      "description": "Emitted when the active-state source is changed.",
+      "params": { "_0": { "label": "active state", "type": "address" } }
+    },
+    "PixelCanvasUpdated": {
+      "title": "Pixel Canvas Updated",
+      "description": "Emitted when the paint-layer source is changed.",
+      "params": { "_0": { "label": "pixel canvas", "type": "address" } }
+    }
+  },
+  "errors": {
+    "InvalidSlonkId": {
+      "title": "Invalid Slonk ID",
+      "description": "The token or source id is out of range.",
+      "params": { "_0": { "label": "token or source ID" } }
+    },
+    "PreRevealUnavailable": {
+      "title": "Pre-Reveal Unavailable",
+      "description": "Pixel prediction is unavailable before the collection reveal."
+    },
+    "NotRendererOwner": {
+      "title": "Not Renderer Owner",
+      "description": "Only the renderer owner can perform this action.",
+      "params": { "_0": { "label": "caller", "type": "address" } }
+    },
+    "ZeroAddress": {
+      "title": "Zero Address",
+      "description": "A required address argument was the zero address."
+    }
+  }
+}

@@ -12,16 +12,6 @@
   "about": "## Renderer\n\nThis is the metadata renderer for the **Automate Attention** NFT collection (`AutomateAttention`, `0x12fd3db5ae10615873a4eadbe4085d0698965139`). The collection's `tokenURI` delegates here.\n\nGiven a token ID plus its state and wealth traits, `tokenURI`:\n\n1. Generates an aphorism by calling the on-chain LLM **OnChainLMv2** (`0x5f8e7d750e75b44747c058a204d8dea0d18fa5d3`) with a precomputed per-state KV cache.\n2. Generates an SVG by calling **ArtGenerator** (`0xcd84bc27d62e335cea20d1dff70d53f815489e16`).\n3. Assembles a base64 `data:application/json` metadata URI with the text, image, and traits.\n\nText is seeded from the token ID and a fixed salt, so an aphorism is stable for the life of the token; the art seed also mixes in the wealth trait. All functions are read-only.",
   "category": "nft",
   "tags": ["onchain", "renderer", "metadata", "svg", "llm"],
-  "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0x6e8f02f70939ad8fa1497c6b3be5007c9100384e"
-    },
-    {
-      "label": "Collection (Automate Attention)",
-      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
-    }
-  ],
   "actions": {
     "tokenURI": {
       "title": "Token URI",

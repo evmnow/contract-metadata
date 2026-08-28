@@ -13,7 +13,6 @@
   "category": "game",
   "tags": ["game", "void", "slop", "onchain", "slonks"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x76c61b6140600429f50de5ac987e41672047cc28" },
     { "label": "Website", "url": "https://www.slonks.art/" },
     { "label": "Community", "url": "https://howdy.chat/c/slonks" }
   ],

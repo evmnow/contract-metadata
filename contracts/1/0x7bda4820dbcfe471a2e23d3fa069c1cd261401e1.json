@@ -13,7 +13,6 @@
   "category": "utility",
   "tags": ["merge", "onchain", "slop", "slonks"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x7bda4820dbcfe471a2e23d3fa069c1cd261401e1" },
     { "label": "Website", "url": "https://www.slonks.art/" }
   ],
   "risks": [

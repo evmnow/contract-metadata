@@ -15,7 +15,6 @@
   "category": "token",
   "tags": ["token", "erc20", "slop", "slonks"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x999b49c0d1612e619a4a4f6280733184da025108" },
     { "label": "Website", "url": "https://www.slonks.art/" }
   ],
   "risks": [

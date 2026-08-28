@@ -20,14 +20,6 @@
   "category": "nft",
   "tags": ["art", "generative", "onchain", "neural-network", "ai", "edition"],
   "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0xbdf5a7f5e5ae18ee580139297c63a89fc1d18b5f"
-    },
-    {
-      "label": "Factory (Artificial After All)",
-      "url": "https://etherscan.io/address/0xa7a3022249415e25752c4cf8696c2418defdf2db"
-    },
     { "label": "Artist", "url": "https://han.io" },
     { "label": "X (Twitter)", "url": "https://x.com/hanrgb" }
   ],

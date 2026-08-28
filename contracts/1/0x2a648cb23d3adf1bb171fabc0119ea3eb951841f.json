@@ -30,12 +30,6 @@
     "The token images are externally hosted PNGs addressed by IPFS URIs, so display depends on the files remaining available through IPFS",
     "The contract is not upgradeable, so its behavior is fixed permanently"
   ],
-  "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0x2A648cb23D3ADf1BB171Fabc0119eA3eb951841f"
-    }
-  ],
   "theme": {
     "background": "#000000",
     "text": "#ffffff"

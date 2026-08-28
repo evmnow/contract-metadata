@@ -32,12 +32,6 @@
     "svg",
     "dutch-auction"
   ],
-  "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0x4512759606f9E680361DD76C4c17F92031De7AcD"
-    }
-  ],
   "groups": {
     "info": {
       "label": "Collection Info",

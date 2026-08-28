@@ -15,7 +15,6 @@
   "category": "nft",
   "tags": ["art", "onchain", "neural", "ai", "cryptopunks", "pixel-art", "generative", "seadrop", "erc721a"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x832233ddb7bcffd0ed53127dd6be3f1aa5845108" },
     { "label": "Website", "url": "https://www.slonks.art/" },
     { "label": "OpenSea", "url": "https://opensea.io/collection/slonks" },
     { "label": "X (Twitter)", "url": "https://x.com/michaelhirsch" },

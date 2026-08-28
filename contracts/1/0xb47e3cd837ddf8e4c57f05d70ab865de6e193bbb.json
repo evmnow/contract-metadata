@@ -19,10 +19,6 @@
   "category": "nft",
   "tags": ["nft", "collectible", "pfp", "pixel-art", "og"],
   "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB"
-    },
     { "label": "Larva Labs", "url": "https://larvalabs.com/cryptopunks" },
     { "label": "Website", "url": "https://www.cryptopunks.app" }
   ],

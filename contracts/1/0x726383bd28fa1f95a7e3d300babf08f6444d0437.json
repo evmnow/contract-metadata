@@ -13,7 +13,6 @@
   "category": "utility",
   "tags": ["renderer", "onchain", "svg", "slonks"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x726383bd28fa1f95a7e3d300babf08f6444d0437" },
     { "label": "Website", "url": "https://www.slonks.art/" },
     { "label": "Collection", "url": "https://opensea.io/collection/slonks" }
   ],

@@ -13,7 +13,6 @@
   "category": "utility",
   "tags": ["neural", "onchain", "model", "cryptopunks", "slonks"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0xca116243a2013ed33015c776ee37310b199ee80c" },
     { "label": "Website", "url": "https://www.slonks.art/" }
   ],
   "risks": [

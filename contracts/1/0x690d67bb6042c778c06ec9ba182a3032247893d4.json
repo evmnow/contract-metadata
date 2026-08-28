@@ -13,7 +13,6 @@
   "category": "utility",
   "tags": ["paint", "canvas", "onchain", "pixel-art", "slonks"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x690d67bb6042c778c06ec9ba182a3032247893d4" },
     { "label": "Website", "url": "https://www.slonks.art/" }
   ],
   "risks": [

@@ -13,8 +13,6 @@
   "category": "nft",
   "tags": ["renderer", "onchain", "metadata", "scripty", "art", "generative"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x0bdc00fe1d7924dd5893b092b7ed0e3abccecef5" },
-    { "label": "Art Contract (Etherscan)", "url": "https://etherscan.io/address/0xd6d8555e131c0c431601af62141a61a9b1aa6b13" },
     { "label": "Website", "url": "https://felixfelixfelix.com" },
     { "label": "Whitepaper", "url": "https://www.arweave.net/nC4nwFwC4Y2bMi9a31K2Lgm9bS7yES69bHmnRQEb2bs" }
   ],

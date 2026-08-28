@@ -19,12 +19,6 @@
     "The current owner is the Dopamine contract; its public withdrawal flow pulls and splits collected ETH, and its creator can transfer Automate Attention ownership to any nonzero address without a timelock",
     "The wealth trait records the minter's approximate ETH balance at mint time onchain"
   ],
-  "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
-    }
-  ],
   "includes": ["interface:erc721", "interface:erc721-metadata"],
   "groups": {
     "mint": { "label": "Mint", "order": 1 },

@@ -19,10 +19,6 @@
   "category": "nft",
   "tags": ["art", "generative", "onchain", "1-of-1", "webgl", "interactive"],
   "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0xf3e732194ba87d68fd6ec3d5b1bf813599c8406a"
-    },
     { "label": "Artist", "url": "https://han.io" },
     { "label": "X (Twitter)", "url": "https://x.com/hanrgb" }
   ],

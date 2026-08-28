@@ -22,14 +22,6 @@
   ],
   "links": [
     {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0x6901afceb66564a9b6E7193561fB78F0878b5906"
-    },
-    {
-      "label": "Artwork",
-      "url": "https://etherscan.io/address/0x74806BCe19BA454d13595F4313E7d7A7E6a36878"
-    },
-    {
       "label": "ENS",
       "url": "https://app.ens.domains/helloworldcomputer.eth"
     }

@@ -13,10 +13,6 @@
   "category": "nft",
   "tags": ["art", "generative", "onchain", "art-blocks", "engine", "implementation"],
   "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0x00000000559ca3f3f1279c0ec121c302ed010457"
-    },
     { "label": "Art Blocks", "url": "https://www.artblocks.io" }
   ],
   "risks": [

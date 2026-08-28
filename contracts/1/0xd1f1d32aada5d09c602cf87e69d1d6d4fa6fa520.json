@@ -15,16 +15,6 @@
   "risks": [
     "This contract is not verified on Etherscan; its interface is taken from the collection's verified source bundle"
   ],
-  "links": [
-    {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0xd1f1d32aada5d09c602cf87e69d1d6d4fa6fa520"
-    },
-    {
-      "label": "Collection (Automate Attention)",
-      "url": "https://etherscan.io/address/0x12fd3db5ae10615873a4eadbe4085d0698965139"
-    }
-  ],
   "actions": {
     "generate": {
       "title": "Generate",

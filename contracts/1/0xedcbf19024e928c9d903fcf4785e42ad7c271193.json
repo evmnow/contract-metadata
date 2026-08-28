@@ -32,10 +32,6 @@
   ],
   "links": [
     {
-      "label": "Etherscan",
-      "url": "https://etherscan.io/address/0xeDCBf19024e928c9D903fCf4785e42AD7C271193"
-    },
-    {
       "label": "EVM.NOW",
       "url": "https://evm.now"
     },

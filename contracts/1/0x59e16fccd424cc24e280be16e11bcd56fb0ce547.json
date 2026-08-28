@@ -19,7 +19,6 @@
   "category": "identity",
   "tags": ["ens", "identity", "naming", "dns", "infrastructure"],
   "links": [
-    { "label": "Etherscan", "url": "https://etherscan.io/address/0x59E16fcCd424Cc24e280Be16E11Bcd56fb0CE547" },
     { "label": "ENS", "url": "https://ens.domains" },
     { "label": "Documentation", "url": "https://docs.ens.domains" },
     { "label": "ENS App", "url": "https://app.ens.domains" }
